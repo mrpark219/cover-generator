@@ -2,21 +2,17 @@ import type { StudioCopy } from "./types";
 
 export const enUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "Generate Apple Music-style covers locally",
+  pageTitle: "Apple Music-style cover generator",
   pageDescription:
-    "Upload photos, edit the text once, double-click the images you want to batch, then export PNG or ZIP.",
-  steps: [
-    "1 Upload photos",
-    "2 Edit text",
-    "3 Double-click to batch",
-    "4 Download"
-  ],
+    "Upload or paste images, tune text and crop, then export PNG or ZIP.",
+  steps: ["1 Upload", "2 Edit", "3 Batch", "4 Download"],
   language: "Language",
   preview: "Preview",
   noActiveImage: "No active image",
   noPreviewTitle: "No Preview Yet",
   noPreviewDescription: "Upload one or more images to start rendering covers.",
-  selectedCount: (selected, total) => (total > 0 ? `${selected}/${total} selected` : "No upload"),
+  selectedCount: (selected, total) =>
+    total > 0 ? `${selected}/${total} selected` : "No upload",
   selectedGroup: "Selected Group",
   selectedGroupHint: (activeIndex, count) =>
     activeIndex >= 0
@@ -27,20 +23,20 @@ export const enUiText: StudioCopy = {
   next: "Next",
   focusSelectedGroup: "Focus Group",
   selectedGroupFocused: "Group Focused",
-  downloadCurrentPng: "Download Current PNG",
+  downloadCurrentPng: "Save PNG",
   downloadSelectedZip: (count) =>
-    count > 0 ? `Download Selected ZIP (${count})` : "Download Selected ZIP",
+    count > 0 ? `Save ZIP (${count})` : "Save ZIP",
   exportCurrentBusy: "Exporting PNG...",
   exportBatchBusy: (count) =>
     count > 1 ? `Exporting ${count} covers...` : "Exporting selected cover...",
-  settings: "Text & Layout",
+  settings: "Layout",
   settingsDescription:
-    "The active image uses these values. If it is selected, the same settings are shared by the selected group.",
+    "Text and template can be shared. Crop stays per image.",
   fields: {
     header: "Header",
-    title: "Main Title",
+    title: "Title",
     subtitle: "Subtitle",
-    date: "Date Or Meta",
+    date: "Date / Meta",
     footer: "Footer"
   },
   placeholders: {
@@ -67,7 +63,7 @@ export const enUiText: StudioCopy = {
   template: "Template",
   resolution: "Resolution",
   position: "Image Position",
-  positionDescription: "Adjusts the crop for the active image only.",
+  positionDescription: "Crop stays per image.",
   horizontal: "Horizontal",
   vertical: "Vertical",
   resetPosition: "Reset",
@@ -83,9 +79,9 @@ export const enUiText: StudioCopy = {
     upload: "Self Upload",
     url: "Paste URL"
   },
-  imagesTitle: "Bring in photos from your device or paste direct image URLs",
+  imagesTitle: "Upload images or paste URLs",
   imagesDescription:
-    "Click a card to preview it. Double-click a card to include it in the shared batch.",
+    "Click to preview. Double-click to move a card into the shared batch.",
   uploadDropHint: "Drop image files here or choose them from disk.",
   urlTitle: "Paste one or more image URLs",
   urlDescription:
@@ -98,8 +94,7 @@ export const enUiText: StudioCopy = {
   deselectAll: "Deselect All",
   clearAll: "Clear All",
   collection: "Collection",
-  collectionHint:
-    "Blue means active preview. Black means the card is inside the shared batch.",
+  collectionHint: "Click for preview, double-click for batch.",
   uploadedCount: (count) => (count > 0 ? `${count} uploaded` : "Empty"),
   selectedProgress: (activeIndex, count) =>
     activeIndex >= 0 ? `${activeIndex + 1}/${count} in group` : `${count} selected`,
@@ -116,7 +111,7 @@ export const enUiText: StudioCopy = {
   renderingNoteTwo: "Text wraps and shrinks until it fits each template safe area.",
   renderingNoteThree: "Blur and shadow remain optional and match the CLI flags.",
   cardActiveHint: "Active preview inside the shared group.",
-  cardSelectedHint: "Shared batch",
+  cardSelectedHint: "Shared batch settings",
   cardDraftHint: "Own settings",
   urlEmptyError: "Paste at least one valid image URL.",
   urlFetchError:

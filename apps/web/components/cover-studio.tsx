@@ -81,7 +81,8 @@ const initialFormState: FormState = {
   blur: false
 };
 
-const panelClass = "rounded-2xl border-[3px] border-[#e6e6e6] bg-white";
+const panelClass =
+  "rounded-[22px] border-2 border-[#e6e6e6] bg-white shadow-[0_1px_0_rgba(255,255,255,0.7)]";
 
 const templatePreviewBackground = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
@@ -163,7 +164,7 @@ function FieldLabel({
 }) {
   return (
     <label
-      className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45"
+      className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-black/45"
       htmlFor={htmlFor}
     >
       {children}
@@ -183,10 +184,10 @@ function OptionToggle({
   onChange: (nextValue: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-start justify-between gap-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fcfcfd] p-3 transition hover:border-[#d4d4d8]">
+    <label className="flex cursor-pointer items-start justify-between gap-3 rounded-[18px] border-2 border-[#e6e6e6] bg-[#fcfcfd] p-2.5 transition hover:border-[#d4d4d8]">
       <span className="block min-w-0">
-        <span className="block text-sm font-semibold text-[#111111]">{label}</span>
-        <span className="mt-1 block text-xs leading-5 text-black/52">
+        <span className="block text-[13px] font-semibold text-[#111111]">{label}</span>
+        <span className="mt-0.5 block text-[11px] leading-[1.35] text-black/52">
           {description}
         </span>
       </span>
@@ -216,7 +217,7 @@ function TemplateCard({
   return (
     <button
       className={[
-        "rounded-xl border-[3px] p-2 text-left transition",
+        "rounded-[18px] border-2 p-1.5 text-left transition",
         active
           ? "border-[#027fff] bg-[#f7fbff]"
           : "border-[#e6e6e6] bg-white hover:border-[#d3d3d7]"
@@ -227,11 +228,11 @@ function TemplateCard({
       <div className="overflow-hidden rounded-xl bg-[#eceef2]">
         <img
           alt={previewAlt}
-          className="block h-16 w-full object-cover"
+          className="block h-14 w-full object-cover"
           src={templatePreviewImages[template]}
         />
       </div>
-      <p className="mt-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111111]">
+      <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[#111111]">
         {label}
       </p>
     </button>
@@ -246,11 +247,11 @@ function EmptyPreview({
   description: string;
 }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center rounded-[28px] border-[3px] border-dashed border-[#d8d8de] bg-[#fafafc] p-6 text-center">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/38">
+    <div className="flex h-full w-full flex-col items-center justify-center rounded-[24px] border-2 border-dashed border-[#d8d8de] bg-[#fafafc] p-5 text-center">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/38">
         {title}
       </p>
-      <p className="mt-3 max-w-[14rem] text-sm leading-6 text-black/55">
+      <p className="mt-2 max-w-[13rem] break-keep text-xs leading-5 text-black/55">
         {description}
       </p>
     </div>
@@ -806,30 +807,34 @@ export function CoverStudio() {
     .join(" ");
 
   return (
-    <main className="mx-auto max-w-[1400px] px-3 py-4 sm:px-5 lg:px-6">
-      <header className={`${panelClass} mb-4 p-4 sm:p-5`}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <main
+      className="mx-auto flex max-w-[1380px] flex-col px-3 py-3 sm:px-4 lg:px-5 xl:h-[100svh] xl:max-h-[100svh] xl:overflow-hidden"
+      data-language={language}
+      lang={language}
+    >
+      <header className={`${panelClass} mb-3 shrink-0 p-3 sm:p-4`}>
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
               {copy.pageEyebrow}
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#111111] sm:text-3xl">
+            <h1 className="mt-1 break-keep text-[1.35rem] font-semibold tracking-[-0.05em] text-[#111111] sm:text-[1.75rem]">
               {copy.pageTitle}
             </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-black/62 sm:text-base sm:leading-7">
+            <p className="mt-1 max-w-3xl break-keep text-[13px] leading-5 text-black/62 sm:text-sm sm:leading-6">
               {copy.pageDescription}
             </p>
           </div>
 
-          <div className="w-full max-w-[11rem]">
+          <div className="w-full max-w-[10rem]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
               {copy.language}
             </p>
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
               {languageOptions.map((option) => (
                 <button
                   className={[
-                    "rounded-xl border-[3px] px-3 py-2 text-sm font-semibold transition",
+                    "rounded-xl border-2 px-3 py-1.5 text-[13px] font-semibold transition",
                     language === option.value
                       ? "border-[#027fff] bg-[#f7fbff] text-[#027fff]"
                       : "border-[#e6e6e6] bg-white text-[#111111] hover:border-[#d3d3d7]"
@@ -844,37 +849,26 @@ export function CoverStudio() {
             </div>
           </div>
         </div>
-
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {copy.steps.map((step) => (
-            <div
-              className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-3 text-sm font-medium text-black/62"
-              key={step}
-            >
-              {step}
-            </div>
-          ))}
-        </div>
       </header>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
-        <aside className="grid gap-4 md:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] xl:sticky xl:top-4 xl:block xl:self-start xl:space-y-4">
-          <section className={`${panelClass} p-3 sm:p-4`}>
+      <div className="grid flex-1 min-h-0 gap-3 xl:grid-cols-[minmax(0,21rem)_minmax(0,1fr)]">
+        <aside className="grid gap-3 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] xl:grid-cols-1 xl:grid-rows-[auto_minmax(0,1fr)] xl:self-stretch xl:min-h-0">
+          <section className={`${panelClass} p-2.5 sm:p-3 xl:min-h-0`}>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
                   {copy.preview}
                 </p>
-                <p className="mt-1 truncate text-sm text-black/58">
+                <p className="mt-1 truncate text-[13px] text-black/58">
                   {activeImage ? activeImage.fileName : copy.noActiveImage}
                 </p>
               </div>
-              <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/42">
+              <span className="rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/42">
                 {form.size} x {form.size}
               </span>
             </div>
 
-            <div className="mt-3 flex min-h-[12rem] items-center justify-center overflow-hidden rounded-[24px] bg-[#eef0f4] p-3 sm:min-h-[14rem] md:min-h-[15rem] xl:min-h-[16rem]">
+            <div className="mt-2 flex min-h-[10rem] items-center justify-center overflow-hidden rounded-[22px] bg-[#eef0f4] p-2 sm:min-h-[11.5rem] md:min-h-[12.5rem] xl:min-h-[13.5rem]">
               {preview.url ? (
                 <div className="relative flex items-center justify-center">
                   <img
@@ -884,7 +878,7 @@ export function CoverStudio() {
                   />
                   <img
                     alt={copy.coverPreviewAlt}
-                    className="relative h-[12.5rem] w-[12.5rem] rounded-[26px] object-cover shadow-[0_24px_60px_rgba(15,23,42,0.22)] sm:h-[14rem] sm:w-[14rem] md:h-[15rem] md:w-[15rem] xl:h-[16rem] xl:w-[16rem]"
+                    className="relative h-[10.25rem] w-[10.25rem] rounded-[24px] object-cover shadow-[0_20px_48px_rgba(15,23,42,0.18)] sm:h-[11.5rem] sm:w-[11.5rem] md:h-[12.5rem] md:w-[12.5rem] xl:h-[13.5rem] xl:w-[13.5rem]"
                     src={preview.url}
                   />
                 </div>
@@ -896,22 +890,13 @@ export function CoverStudio() {
               )}
             </div>
 
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2.5">
-              <span className="truncate text-xs font-medium text-black/58">
-                {activeImage ? activeImage.fileName : copy.noActiveImage}
-              </span>
-              <span className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
-                {copy.selectedCount(selectedImageCount, totalImageCount)}
-              </span>
-            </div>
-
-            <div className="mt-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+            <div className="mt-2 rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-[#111111]">
+                  <p className="text-[13px] font-semibold text-[#111111]">
                     {copy.position}
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-black/55">
+                  <p className="mt-0.5 break-keep text-[11px] leading-4 text-black/55">
                     {copy.positionDescription}
                   </p>
                 </div>
@@ -930,7 +915,7 @@ export function CoverStudio() {
                 </button>
               </div>
 
-              <div className="mt-3 grid gap-3">
+              <div className="mt-2.5 grid gap-2.5">
                 <label className="block">
                   <span className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-black/42">
                     <span>{copy.horizontal}</span>
@@ -939,7 +924,7 @@ export function CoverStudio() {
                     </span>
                   </span>
                   <input
-                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
                     disabled={!activeImage}
                     max={100}
                     min={-100}
@@ -962,7 +947,7 @@ export function CoverStudio() {
                     </span>
                   </span>
                   <input
-                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
                     disabled={!activeImage}
                     max={100}
                     min={-100}
@@ -980,13 +965,13 @@ export function CoverStudio() {
             </div>
 
             {selectedImageCount > 0 ? (
-              <div className="mt-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+              <div className="mt-2 rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#111111]">
+                    <p className="text-[13px] font-semibold text-[#111111]">
                       {copy.selectedGroup}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-black/55">
+                    <p className="mt-0.5 break-keep text-[11px] leading-4 text-black/55">
                       {copy.selectedGroupHint(activeSelectedIndex, selectedImageCount)}
                     </p>
                   </div>
@@ -995,9 +980,9 @@ export function CoverStudio() {
                   </span>
                 </div>
 
-                <div className="mt-3 grid gap-2 sm:grid-cols-[auto_auto_minmax(0,1fr)] md:grid-cols-1 xl:grid-cols-[auto_auto_minmax(0,1fr)]">
+                <div className="mt-2.5 grid gap-2 sm:grid-cols-[auto_auto_minmax(0,1fr)] md:grid-cols-1 xl:grid-cols-[auto_auto_minmax(0,1fr)]">
                   <button
-                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                    className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
                     disabled={selectedImageCount < 2}
                     onClick={() => moveSelectedPreview("previous")}
                     type="button"
@@ -1005,7 +990,7 @@ export function CoverStudio() {
                     {copy.previous}
                   </button>
                   <button
-                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                    className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
                     disabled={selectedImageCount < 2}
                     onClick={() => moveSelectedPreview("next")}
                     type="button"
@@ -1013,7 +998,7 @@ export function CoverStudio() {
                     {copy.next}
                   </button>
                   <button
-                    className="rounded-xl border-[3px] border-[#027fff] bg-[#f7fbff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#027fff] transition hover:border-[#0167d0] hover:text-[#0167d0] disabled:cursor-not-allowed disabled:border-[#d6e9ff] disabled:text-[#8abfff]"
+                    className="rounded-xl border-2 border-[#027fff] bg-[#f7fbff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#027fff] transition hover:border-[#0167d0] hover:text-[#0167d0] disabled:cursor-not-allowed disabled:border-[#d6e9ff] disabled:text-[#8abfff]"
                     disabled={activeSelectedIndex >= 0}
                     onClick={focusSelectedGroup}
                     type="button"
@@ -1027,14 +1012,14 @@ export function CoverStudio() {
             ) : null}
 
             {preview.error ? (
-              <div className="mt-3 rounded-xl border-[3px] border-[#f1c7bc] bg-[#fff4f1] px-3 py-2.5 text-sm text-[#a24a32]">
+              <div className="mt-2 rounded-xl border-2 border-[#f1c7bc] bg-[#fff4f1] px-3 py-2.5 text-sm text-[#a24a32]">
                 {preview.error}
               </div>
             ) : null}
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 md:grid-cols-1">
               <button
-                className="inline-flex w-full items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
+                className="inline-flex w-full items-center justify-center rounded-xl border-2 border-[#027fff] bg-[#027fff] px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
                 disabled={!preview.svg || Boolean(busyMessage)}
                 onClick={() => {
                   void handleDownload();
@@ -1046,7 +1031,7 @@ export function CoverStudio() {
                   : copy.downloadCurrentPng}
               </button>
               <button
-                className="inline-flex w-full items-center justify-center rounded-xl border-[3px] border-[#d7dbe3] bg-[#fafafc] px-4 py-3 text-sm font-semibold text-[#111111] transition hover:border-[#c3cad5] hover:bg-white disabled:cursor-not-allowed disabled:border-[#e4e8ef] disabled:text-black/35"
+                className="inline-flex w-full items-center justify-center rounded-xl border-2 border-[#d7dbe3] bg-[#fafafc] px-4 py-2.5 text-[13px] font-semibold text-[#111111] transition hover:border-[#c3cad5] hover:bg-white disabled:cursor-not-allowed disabled:border-[#e4e8ef] disabled:text-black/35"
                 disabled={selectedImageCount === 0 || Boolean(busyMessage)}
                 onClick={() => {
                   void handleBatchDownload();
@@ -1060,13 +1045,13 @@ export function CoverStudio() {
             </div>
           </section>
 
-          <section className={`${panelClass} p-3 sm:p-4`}>
-            <div className="space-y-3">
+          <section className={`${panelClass} p-2.5 sm:p-3 xl:min-h-0 xl:overflow-y-auto`}>
+            <div className="space-y-2">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
                   {copy.settings}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-black/58">
+                <p className="mt-1.5 break-keep text-[13px] leading-5 text-black/58">
                   {copy.settingsDescription}
                 </p>
               </div>
@@ -1074,7 +1059,7 @@ export function CoverStudio() {
               <div>
                 <FieldLabel htmlFor="title">{copy.fields.title}</FieldLabel>
                 <textarea
-                  className="min-h-[76px] w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-lg font-semibold text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                  className="min-h-[56px] w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[16px] font-semibold leading-[1.2] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="title"
                   maxLength={120}
                   onChange={(event) => setTextField("title", event.target.value)}
@@ -1085,11 +1070,11 @@ export function CoverStudio() {
                 />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="header">{copy.fields.header}</FieldLabel>
                   <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium uppercase tracking-[0.14em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                     id="header"
                     maxLength={48}
                     onChange={(event) => setTextField("header", event.target.value)}
@@ -1104,7 +1089,7 @@ export function CoverStudio() {
                 <div>
                   <FieldLabel htmlFor="footer">{copy.fields.footer}</FieldLabel>
                   <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium uppercase tracking-[0.14em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                     id="footer"
                     maxLength={48}
                     onChange={(event) => setTextField("footer", event.target.value)}
@@ -1117,11 +1102,11 @@ export function CoverStudio() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="subtitle">{copy.fields.subtitle}</FieldLabel>
                   <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                     id="subtitle"
                     maxLength={80}
                     onChange={(event) => setTextField("subtitle", event.target.value)}
@@ -1136,7 +1121,7 @@ export function CoverStudio() {
                 <div>
                   <FieldLabel htmlFor="date">{copy.fields.date}</FieldLabel>
                   <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                     id="date"
                     maxLength={80}
                     onChange={(event) => setTextField("date", event.target.value)}
@@ -1149,7 +1134,7 @@ export function CoverStudio() {
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_11rem] xl:grid-cols-1">
+              <div className="grid gap-2.5 md:grid-cols-[minmax(0,1fr)_10rem] xl:grid-cols-1">
                 <div>
                   <FieldLabel htmlFor="template-modern">{copy.template}</FieldLabel>
                   <div className="grid grid-cols-3 gap-2">
@@ -1171,7 +1156,7 @@ export function CoverStudio() {
                       />
                     ))}
                   </div>
-                  <p className="mt-2 text-xs leading-5 text-black/52">
+                  <p className="mt-1.5 break-keep text-[11px] leading-4 text-black/52">
                     {copy.templates[form.template].description}
                   </p>
                 </div>
@@ -1179,7 +1164,7 @@ export function CoverStudio() {
                 <div>
                   <FieldLabel htmlFor="size">{copy.resolution}</FieldLabel>
                   <select
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-semibold text-[#111111] outline-none transition focus:border-[#027fff]"
+                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-semibold text-[#111111] outline-none transition focus:border-[#027fff]"
                     id="size"
                     onChange={(event) =>
                       updateFormState((current) => ({
@@ -1198,19 +1183,19 @@ export function CoverStudio() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+              <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
                 <div>
-                  <p className="text-sm font-semibold text-[#111111]">
+                  <p className="text-[13px] font-semibold text-[#111111]">
                     {copy.quickSymbols}
                   </p>
-                  <p className="mt-1 text-xs text-black/52">
+                  <p className="mt-0.5 text-[11px] text-black/52">
                     {copy.insertsInto(fieldLabels[activeField])}
                   </p>
                 </div>
-                <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-8">
+                <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-8">
                   {quickSymbols.map((symbol) => (
                     <button
-                      className="inline-flex h-9 items-center justify-center rounded-xl border-[3px] border-[#e6e6e6] bg-white text-base font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+                      className="inline-flex h-7 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
                       key={`${symbol.title}-${symbol.value}`}
                       onClick={() => insertSymbol(symbol.value)}
                       onMouseDown={(event) => {
@@ -1226,10 +1211,10 @@ export function CoverStudio() {
               </div>
 
               <div>
-                <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
                   {copy.effects}
                 </p>
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
+                <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
                   <OptionToggle
                     checked={form.shadow}
                     description={copy.useShadowDescription}
@@ -1258,9 +1243,9 @@ export function CoverStudio() {
           </section>
         </aside>
 
-        <section className="space-y-4 xl:flex xl:h-[calc(100svh-2rem)] xl:min-h-0 xl:flex-col">
+        <section className="space-y-3 xl:flex xl:min-h-0 xl:flex-col">
           <section
-            className={`${panelClass} p-4 sm:p-5 xl:flex-1 xl:min-h-0 xl:overflow-hidden`}
+            className={`${panelClass} p-3 sm:p-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden`}
             onDragOver={(event) => {
               event.preventDefault();
             }}
@@ -1271,27 +1256,27 @@ export function CoverStudio() {
               }
             }}
           >
-            <div className="flex h-full min-h-0 flex-col gap-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex h-full min-h-0 flex-col gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
                     {copy.images}
                   </p>
-                  <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#111111] sm:text-2xl">
+                  <h2 className="mt-1.5 break-keep text-[1.1rem] font-semibold tracking-[-0.035em] text-[#111111] sm:text-[1.35rem]">
                     {copy.imagesTitle}
                   </h2>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-black/58">
+                  <p className="mt-1 max-w-xl break-keep text-[13px] leading-5 text-black/58">
                     {copy.imagesDescription}
                   </p>
                 </div>
               </div>
 
-              <div className="grid gap-3 lg:grid-cols-[15rem_minmax(0,1fr)]">
+              <div className="grid gap-2.5 lg:grid-cols-[13rem_minmax(0,1fr)]">
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
                   {(["upload", "url"] as const).map((mode) => (
                     <button
                       className={[
-                        "rounded-xl border-[3px] px-3 py-3 text-left text-sm font-semibold transition",
+                        "rounded-xl border-2 px-3 py-2.5 text-left text-[13px] font-semibold transition",
                         sourceMode === mode
                           ? "border-[#027fff] bg-[#f7fbff] text-[#027fff]"
                           : "border-[#e6e6e6] bg-white text-[#111111] hover:border-[#d3d3d7]"
@@ -1305,19 +1290,19 @@ export function CoverStudio() {
                   ))}
                 </div>
 
-                <div className="rounded-2xl border-[3px] border-dashed border-[#d4d4d8] bg-[#fafafc] p-4">
+                <div className="rounded-2xl border-2 border-dashed border-[#d4d4d8] bg-[#fafafc] p-3">
                   {sourceMode === "upload" ? (
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-[#111111]">
+                        <p className="text-[13px] font-semibold text-[#111111]">
                           {copy.sourceModes.upload}
                         </p>
-                        <p className="mt-1 text-sm leading-6 text-black/58">
+                        <p className="mt-0.5 break-keep text-[13px] leading-5 text-black/58">
                           {copy.uploadDropHint}
                         </p>
                       </div>
                       <label
-                        className="inline-flex cursor-pointer items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0]"
+                        className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-[#027fff] bg-[#027fff] px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0]"
                         htmlFor={inputId}
                       >
                         {busyAction === "upload" && busyMessage
@@ -1326,23 +1311,23 @@ export function CoverStudio() {
                       </label>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       <div>
-                        <p className="text-sm font-semibold text-[#111111]">
+                        <p className="text-[13px] font-semibold text-[#111111]">
                           {copy.urlTitle}
                         </p>
-                        <p className="mt-1 text-sm leading-6 text-black/58">
+                        <p className="mt-0.5 break-keep text-[13px] leading-5 text-black/58">
                           {copy.urlDescription}
                         </p>
                       </div>
                       <textarea
-                        className="min-h-[108px] w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                        className="min-h-[92px] w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                         onChange={(event) => setUrlInput(event.target.value)}
                         placeholder={copy.urlPlaceholder}
                         value={urlInput}
                       />
                       <button
-                        className="inline-flex items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
+                        className="inline-flex items-center justify-center rounded-xl border-2 border-[#027fff] bg-[#027fff] px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
                         disabled={Boolean(busyMessage)}
                         onClick={() => {
                           void handleUrlImport();
@@ -1370,27 +1355,27 @@ export function CoverStudio() {
                 type="file"
               />
 
-              <div className="rounded-2xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-3 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
+                <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
                       {copy.collection}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-black/58">
+                    <p className="mt-0.5 break-keep text-[13px] leading-5 text-black/58">
                       {copy.collectionHint}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+                    <span className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
                       {copy.uploadedCount(totalImageCount)}
                     </span>
                     {selectedImageCount > 0 ? (
-                      <span className="rounded-xl border-[3px] border-[#111111] bg-[#111111] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                      <span className="rounded-xl border-2 border-[#111111] bg-[#111111] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
                         {copy.selectedProgress(activeSelectedIndex, selectedImageCount)}
                       </span>
                     ) : null}
                     <button
-                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
                       disabled={images.length === 0}
                       onClick={() => setAllSelections(true)}
                       type="button"
@@ -1398,7 +1383,7 @@ export function CoverStudio() {
                       {copy.selectAll}
                     </button>
                     <button
-                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
                       disabled={images.length === 0}
                       onClick={() => setAllSelections(false)}
                       type="button"
@@ -1406,7 +1391,7 @@ export function CoverStudio() {
                       {copy.deselectAll}
                     </button>
                     <button
-                      className="rounded-xl border-[3px] border-[#f0d2ca] bg-[#fff6f4] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a24a32] transition hover:border-[#e6beb2] hover:bg-white disabled:cursor-not-allowed disabled:text-[#d3a69b]"
+                      className="rounded-xl border-2 border-[#f0d2ca] bg-[#fff6f4] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a24a32] transition hover:border-[#e6beb2] hover:bg-white disabled:cursor-not-allowed disabled:text-[#d3a69b]"
                       disabled={images.length === 0}
                       onClick={clearImages}
                       type="button"
@@ -1416,7 +1401,7 @@ export function CoverStudio() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:max-h-full xl:grid-cols-3 xl:overflow-y-auto xl:pr-1 2xl:grid-cols-4">
+                <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:max-h-full xl:grid-cols-3 xl:overflow-y-auto xl:pr-1 2xl:grid-cols-4">
                   {images.length > 0 ? (
                     images.map((imageItem) => {
                       const isActive = imageItem.id === activeImageId;
@@ -1427,7 +1412,7 @@ export function CoverStudio() {
                       return (
                         <div
                           className={[
-                            "overflow-hidden rounded-2xl border-[3px] bg-[#fafafc] transition",
+                            "overflow-hidden rounded-2xl border-2 bg-[#fafafc] transition",
                             imageItem.selected
                               ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
                               : isActive
@@ -1447,11 +1432,11 @@ export function CoverStudio() {
                           >
                             <img
                               alt={imageItem.fileName}
-                              className="h-28 w-full object-cover"
+                              className="h-20 w-full object-cover"
                               src={imageItem.dataUrl}
                             />
                           </button>
-                          <div className="p-3">
+                          <div className="p-2.5">
                             <div className="flex flex-wrap items-center gap-2">
                               {isActive ? (
                                 <span className="rounded-lg bg-[#ebf5ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#027fff]">
@@ -1474,10 +1459,10 @@ export function CoverStudio() {
                                 </span>
                               ) : null}
                             </div>
-                            <p className="mt-2 truncate text-sm font-semibold text-[#111111]">
+                            <p className="mt-1.5 truncate text-[13px] font-semibold text-[#111111]">
                               {imageItem.fileName}
                             </p>
-                            <p className="mt-1 text-xs leading-5 text-black/46">
+                            <p className="mt-0.5 break-keep text-[11px] leading-4 text-black/46">
                               {imageItem.selected
                                 ? isActive
                                   ? copy.cardActiveHint
@@ -1489,7 +1474,7 @@ export function CoverStudio() {
                       );
                     })
                   ) : (
-                    <div className="rounded-2xl border-[3px] border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-6 text-sm leading-6 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
+                    <div className="rounded-2xl border-2 border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-5 text-[13px] leading-5 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
                       {copy.emptyCollection}
                     </div>
                   )}
@@ -1499,16 +1484,16 @@ export function CoverStudio() {
           </section>
 
           <details className={`${panelClass} shrink-0`}>
-            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#111111] sm:px-5 sm:py-4">
+            <summary className="cursor-pointer list-none px-4 py-2.5 text-[13px] font-semibold text-[#111111] sm:px-4 sm:py-3">
               {copy.detailsSummary}
             </summary>
-            <div className="border-t-[3px] border-[#e6e6e6] p-4 sm:p-5">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="border-t-2 border-[#e6e6e6] p-3 sm:p-4">
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <section>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
                     {copy.cliParity}
                   </p>
-                  <code className="mt-3 block break-all whitespace-pre-wrap rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-4 text-sm leading-7 text-black/72">
+                  <code className="mt-2.5 block break-all whitespace-pre-wrap rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] px-3 py-3 text-[12px] leading-6 text-black/72">
                     {cliCommand}
                   </code>
                 </section>
@@ -1517,14 +1502,14 @@ export function CoverStudio() {
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
                     {copy.renderingNotes}
                   </p>
-                  <div className="mt-3 grid gap-3 text-sm leading-6 text-black/58">
-                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                  <div className="mt-2.5 grid gap-2.5 text-[13px] leading-5 text-black/58">
+                    <div className="rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] px-3 py-2.5">
                       {copy.renderingNoteOne}
                     </div>
-                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                    <div className="rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] px-3 py-2.5">
                       {copy.renderingNoteTwo}
                     </div>
-                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                    <div className="rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] px-3 py-2.5">
                       {copy.renderingNoteThree}
                     </div>
                   </div>

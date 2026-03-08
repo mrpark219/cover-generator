@@ -2,16 +2,17 @@ import type { StudioCopy } from "./types";
 
 export const koUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "로컬에서 애플 뮤직 스타일 커버 생성",
+  pageTitle: "애플 뮤직 스타일 커버 생성기",
   pageDescription:
-    "사진을 올리고, 텍스트를 편집하고, 한 번에 처리할 이미지를 더블클릭으로 묶은 뒤 PNG나 ZIP으로 내보내세요.",
-  steps: ["1 사진 업로드", "2 텍스트 편집", "3 더블클릭으로 묶기", "4 다운로드"],
+    "사진 업로드나 URL 붙여넣기 후 텍스트와 크롭을 조정하고 PNG 또는 ZIP으로 내보내세요.",
+  steps: ["1 업로드", "2 편집", "3 묶기", "4 다운로드"],
   language: "언어",
   preview: "미리보기",
   noActiveImage: "활성 이미지 없음",
   noPreviewTitle: "아직 미리보기가 없습니다",
   noPreviewDescription: "하나 이상의 이미지를 올리면 바로 커버를 렌더링합니다.",
-  selectedCount: (selected, total) => (total > 0 ? `${selected}/${total} 선택됨` : "업로드 없음"),
+  selectedCount: (selected, total) =>
+    total > 0 ? `${selected}/${total} 선택됨` : "업로드 없음",
   selectedGroup: "선택 그룹",
   selectedGroupHint: (activeIndex, count) =>
     activeIndex >= 0
@@ -22,20 +23,20 @@ export const koUiText: StudioCopy = {
   next: "다음",
   focusSelectedGroup: "그룹 포커스",
   selectedGroupFocused: "그룹 포커스 중",
-  downloadCurrentPng: "현재 PNG 다운로드",
+  downloadCurrentPng: "PNG 저장",
   downloadSelectedZip: (count) =>
-    count > 0 ? `선택한 ZIP 다운로드 (${count})` : "선택한 ZIP 다운로드",
+    count > 0 ? `ZIP 저장 (${count})` : "ZIP 저장",
   exportCurrentBusy: "PNG 내보내는 중...",
   exportBatchBusy: (count) =>
     count > 1 ? `${count}개 커버 내보내는 중...` : "선택한 커버 내보내는 중...",
-  settings: "텍스트 및 레이아웃",
+  settings: "레이아웃",
   settingsDescription:
-    "현재 활성 이미지에 적용됩니다. 활성 이미지가 선택 상태라면 같은 설정이 선택 그룹 전체에 공유됩니다.",
+    "텍스트와 템플릿은 공유할 수 있고, 크롭은 이미지별로 유지됩니다.",
   fields: {
     header: "헤더",
-    title: "메인 제목",
-    subtitle: "서브타이틀",
-    date: "날짜 또는 메타",
+    title: "제목",
+    subtitle: "서브",
+    date: "날짜 / 메타",
     footer: "푸터"
   },
   placeholders: {
@@ -62,7 +63,7 @@ export const koUiText: StudioCopy = {
   template: "템플릿",
   resolution: "해상도",
   position: "이미지 위치",
-  positionDescription: "현재 활성 이미지의 크롭 위치만 조정합니다.",
+  positionDescription: "크롭 위치는 현재 이미지에만 적용됩니다.",
   horizontal: "가로",
   vertical: "세로",
   resetPosition: "초기화",
@@ -78,9 +79,9 @@ export const koUiText: StudioCopy = {
     upload: "내 기기 업로드",
     url: "URL 붙여넣기"
   },
-  imagesTitle: "기기 업로드 또는 직접 이미지 URL 붙여넣기로 불러오세요",
+  imagesTitle: "이미지 업로드 또는 URL 붙여넣기",
   imagesDescription:
-    "카드를 클릭하면 미리보기, 더블클릭하면 공유 배치에 포함됩니다.",
+    "클릭은 미리보기, 더블클릭은 공유 배치 포함입니다.",
   uploadDropHint: "이미지 파일을 드롭하거나 디스크에서 선택하세요.",
   urlTitle: "하나 이상의 이미지 URL을 붙여넣으세요",
   urlDescription:
@@ -93,7 +94,7 @@ export const koUiText: StudioCopy = {
   deselectAll: "선택 해제",
   clearAll: "전체 제거",
   collection: "컬렉션",
-  collectionHint: "파란 배지는 현재 미리보기, 검은 배지는 공유 배치 포함 상태입니다.",
+  collectionHint: "클릭은 미리보기, 더블클릭은 배치 포함.",
   uploadedCount: (count) => (count > 0 ? `${count}장 업로드` : "비어 있음"),
   selectedProgress: (activeIndex, count) =>
     activeIndex >= 0 ? `그룹 ${count}장 중 ${activeIndex + 1}` : `${count}장 선택됨`,
@@ -110,7 +111,7 @@ export const koUiText: StudioCopy = {
   renderingNoteTwo: "텍스트는 템플릿 안전 영역에 맞을 때까지 줄바꿈과 축소를 수행합니다.",
   renderingNoteThree: "블러와 그림자는 선택 사항이며 CLI 플래그와 동일하게 동작합니다.",
   cardActiveHint: "공유 그룹 안에서 현재 미리보기 중입니다.",
-  cardSelectedHint: "공유 배치",
+  cardSelectedHint: "공유 배치 설정",
   cardDraftHint: "개별 설정",
   urlEmptyError: "유효한 이미지 URL을 하나 이상 붙여넣으세요.",
   urlFetchError:
