@@ -32,7 +32,7 @@ import { languageStorageKey, uiText, type Language } from "../lib/i18n";
 import {
   defaultStudioImage,
   initialFormState,
-  templateFieldLayouts
+  templateFieldLayout
 } from "./studio/constants";
 import {
   DetailsSection,
@@ -223,7 +223,6 @@ export function CoverStudio() {
     textColor: normalizeHexColor(rawForm.textColor, defaultTextColor)
   };
   const deferredForm = useDeferredValue(resolvedForm);
-  const fieldLayout = templateFieldLayouts[rawForm.template];
   const resolvedSharedForm = {
     ...sharedForm,
     header: resolveFormTextValue(sharedForm.header, copy.placeholders.header),
@@ -837,7 +836,7 @@ export function CoverStudio() {
         <aside className="space-y-3">
           <SettingsSection
             copy={copy}
-            fieldLayout={fieldLayout}
+            fieldLayout={templateFieldLayout}
             onActiveFieldChange={setActiveField}
             onSizeChange={(size) =>
               updateFormState((current) => ({

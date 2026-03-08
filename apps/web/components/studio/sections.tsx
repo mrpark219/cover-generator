@@ -156,6 +156,9 @@ function TemplateCard({
           ? "border-[#027fff] bg-[#f7fbff]"
           : "border-[#e6e6e6] bg-white hover:border-[#d3d3d7]"
       ].join(" ")}
+      onMouseDown={(event) => {
+        event.preventDefault();
+      }}
       onClick={() => onSelect(template)}
       type="button"
     >

@@ -144,26 +144,10 @@ export const textColorSwatches = [
   "#111827"
 ];
 
-export const templateFieldLayouts: Record<CoverTemplate, TemplateFieldLayoutItem[]> = {
-  modern: [
-    { field: "header", span: "full", align: "left", tone: "meta" },
-    { field: "title", span: "full", align: "left", tone: "title" },
-    { field: "subtitle", span: "full", align: "left", tone: "body" },
-    { field: "footer", align: "left", tone: "meta" },
-    { field: "date", align: "right", tone: "meta" }
-  ],
-  normal: [
-    { field: "header", span: "full", align: "right", tone: "meta" },
-    { field: "title", span: "full", align: "center", tone: "title" },
-    { field: "subtitle", span: "full", align: "center", tone: "body" },
-    { field: "footer", span: "full", align: "center", tone: "meta" },
-    { field: "date", span: "full", align: "center", tone: "meta" }
-  ],
-  classic: [
-    { field: "header", align: "right", tone: "meta" },
-    { field: "date", align: "right", tone: "meta" },
-    { field: "title", span: "full", align: "left", tone: "title" },
-    { field: "subtitle", span: "full", align: "left", tone: "body" },
-    { field: "footer", span: "full", align: "left", tone: "meta" }
-  ]
-};
+export const templateFieldLayout: TemplateFieldLayoutItem[] = [
+  { field: "header", span: "full", align: "left", tone: "meta" },
+  { field: "title", span: "full", align: "left", tone: "title" },
+  { field: "subtitle", span: "full", align: "left", tone: "body" },
+  { field: "date", align: "left", tone: "meta" },
+  { field: "footer", align: "left", tone: "meta" }
+];
