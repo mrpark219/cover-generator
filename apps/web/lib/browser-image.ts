@@ -4,6 +4,8 @@ export interface UploadedImageState {
   dataUrl: string;
   fileName: string;
   mimeType: string;
+  width: number;
+  height: number;
 }
 
 export function fileToDataUrl(file: File) {
@@ -88,10 +90,14 @@ export async function fetchImageUrlAsUpload(url: string): Promise<UploadedImageS
     throw new Error("Unsupported image format.");
   }
 
+  const dataUrl = await blobToDataUrl(blob);
+  const dimensions = await readDimensions(dataUrl);
+
   return {
-    dataUrl: await blobToDataUrl(blob),
+    dataUrl,
     fileName: inferRemoteFileName(url, mimeType),
-    mimeType
+    mimeType,
+    ...dimensions
   };
 }
 
@@ -103,6 +109,29 @@ async function loadImage(source: string) {
     image.onerror = () => reject(new Error("The preview image could not be rasterized."));
     image.src = source;
   });
+}
+
+async function readDimensions(source: string) {
+  const image = await loadImage(source);
+
+  return {
+    width: image.naturalWidth,
+    height: image.naturalHeight
+  };
+}
+
+export async function createUploadStateFromFile(
+  file: File
+): Promise<UploadedImageState> {
+  const dataUrl = await fileToDataUrl(file);
+  const dimensions = await readDimensions(dataUrl);
+
+  return {
+    dataUrl,
+    fileName: file.name,
+    mimeType: file.type,
+    ...dimensions
+  };
 }
 
 export async function svgToPngBlob(svg: string, width: number, height: number) {

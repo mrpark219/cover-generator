@@ -21,8 +21,8 @@ import {
 } from "react";
 import {
   downloadBlob,
+  createUploadStateFromFile,
   fetchImageUrlAsUpload,
-  fileToDataUrl,
   svgToPngBlob,
   zipFilesToBlob,
   type UploadedImageState
@@ -32,7 +32,7 @@ import {
   languageStorageKey,
   uiText,
   type Language
-} from "../lib/studio-copy";
+} from "../lib/i18n";
 
 interface FormState {
   header: string;
@@ -57,6 +57,8 @@ interface PreviewState {
 interface UploadedImageItem extends UploadedImageState {
   id: string;
   selected: boolean;
+  focusX: number;
+  focusY: number;
   draftForm: FormState;
 }
 
@@ -294,6 +296,14 @@ function parseUrlLines(value: string) {
     });
 }
 
+function focusToSliderValue(value: number) {
+  return Math.round((value - 0.5) * 200);
+}
+
+function sliderValueToFocus(value: number) {
+  return (value + 100) / 200;
+}
+
 export function CoverStudio() {
   const inputId = useId();
   const [language, setLanguage] = useState<Language>("en");
@@ -390,7 +400,14 @@ export function CoverStudio() {
 
     try {
       const result = renderCoverSvg({
-        image: { src: activeImage.dataUrl, mimeType: activeImage.mimeType },
+        image: {
+          src: activeImage.dataUrl,
+          mimeType: activeImage.mimeType,
+          width: activeImage.width,
+          height: activeImage.height,
+          focusX: activeImage.focusX,
+          focusY: activeImage.focusY
+        },
         header: deferredForm.header,
         title: deferredForm.title,
         date: deferredForm.date,
@@ -463,6 +480,23 @@ export function CoverStudio() {
       ...current,
       [field]: value
     }));
+  }
+
+  function updateActiveImageFocus(nextFocus: Partial<Pick<UploadedImageItem, "focusX" | "focusY">>) {
+    if (!activeImage) {
+      return;
+    }
+
+    setImages((current) =>
+      current.map((imageItem) =>
+        imageItem.id === activeImage.id
+          ? {
+              ...imageItem,
+              ...nextFocus
+            }
+          : imageItem
+      )
+    );
   }
 
   function insertSymbol(value: string) {
@@ -605,9 +639,9 @@ export function CoverStudio() {
       const uploads = await Promise.all(
         validFiles.map(async (file, index) => ({
           id: createUploadId(file.name, index),
-          dataUrl: await fileToDataUrl(file),
-          fileName: file.name,
-          mimeType: file.type,
+          ...(await createUploadStateFromFile(file)),
+          focusX: 0.5,
+          focusY: 0.5,
           selected: false,
           draftForm: cloneFormState(seedForm)
         }))
@@ -648,6 +682,8 @@ export function CoverStudio() {
           return {
             id: createUploadId(url, index),
             ...upload,
+            focusX: 0.5,
+            focusY: 0.5,
             selected: false,
             draftForm: cloneFormState(seedForm)
           };
@@ -703,7 +739,14 @@ export function CoverStudio() {
       for (const imageItem of selectedImages) {
         const selectedForm = sharedForm;
         const renderResult = renderCoverSvg({
-          image: { src: imageItem.dataUrl, mimeType: imageItem.mimeType },
+          image: {
+            src: imageItem.dataUrl,
+            mimeType: imageItem.mimeType,
+            width: imageItem.width,
+            height: imageItem.height,
+            focusX: imageItem.focusX,
+            focusY: imageItem.focusY
+          },
           header: selectedForm.header,
           title: selectedForm.title,
           date: selectedForm.date,
@@ -753,6 +796,9 @@ export function CoverStudio() {
     `--footer ${quoteCliValue(form.footer)}`,
     `--template ${form.template}`,
     form.size !== defaultCoverSize ? `--size ${form.size}` : "",
+    activeImage && (activeImage.focusX !== 0.5 || activeImage.focusY !== 0.5)
+      ? `--focus-x ${Math.round((activeImage.focusX ?? 0.5) * 100)} --focus-y ${Math.round((activeImage.focusY ?? 0.5) * 100)}`
+      : "",
     form.shadow ? "--shadow" : "",
     form.blur ? "--blur" : ""
   ]
@@ -857,6 +903,80 @@ export function CoverStudio() {
               <span className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
                 {copy.selectedCount(selectedImageCount, totalImageCount)}
               </span>
+            </div>
+
+            <div className="mt-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#111111]">
+                    {copy.position}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-black/55">
+                    {copy.positionDescription}
+                  </p>
+                </div>
+                <button
+                  className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42 transition hover:bg-[#f3f4f6] disabled:cursor-not-allowed disabled:text-black/25"
+                  disabled={!activeImage}
+                  onClick={() => {
+                    updateActiveImageFocus({
+                      focusX: 0.5,
+                      focusY: 0.5
+                    });
+                  }}
+                  type="button"
+                >
+                  {copy.resetPosition}
+                </button>
+              </div>
+
+              <div className="mt-3 grid gap-3">
+                <label className="block">
+                  <span className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-black/42">
+                    <span>{copy.horizontal}</span>
+                    <span>
+                      {activeImage ? focusToSliderValue(activeImage.focusX) : 0}
+                    </span>
+                  </span>
+                  <input
+                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
+                    disabled={!activeImage}
+                    max={100}
+                    min={-100}
+                    onChange={(event) =>
+                      updateActiveImageFocus({
+                        focusX: sliderValueToFocus(Number(event.target.value))
+                      })
+                    }
+                    step={1}
+                    type="range"
+                    value={activeImage ? focusToSliderValue(activeImage.focusX) : 0}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-black/42">
+                    <span>{copy.vertical}</span>
+                    <span>
+                      {activeImage ? focusToSliderValue(activeImage.focusY) : 0}
+                    </span>
+                  </span>
+                  <input
+                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dee8]"
+                    disabled={!activeImage}
+                    max={100}
+                    min={-100}
+                    onChange={(event) =>
+                      updateActiveImageFocus({
+                        focusY: sliderValueToFocus(Number(event.target.value))
+                      })
+                    }
+                    step={1}
+                    type="range"
+                    value={activeImage ? focusToSliderValue(activeImage.focusY) : 0}
+                  />
+                </label>
+              </div>
             </div>
 
             {selectedImageCount > 0 ? (

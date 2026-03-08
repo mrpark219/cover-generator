@@ -12,6 +12,8 @@ export interface CoverImageSource {
   mimeType?: string;
   width?: number;
   height?: number;
+  focusX?: number;
+  focusY?: number;
 }
 
 export interface CoverRenderInput {

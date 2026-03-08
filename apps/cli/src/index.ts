@@ -48,6 +48,8 @@ program
   )
   .option("--shadow", "Add text shadow for stronger contrast")
   .option("--blur", "Blur the cover background for a softer look")
+  .option("--focus-x <focusX>", "Horizontal crop focus: 0 left, 50 center, 100 right", parseFocus, 50)
+  .option("--focus-y <focusY>", "Vertical crop focus: 0 top, 50 center, 100 bottom", parseFocus, 50)
   .option("-o, --output <output>", "Output PNG file path or target directory")
   .action(async (input, options) => {
     await generateCover({
@@ -61,6 +63,8 @@ program
       size: options.size,
       shadow: Boolean(options.shadow),
       blur: Boolean(options.blur),
+      focusX: options.focusX / 100,
+      focusY: options.focusY / 100,
       output: options.output
     });
   });
@@ -92,6 +96,16 @@ function parseSize(value: string) {
   return parsed;
 }
 
+function parseFocus(value: string) {
+  const parsed = Number.parseFloat(value);
+
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
+    throw new InvalidArgumentError(`Unknown focus "${value}". Use a value from 0 to 100.`);
+  }
+
+  return parsed;
+}
+
 async function generateCover({
   inputPath,
   header,
@@ -103,6 +117,8 @@ async function generateCover({
   size,
   shadow,
   blur,
+  focusX,
+  focusY,
   output
 }: {
   inputPath: string;
@@ -115,6 +131,8 @@ async function generateCover({
   size: number;
   shadow: boolean;
   blur: boolean;
+  focusX: number;
+  focusY: number;
   output?: string;
 }) {
   const absoluteInputPath = path.resolve(process.cwd(), inputPath);
@@ -122,7 +140,11 @@ async function generateCover({
 
   const image = await loadInputImage(absoluteInputPath);
   const renderResult = renderCoverSvg({
-    image,
+    image: {
+      ...image,
+      focusX,
+      focusY
+    },
     header,
     title,
     date,
@@ -152,6 +174,7 @@ async function generateCover({
   console.log(`Template: ${template}`);
   console.log(`Header/Footer: ${header || "-"} / ${footer || "-"}`);
   console.log(`Effects: shadow=${shadow ? "on" : "off"}, blur=${blur ? "on" : "off"}`);
+  console.log(`Focus: x=${Math.round(focusX * 100)}, y=${Math.round(focusY * 100)}`);
   console.log(`Size: ${renderResult.width}x${renderResult.height}`);
 }
 

@@ -51,6 +51,7 @@ The web app supports:
 - double-click selection for shared batch editing and ZIP download
 - per-image draft text/template settings before selection
 - square resolution selection: `1200`, `1600`, `2048`
+- per-image crop position adjustment
 - Korean and English UI switching
 - header, title, freeform date/meta, subtitle, and footer input
 - live square preview
@@ -83,6 +84,8 @@ Useful CLI options:
 
 - `--template <modern|normal|classic>`
 - `--size <1200|1600|2048>`
+- `--focus-x <0-100>`
+- `--focus-y <0-100>`
 - `--header <text>`
 - `--subtitle <text>`
 - `--footer <text>`
@@ -128,7 +131,7 @@ This keeps layout logic in one place:
 - text shrinking
 - date formatting
 
-UI copy for the web app is centralized in `apps/web/lib/studio-copy.ts`, so adding more languages later only requires extending the copy dictionary and the language selector.
+UI copy for the web app is organized under `apps/web/lib/i18n/`, so adding more languages later only requires adding another language file and registering it in the i18n index.
 
 ## Templates
 

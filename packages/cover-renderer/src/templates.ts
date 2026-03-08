@@ -1,4 +1,5 @@
 import {
+  clamp,
   defaultCoverSize,
   escapeXml,
   hashString,
@@ -47,7 +48,7 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
   const footer = sanitizeText(rawInput.footer ?? "", "");
   const rawDate = sanitizeText(rawInput.date, "");
   const seed = hashString(
-    `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
+    `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${String(rawInput.blur)}-${String(rawInput.shadow)}-${String(rawInput.image.focusX ?? 0.5)}-${String(rawInput.image.focusY ?? 0.5)}`
   );
 
   return {
@@ -123,6 +124,48 @@ function textFilter(context: TemplateContext) {
 
 function renderPhotoLayers(context: TemplateContext, foregroundOpacity = 1) {
   const { image, size, blur } = context.input;
+  const hasDimensions =
+    typeof image.width === "number" &&
+    image.width > 0 &&
+    typeof image.height === "number" &&
+    image.height > 0;
+
+  if (hasDimensions) {
+    const scaledWidth = image.width! * Math.max(size / image.width!, size / image.height!);
+    const scaledHeight =
+      image.height! * Math.max(size / image.width!, size / image.height!);
+    const focusX = clamp(image.focusX ?? 0.5, 0, 1);
+    const focusY = clamp(image.focusY ?? 0.5, 0, 1);
+    const x = -(scaledWidth - size) * focusX;
+    const y = -(scaledHeight - size) * focusY;
+
+    if (!blur) {
+      return `
+        <image
+          href="${escapeXml(image.src)}"
+          x="${x}"
+          y="${y}"
+          width="${scaledWidth}"
+          height="${scaledHeight}"
+          preserveAspectRatio="none"
+          opacity="${foregroundOpacity}"
+        />
+      `;
+    }
+
+    return `
+      <image
+        href="${escapeXml(image.src)}"
+        x="${x}"
+        y="${y}"
+        width="${scaledWidth}"
+        height="${scaledHeight}"
+        preserveAspectRatio="none"
+        filter="url(#${context.ids.blurFilter})"
+        opacity="${foregroundOpacity}"
+      />
+    `;
+  }
 
   if (!blur) {
     return `
