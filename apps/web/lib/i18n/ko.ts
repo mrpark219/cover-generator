@@ -2,21 +2,21 @@ import type { StudioCopy } from "./types";
 
 export const koUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "사진 한 장으로 커버를 만드세요.",
-  pageDescription: "텍스트와 크롭을 조정하고 PNG 또는 ZIP으로 바로 저장하세요.",
+  pageTitle: "사진은 한 장, 인상은 오래.",
+  pageDescription: "텍스트와 크롭만 다듬으면, 바로 저장할 수 있는 커버가 됩니다.",
   steps: ["1 업로드", "2 편집", "3 묶기", "4 다운로드"],
   language: "언어",
   preview: "미리보기",
   noActiveImage: "활성 이미지 없음",
   noPreviewTitle: "아직 미리보기가 없습니다",
-  noPreviewDescription: "하나 이상의 이미지를 올리면 바로 커버를 렌더링합니다.",
+  noPreviewDescription: "이미지를 넣는 순간, 커버가 바로 보입니다.",
   selectedCount: (selected, total) =>
     total > 0 ? `${selected}/${total} 선택됨` : "업로드 없음",
   selectedGroup: "선택 그룹",
   selectedGroupHint: (activeIndex, count) =>
     activeIndex >= 0
-      ? `선택된 이미지 ${count}장 중 ${activeIndex + 1}번째를 보고 있습니다.`
-      : `${count}장이 선택되어 있습니다. 그룹 포커스로 순서대로 확인할 수 있습니다.`,
+      ? `묶인 이미지 ${count}장 중 ${activeIndex + 1}번째를 보고 있습니다.`
+      : `${count}장이 묶여 있습니다. 그룹 포커스로 차례대로 확인하세요.`,
   shared: "공유",
   previous: "이전",
   next: "다음",
@@ -30,7 +30,7 @@ export const koUiText: StudioCopy = {
     count > 1 ? `${count}개 커버 내보내는 중...` : "선택한 커버 내보내는 중...",
   settings: "레이아웃",
   settingsDescription:
-    "텍스트와 템플릿은 공유할 수 있고, 크롭은 이미지별로 유지됩니다.",
+    "텍스트와 템플릿은 함께 움직이고, 크롭은 이미지마다 따로 기억합니다.",
   fields: {
     header: "헤더",
     title: "제목",
@@ -78,13 +78,13 @@ export const koUiText: StudioCopy = {
     upload: "내 기기 업로드",
     url: "URL 붙여넣기"
   },
-  imagesTitle: "이미지 업로드 또는 URL 붙여넣기",
+  imagesTitle: "이미지를 넣고, 바로 골라보세요.",
   imagesDescription:
-    "클릭은 미리보기, 더블클릭은 공유 배치 포함입니다.",
-  uploadDropHint: "이미지 파일을 드롭하거나 디스크에서 선택하세요.",
-  urlTitle: "하나 이상의 이미지 URL을 붙여넣으세요",
+    "클릭하면 미리보고, 더블클릭하면 묶음에 넣습니다.",
+  uploadDropHint: "파일을 끌어놓거나 직접 고르세요.",
+  urlTitle: "이미지 주소를 한 줄에 하나씩 붙여넣으세요",
   urlDescription:
-    "한 줄에 하나씩 입력하세요. 브라우저에서 직접 접근 가능한 URL만 가져올 수 있습니다.",
+    "브라우저가 바로 불러올 수 있는 주소만 가져올 수 있습니다.",
   urlPlaceholder:
     "https://images.example.com/cover.jpg\nhttps://cdn.example.com/another.webp",
   addUrls: "URL 추가",
@@ -93,7 +93,7 @@ export const koUiText: StudioCopy = {
   deselectAll: "선택 해제",
   clearAll: "전체 제거",
   collection: "컬렉션",
-  collectionHint: "클릭은 미리보기, 더블클릭은 배치 포함.",
+  collectionHint: "클릭은 확인, 더블클릭은 묶음.",
   uploadedCount: (count) => (count > 0 ? `${count}장 업로드` : "비어 있음"),
   selectedProgress: (activeIndex, count) =>
     activeIndex >= 0 ? `그룹 ${count}장 중 ${activeIndex + 1}` : `${count}장 선택됨`,
@@ -101,7 +101,7 @@ export const koUiText: StudioCopy = {
   selected: "선택",
   draft: "개별",
   emptyCollection:
-    "여러 이미지를 올리면 시작할 수 있습니다. 각 카드는 더블클릭으로 공유 배치에 넣기 전까지 개별 설정을 유지합니다.",
+    "이미지를 몇 장 올리면 여기서 한 번에 정리할 수 있습니다. 더블클릭하기 전까지는 각 카드가 자기 설정을 그대로 갖고 있습니다.",
   selectedIndex: (index) => `#${index}`,
   detailsSummary: "CLI 동기화와 렌더링 메모",
   cliParity: "CLI 동기화",
@@ -109,9 +109,9 @@ export const koUiText: StudioCopy = {
   renderingNoteOne: "풀블리드 크롭은 공용 SVG 렌더러 안에서 처리됩니다.",
   renderingNoteTwo: "텍스트는 템플릿 안전 영역에 맞을 때까지 줄바꿈과 축소를 수행합니다.",
   renderingNoteThree: "블러와 그림자는 선택 사항이며 CLI 플래그와 동일하게 동작합니다.",
-  cardActiveHint: "공유 그룹 안에서 현재 미리보기 중입니다.",
-  cardSelectedHint: "공유 배치 설정",
-  cardDraftHint: "개별 설정",
+  cardActiveHint: "묶음 안에서 지금 보고 있는 카드입니다.",
+  cardSelectedHint: "공유 묶음 설정 사용 중",
+  cardDraftHint: "개별 설정 사용 중",
   urlEmptyError: "유효한 이미지 URL을 하나 이상 붙여넣으세요.",
   urlFetchError:
     "하나 이상의 URL을 가져올 수 없습니다. 해당 호스트가 브라우저 직접 접근을 막고 있을 수 있습니다.",

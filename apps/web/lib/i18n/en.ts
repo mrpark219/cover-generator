@@ -2,21 +2,21 @@ import type { StudioCopy } from "./types";
 
 export const enUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "Turn one photo into a cover.",
-  pageDescription: "Edit text, adjust crop, and save PNG or ZIP locally.",
+  pageTitle: "One photo. Instant cover.",
+  pageDescription: "Tune the text, nudge the crop, and save it locally.",
   steps: ["1 Upload", "2 Edit", "3 Batch", "4 Download"],
   language: "Language",
   preview: "Preview",
   noActiveImage: "No active image",
   noPreviewTitle: "No Preview Yet",
-  noPreviewDescription: "Upload one or more images to start rendering covers.",
+  noPreviewDescription: "Add an image and the cover preview appears right away.",
   selectedCount: (selected, total) =>
     total > 0 ? `${selected}/${total} selected` : "No upload",
   selectedGroup: "Selected Group",
   selectedGroupHint: (activeIndex, count) =>
     activeIndex >= 0
-      ? `Previewing ${activeIndex + 1} of ${count} selected images.`
-      : `${count} images are selected. Focus the group to preview them in order.`,
+      ? `Viewing ${activeIndex + 1} of ${count} in the batch.`
+      : `${count} images are grouped. Focus the batch to review them in order.`,
   shared: "Shared",
   previous: "Previous",
   next: "Next",
@@ -30,7 +30,7 @@ export const enUiText: StudioCopy = {
     count > 1 ? `Exporting ${count} covers...` : "Exporting selected cover...",
   settings: "Layout",
   settingsDescription:
-    "Text and template can be shared. Crop stays per image.",
+    "Text and template can move together. Crop stays unique to each image.",
   fields: {
     header: "Header",
     title: "Title",
@@ -78,13 +78,13 @@ export const enUiText: StudioCopy = {
     upload: "Self Upload",
     url: "Paste URL"
   },
-  imagesTitle: "Upload images or paste URLs",
+  imagesTitle: "Drop in images or paste links",
   imagesDescription:
     "Click to preview. Double-click to move a card into the shared batch.",
-  uploadDropHint: "Drop image files here or choose them from disk.",
-  urlTitle: "Paste one or more image URLs",
+  uploadDropHint: "Drop image files here or pick them from disk.",
+  urlTitle: "Paste image links, one per line",
   urlDescription:
-    "Use one URL per line. The browser can import only URLs that allow direct image access.",
+    "The browser can import only links that allow direct image access.",
   urlPlaceholder:
     "https://images.example.com/cover.jpg\nhttps://cdn.example.com/another.webp",
   addUrls: "Add URLs",
@@ -93,7 +93,7 @@ export const enUiText: StudioCopy = {
   deselectAll: "Deselect All",
   clearAll: "Clear All",
   collection: "Collection",
-  collectionHint: "Click for preview, double-click for batch.",
+  collectionHint: "Click to preview, double-click to batch.",
   uploadedCount: (count) => (count > 0 ? `${count} uploaded` : "Empty"),
   selectedProgress: (activeIndex, count) =>
     activeIndex >= 0 ? `${activeIndex + 1}/${count} in group` : `${count} selected`,
@@ -101,7 +101,7 @@ export const enUiText: StudioCopy = {
   selected: "Selected",
   draft: "Draft",
   emptyCollection:
-    "Upload multiple images to start. Each card keeps its own settings until you double-click it into the shared batch.",
+    "Add a few images to get started. Each card keeps its own settings until you double-click it into the shared batch.",
   selectedIndex: (index) => `#${index}`,
   detailsSummary: "CLI parity and rendering notes",
   cliParity: "CLI Parity",
@@ -109,9 +109,9 @@ export const enUiText: StudioCopy = {
   renderingNoteOne: "Full-bleed image cropping stays inside the shared SVG renderer.",
   renderingNoteTwo: "Text wraps and shrinks until it fits each template safe area.",
   renderingNoteThree: "Blur and shadow remain optional and match the CLI flags.",
-  cardActiveHint: "Active preview inside the shared group.",
-  cardSelectedHint: "Shared batch settings",
-  cardDraftHint: "Own settings",
+  cardActiveHint: "Currently in focus inside the batch.",
+  cardSelectedHint: "Uses the shared batch settings",
+  cardDraftHint: "Keeps its own settings",
   urlEmptyError: "Paste at least one valid image URL.",
   urlFetchError:
     "One or more URLs could not be imported. The host may block direct browser access.",
