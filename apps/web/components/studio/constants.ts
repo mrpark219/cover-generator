@@ -1,6 +1,7 @@
 import { renderCoverSvg } from "@cover-generator/cover-renderer";
 import {
   coverTemplates,
+  defaultTextColor,
   defaultCoverSize,
   defaultTemplate,
   type CoverTemplate
@@ -13,6 +14,7 @@ export const initialFormState: FormState = {
   date: "",
   subtitle: "",
   footer: "",
+  textColor: defaultTextColor,
   template: defaultTemplate,
   size: defaultCoverSize,
   shadow: false,
@@ -93,6 +95,17 @@ export const quickSymbols: Array<{
   { label: "♡", value: "♡", title: "Outline heart" },
   { label: "★", value: "★", title: "Star" },
   { label: "✦", value: "✦", title: "Sparkle" }
+];
+
+export const textColorSwatches = [
+  "#FFFFFF",
+  "#F8FAFC",
+  "#FACC15",
+  "#FCA5A5",
+  "#93C5FD",
+  "#86EFAC",
+  "#E9D5FF",
+  "#111827"
 ];
 
 export const templateFieldLayouts: Record<CoverTemplate, TemplateFieldLayoutItem[]> = {

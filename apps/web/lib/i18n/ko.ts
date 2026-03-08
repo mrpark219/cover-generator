@@ -60,6 +60,8 @@ export const koUiText: StudioCopy = {
     }
   },
   template: "템플릿",
+  textColor: "글자 색상",
+  resetColor: "초기화",
   resolution: "해상도",
   position: "이미지 위치",
   positionDescription: "크롭 위치는 현재 이미지에만 적용됩니다.",
@@ -103,12 +105,16 @@ export const koUiText: StudioCopy = {
   emptyCollection:
     "이미지를 몇 장 올리면 여기서 한 번에 정리할 수 있습니다. 더블클릭하기 전까지는 각 카드가 자기 설정을 그대로 갖고 있습니다.",
   selectedIndex: (index) => `#${index}`,
-  detailsSummary: "CLI 동기화와 렌더링 메모",
+  detailsSummary: "CLI 명령과 렌더링 팁",
+  detailsHint: "패널 열기",
   cliParity: "CLI 동기화",
-  renderingNotes: "렌더링 메모",
-  renderingNoteOne: "풀블리드 크롭은 공용 SVG 렌더러 안에서 처리됩니다.",
-  renderingNoteTwo: "텍스트는 템플릿 안전 영역에 맞을 때까지 줄바꿈과 축소를 수행합니다.",
-  renderingNoteThree: "블러와 그림자는 선택 사항이며 CLI 플래그와 동일하게 동작합니다.",
+  renderingNotes: "렌더링 팁",
+  renderingNoteOne:
+    "크롭은 공용 렌더러에서 처리돼서 웹과 CLI 결과가 같은 구도로 맞춰집니다.",
+  renderingNoteTwo:
+    "글자가 길면 먼저 줄바꿈하고, 그래도 길면 안전 영역 안에서 크기를 줄입니다.",
+  renderingNoteThree:
+    "블러는 배경을 부드럽게 만들고, 그림자는 밝은 사진에서 글자를 더 또렷하게 만듭니다.",
   cardActiveHint: "묶음 안에서 지금 보고 있는 카드입니다.",
   cardSelectedHint: "공유 묶음 설정 사용 중",
   cardDraftHint: "개별 설정 사용 중",

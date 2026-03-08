@@ -6,6 +6,8 @@ import {
   coverSizeOptions,
   coverTemplates,
   defaultCoverSize,
+  defaultTextColor,
+  normalizeHexColor,
   slugifyFilePart,
   supportedMimeTypes,
   type CoverTemplate
@@ -127,6 +129,15 @@ function parseSizeQueryValue(value: string | null) {
   return coverSizeOptions.some((candidate) => candidate === size) ? size : null;
 }
 
+function parseTextColorQueryValue(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalizeHexColor(value, "");
+  return normalized ? normalized : null;
+}
+
 function collectImageUrlQueryValues(params: URLSearchParams) {
   const directValues = [
     ...params.getAll("imageUrl"),
@@ -193,7 +204,8 @@ export function CoverStudio() {
     title: resolveFormTextValue(rawForm.title, copy.placeholders.title),
     subtitle: resolveFormTextValue(rawForm.subtitle, copy.placeholders.subtitle),
     date: resolveFormTextValue(rawForm.date, copy.placeholders.date),
-    footer: resolveFormTextValue(rawForm.footer, copy.placeholders.footer)
+    footer: resolveFormTextValue(rawForm.footer, copy.placeholders.footer),
+    textColor: normalizeHexColor(rawForm.textColor, defaultTextColor)
   };
   const deferredForm = useDeferredValue(resolvedForm);
   const fieldLayout = templateFieldLayouts[rawForm.template];
@@ -203,7 +215,8 @@ export function CoverStudio() {
     title: resolveFormTextValue(sharedForm.title, copy.placeholders.title),
     subtitle: resolveFormTextValue(sharedForm.subtitle, copy.placeholders.subtitle),
     date: resolveFormTextValue(sharedForm.date, copy.placeholders.date),
-    footer: resolveFormTextValue(sharedForm.footer, copy.placeholders.footer)
+    footer: resolveFormTextValue(sharedForm.footer, copy.placeholders.footer),
+    textColor: normalizeHexColor(sharedForm.textColor, defaultTextColor)
   };
   const importingUrlsLabel = copy.importingUrls;
   const urlEmptyError = copy.urlEmptyError;
@@ -309,6 +322,9 @@ export function CoverStudio() {
     const subtitle = params.get("subtitle");
     const date = params.get("date") ?? params.get("meta");
     const footer = params.get("footer");
+    const textColor = parseTextColorQueryValue(
+      params.get("textColor") ?? params.get("color")
+    );
     const template = parseTemplateQueryValue(params.get("template"));
     const size = parseSizeQueryValue(params.get("size"));
     const shadow = parseBooleanQueryValue(params.get("shadow"));
@@ -328,6 +344,9 @@ export function CoverStudio() {
     }
     if (footer !== null) {
       nextForm.footer = footer;
+    }
+    if (textColor) {
+      nextForm.textColor = textColor;
     }
     if (template) {
       nextForm.template = template;
@@ -387,6 +406,7 @@ export function CoverStudio() {
         date: deferredForm.date,
         subtitle: deferredForm.subtitle,
         footer: deferredForm.footer,
+        textColor: deferredForm.textColor,
         template: deferredForm.template,
         size: deferredForm.size,
         shadow: deferredForm.shadow,
@@ -679,6 +699,7 @@ export function CoverStudio() {
           date: resolvedSharedForm.date,
           subtitle: resolvedSharedForm.subtitle,
           footer: resolvedSharedForm.footer,
+          textColor: resolvedSharedForm.textColor,
           template: resolvedSharedForm.template,
           size: resolvedSharedForm.size,
           shadow: resolvedSharedForm.shadow,
@@ -721,6 +742,7 @@ export function CoverStudio() {
     `--date ${quoteCliValue(resolvedForm.date)}`,
     `--subtitle ${quoteCliValue(resolvedForm.subtitle)}`,
     `--footer ${quoteCliValue(resolvedForm.footer)}`,
+    `--text-color ${resolvedForm.textColor}`,
     `--template ${resolvedForm.template}`,
     resolvedForm.size !== defaultCoverSize ? `--size ${resolvedForm.size}` : "",
     activeImage && (activeImage.focusX !== 0.5 || activeImage.focusY !== 0.5)
@@ -806,6 +828,12 @@ export function CoverStudio() {
               updateFormState((current) => ({
                 ...current,
                 template
+              }))
+            }
+            onTextColorChange={(textColor) =>
+              updateFormState((current) => ({
+                ...current,
+                textColor
               }))
             }
             onTextFieldChange={setTextField}

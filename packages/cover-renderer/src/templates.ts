@@ -2,7 +2,9 @@ import {
   clamp,
   defaultCoverSize,
   escapeXml,
+  hexColorToRgba,
   hashString,
+  normalizeHexColor,
   resolveTemplate,
   sanitizeText
 } from "@cover-generator/shared";
@@ -23,6 +25,7 @@ interface TemplateContext {
   input: Required<Pick<CoverRenderInput, "header" | "title" | "subtitle" | "footer">> &
     Pick<CoverRenderInput, "image"> & {
       date: string;
+      textColor: string;
       size: number;
       template: CoverRenderResult["template"];
       shadow: boolean;
@@ -47,8 +50,9 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
   const subtitle = sanitizeText(rawInput.subtitle, "");
   const footer = sanitizeText(rawInput.footer ?? "", "");
   const rawDate = sanitizeText(rawInput.date, "");
+  const textColor = normalizeHexColor(rawInput.textColor);
   const seed = hashString(
-    `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${String(rawInput.blur)}-${String(rawInput.shadow)}-${String(rawInput.image.focusX ?? 0.5)}-${String(rawInput.image.focusY ?? 0.5)}`
+    `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${textColor}-${String(rawInput.blur)}-${String(rawInput.shadow)}-${String(rawInput.image.focusX ?? 0.5)}-${String(rawInput.image.focusY ?? 0.5)}`
   );
 
   return {
@@ -59,6 +63,7 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
       subtitle,
       footer,
       date: rawDate,
+      textColor,
       size,
       template,
       shadow: Boolean(rawInput.shadow),
@@ -258,7 +263,7 @@ function renderFittedBlock({
 }
 
 function renderModernTemplate(context: TemplateContext) {
-  const { size, title, subtitle } = context.input;
+  const { size, title, subtitle, textColor } = context.input;
   const margin = scaleDesign(context, 60);
   const headerBaseline = scaleDesign(context, 91);
   const titleBaseline = scaleDesign(context, 207);
@@ -324,7 +329,7 @@ function renderModernTemplate(context: TemplateContext) {
       block: headerBlock,
       x: margin,
       baselineY: headerBaseline,
-      fill: "#FFFFFF",
+      fill: textColor,
       fontWeight: 600,
       fontFamily: textFont,
       context
@@ -333,7 +338,7 @@ function renderModernTemplate(context: TemplateContext) {
       block: titleBlock,
       x: margin,
       y: titleTop,
-      fill: "#FFFFFF",
+      fill: textColor,
       fontWeight: 700,
       letterSpacing: 0,
       fontFamily: displayFont,
@@ -345,7 +350,7 @@ function renderModernTemplate(context: TemplateContext) {
             block: subtitleBlock,
             x: margin,
             y: subtitleTop,
-            fill: "#FFFFFF",
+            fill: textColor,
             fontWeight: 200,
             letterSpacing: 0,
             fontFamily: displayFont,
@@ -359,7 +364,7 @@ function renderModernTemplate(context: TemplateContext) {
             block: footerBlock,
             x: margin,
             baselineY: footerBaseline,
-            fill: "rgba(255,255,255,0.49)",
+            fill: hexColorToRgba(textColor, 0.49),
             fontWeight: 600,
             fontFamily: textFont,
             context
@@ -372,7 +377,7 @@ function renderModernTemplate(context: TemplateContext) {
             block: dateBlock,
             x: size - margin,
             baselineY: footerBaseline,
-            fill: "rgba(255,255,255,0.42)",
+            fill: hexColorToRgba(textColor, 0.42),
             anchor: "end",
             fontWeight: 500,
             fontFamily: textFont,
@@ -384,7 +389,7 @@ function renderModernTemplate(context: TemplateContext) {
 }
 
 function renderNormalTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, title, textColor } = context.input;
   const headerInset = scaleDesign(context, 20);
   const headerBaseline = scaleDesign(context, 50);
   const titleBaseline = scaleDesign(context, 310);
@@ -450,7 +455,7 @@ function renderNormalTemplate(context: TemplateContext) {
       block: headerBlock,
       x: size - headerInset,
       baselineY: headerBaseline,
-      fill: "#FFFFFF",
+      fill: textColor,
       anchor: "end",
       fontWeight: 500,
       fontFamily: textFont,
@@ -460,7 +465,7 @@ function renderNormalTemplate(context: TemplateContext) {
       block: titleBlock,
       x: size / 2,
       y: titleTop,
-      fill: "#FFFFFF",
+      fill: textColor,
       anchor: "middle",
       fontWeight: 600,
       letterSpacing: 0,
@@ -473,7 +478,7 @@ function renderNormalTemplate(context: TemplateContext) {
             block: subtitleBlock,
             x: size / 2,
             y: subtitleTop,
-            fill: "#FFFFFF",
+            fill: textColor,
             anchor: "middle",
             fontWeight: 600,
             letterSpacing: 0,
@@ -488,7 +493,7 @@ function renderNormalTemplate(context: TemplateContext) {
             block: footerBlock,
             x: size / 2,
             baselineY: footerBaseline,
-            fill: "rgba(255,255,255,0.49)",
+            fill: hexColorToRgba(textColor, 0.49),
             anchor: "middle",
             fontWeight: 500,
             fontFamily: displayFont,
@@ -502,7 +507,7 @@ function renderNormalTemplate(context: TemplateContext) {
             block: dateBlock,
             x: size / 2,
             baselineY: dateBaseline,
-            fill: "rgba(255,255,255,0.34)",
+            fill: hexColorToRgba(textColor, 0.34),
             anchor: "middle",
             fontWeight: 500,
             fontFamily: textFont,
@@ -514,7 +519,7 @@ function renderNormalTemplate(context: TemplateContext) {
 }
 
 function renderClassicTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, title, textColor } = context.input;
   const leftInset = scaleDesign(context, 55);
   const rightInset = scaleDesign(context, 20);
   const headerBaseline = scaleDesign(context, 50);
@@ -581,7 +586,7 @@ function renderClassicTemplate(context: TemplateContext) {
       block: headerBlock,
       x: size - rightInset,
       baselineY: headerBaseline,
-      fill: "#FFFFFF",
+      fill: textColor,
       anchor: "end",
       fontWeight: 500,
       fontFamily: textFont,
@@ -593,7 +598,7 @@ function renderClassicTemplate(context: TemplateContext) {
             block: dateBlock,
             x: size - scaleDesign(context, 30),
             baselineY: metaBaseline,
-            fill: "#FFFFFF",
+            fill: textColor,
             anchor: "end",
             fontWeight: 500,
             fontFamily: textFont,
@@ -605,7 +610,7 @@ function renderClassicTemplate(context: TemplateContext) {
       block: titleBlock,
       x: leftInset,
       y: titleTop,
-      fill: "#FFFFFF",
+      fill: textColor,
       fontWeight: 400,
       letterSpacing: 0,
       fontFamily: serifFont,
@@ -617,7 +622,7 @@ function renderClassicTemplate(context: TemplateContext) {
             block: subtitleBlock,
             x: leftInset,
             y: subtitleTop,
-            fill: "#FFFFFF",
+            fill: textColor,
             fontWeight: 400,
             letterSpacing: 0,
             fontFamily: serifFont,
@@ -631,7 +636,7 @@ function renderClassicTemplate(context: TemplateContext) {
             block: footerBlock,
             x: leftInset,
             baselineY: footerBaseline,
-            fill: "rgba(255,255,255,0.49)",
+            fill: hexColorToRgba(textColor, 0.49),
             fontWeight: 500,
             fontFamily: serifSmallFont,
             context

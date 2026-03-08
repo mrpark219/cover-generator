@@ -7,6 +7,7 @@ export interface FormState {
   date: string;
   subtitle: string;
   footer: string;
+  textColor: string;
   template: CoverTemplate;
   size: number;
   shadow: boolean;

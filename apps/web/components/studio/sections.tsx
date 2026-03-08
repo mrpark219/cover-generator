@@ -3,12 +3,15 @@
 import {
   coverSizeOptions,
   coverTemplates,
+  defaultTextColor,
+  normalizeHexColor,
   type CoverTemplate
 } from "@cover-generator/shared";
 import { languageOptions, type Language, type StudioCopy } from "../../lib/i18n";
 import {
   panelClass,
   quickSymbols,
+  textColorSwatches,
   templatePreviewImages
 } from "./constants";
 import type {
@@ -528,6 +531,7 @@ export function SettingsSection({
   onActiveFieldChange,
   onTemplateChange,
   onSizeChange,
+  onTextColorChange,
   onInsertSymbol,
   onShadowChange,
   onBlurChange
@@ -543,10 +547,13 @@ export function SettingsSection({
   onActiveFieldChange: (field: EditableField) => void;
   onTemplateChange: (template: CoverTemplate) => void;
   onSizeChange: (size: number) => void;
+  onTextColorChange: (value: string) => void;
   onInsertSymbol: (value: string) => void;
   onShadowChange: (value: boolean) => void;
   onBlurChange: (value: boolean) => void;
 }) {
+  const normalizedTextColor = normalizeHexColor(rawForm.textColor, defaultTextColor);
+
   return (
     <section className={`${panelClass} p-2.5 sm:p-3`}>
       <div className="space-y-2">
@@ -607,6 +614,59 @@ export function SettingsSection({
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[13px] font-semibold text-[#111111]">
+                {copy.textColor}
+              </p>
+              <p className="mt-0.5 text-[11px] text-black/52">{normalizedTextColor}</p>
+            </div>
+            <button
+              className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42 transition hover:bg-[#f3f4f6]"
+              onClick={() => onTextColorChange(defaultTextColor)}
+              type="button"
+            >
+              {copy.resetColor}
+            </button>
+          </div>
+          <div className="mt-2.5 flex items-center gap-2">
+            <input
+              aria-label={copy.textColor}
+              className="h-10 w-12 cursor-pointer rounded-xl border-2 border-[#e6e6e6] bg-white p-1"
+              onChange={(event) => onTextColorChange(event.target.value)}
+              type="color"
+              value={normalizedTextColor}
+            />
+            <input
+              className="h-10 w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+              inputMode="text"
+              maxLength={7}
+              onChange={(event) => onTextColorChange(event.target.value)}
+              placeholder="#FFFFFF"
+              type="text"
+              value={rawForm.textColor}
+            />
+          </div>
+          <div className="mt-2 grid grid-cols-8 gap-1.5">
+            {textColorSwatches.map((color) => (
+              <button
+                aria-label={color}
+                className={[
+                  "h-7 rounded-lg border-2 transition",
+                  normalizeHexColor(color) === normalizedTextColor
+                    ? "border-[#111111] scale-[1.02]"
+                    : "border-white/80 hover:border-[#d3d3d7]"
+                ].join(" ")}
+                key={color}
+                onClick={() => onTextColorChange(color)}
+                style={{ backgroundColor: color }}
+                type="button"
+              />
+            ))}
           </div>
         </div>
 
@@ -953,9 +1013,31 @@ export function DetailsSection({
   cliCommand: string;
 }) {
   return (
-    <details className={`${panelClass} shrink-0`}>
-      <summary className="cursor-pointer list-none px-4 py-2.5 text-[13px] font-semibold text-[#111111] sm:px-4 sm:py-3">
-        {copy.detailsSummary}
+    <details className={`${panelClass} group shrink-0 overflow-hidden`}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 transition hover:bg-[#fafafc]">
+        <div className="min-w-0">
+          <p className="text-[13px] font-semibold text-[#111111]">{copy.detailsSummary}</p>
+          <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-black/42">
+            {copy.detailsHint}
+          </p>
+        </div>
+        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[#e6e6e6] bg-white text-black/52 transition group-open:rotate-180 group-open:border-[#027fff] group-open:text-[#027fff]">
+          <svg
+            aria-hidden="true"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 6.5L8 10L12 6.5"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.6"
+            />
+          </svg>
+        </span>
       </summary>
       <div className="border-t-2 border-[#e6e6e6] p-3 sm:p-4">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

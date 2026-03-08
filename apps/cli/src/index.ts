@@ -7,8 +7,10 @@ import {
   coverSizeOptions,
   defaultCoverSize,
   defaultTemplate,
+  defaultTextColor,
   isSupportedCoverSize,
   isCoverTemplate,
+  normalizeHexColor,
   sanitizeText,
   supportedMimeTypes,
   type CoverTemplate
@@ -34,6 +36,7 @@ program
   .option("--header <header>", "Small header text", "APPLE MUSIC")
   .option("--subtitle <subtitle>", "Subtitle or location", "Somewhere")
   .option("--footer <footer>", "Small footer text", "SELF UPLOAD")
+  .option("--text-color <textColor>", "Hex text color, for example #FFFFFF", parseTextColor, defaultTextColor)
   .option(
     "--template <template>",
     `Template: ${templateChoices.join(", ")}`,
@@ -59,6 +62,7 @@ program
       date: options.date,
       subtitle: options.subtitle,
       footer: options.footer,
+      textColor: options.textColor,
       template: options.template,
       size: options.size,
       shadow: Boolean(options.shadow),
@@ -106,6 +110,18 @@ function parseFocus(value: string) {
   return parsed;
 }
 
+function parseTextColor(value: string) {
+  const normalized = normalizeHexColor(value, "");
+
+  if (!normalized) {
+    throw new InvalidArgumentError(
+      `Unknown text color "${value}". Use a 3 or 6 digit hex color like #FFFFFF.`
+    );
+  }
+
+  return normalized;
+}
+
 async function generateCover({
   inputPath,
   header,
@@ -113,6 +129,7 @@ async function generateCover({
   date,
   subtitle,
   footer,
+  textColor,
   template,
   size,
   shadow,
@@ -127,6 +144,7 @@ async function generateCover({
   date: string;
   subtitle: string;
   footer: string;
+  textColor: string;
   template: CoverTemplate;
   size: number;
   shadow: boolean;
@@ -150,6 +168,7 @@ async function generateCover({
     date,
     subtitle,
     footer,
+    textColor,
     template,
     size,
     shadow,
@@ -173,6 +192,7 @@ async function generateCover({
   console.log(`Success: cover saved to ${relativePath}`);
   console.log(`Template: ${template}`);
   console.log(`Header/Footer: ${header || "-"} / ${footer || "-"}`);
+  console.log(`Text color: ${textColor}`);
   console.log(`Effects: shadow=${shadow ? "on" : "off"}, blur=${blur ? "on" : "off"}`);
   console.log(`Focus: x=${Math.round(focusX * 100)}, y=${Math.round(focusY * 100)}`);
   console.log(`Size: ${renderResult.width}x${renderResult.height}`);

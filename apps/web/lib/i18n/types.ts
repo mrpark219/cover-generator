@@ -35,6 +35,8 @@ export interface StudioCopy {
   placeholders: Record<"header" | "title" | "subtitle" | "date" | "footer", string>;
   templates: Record<CoverTemplate, { label: string; description: string }>;
   template: string;
+  textColor: string;
+  resetColor: string;
   resolution: string;
   position: string;
   positionDescription: string;
@@ -71,6 +73,7 @@ export interface StudioCopy {
   emptyCollection: string;
   selectedIndex: (index: number) => string;
   detailsSummary: string;
+  detailsHint: string;
   cliParity: string;
   renderingNotes: string;
   renderingNoteOne: string;

@@ -60,6 +60,8 @@ export const enUiText: StudioCopy = {
     }
   },
   template: "Template",
+  textColor: "Text Color",
+  resetColor: "Reset",
   resolution: "Resolution",
   position: "Image Position",
   positionDescription: "Crop stays per image.",
@@ -103,12 +105,16 @@ export const enUiText: StudioCopy = {
   emptyCollection:
     "Add a few images to get started. Each card keeps its own settings until you double-click it into the shared batch.",
   selectedIndex: (index) => `#${index}`,
-  detailsSummary: "CLI parity and rendering notes",
+  detailsSummary: "CLI command and rendering tips",
+  detailsHint: "Open panel",
   cliParity: "CLI Parity",
-  renderingNotes: "Rendering Notes",
-  renderingNoteOne: "Full-bleed image cropping stays inside the shared SVG renderer.",
-  renderingNoteTwo: "Text wraps and shrinks until it fits each template safe area.",
-  renderingNoteThree: "Blur and shadow remain optional and match the CLI flags.",
+  renderingNotes: "Rendering Tips",
+  renderingNoteOne:
+    "Cropping happens in the shared renderer, so the web app and CLI frame the image the same way.",
+  renderingNoteTwo:
+    "Long text wraps first, then scales down before it spills outside the template safe area.",
+  renderingNoteThree:
+    "Blur softens the photo treatment. Shadow helps text stand out on brighter images.",
   cardActiveHint: "Currently in focus inside the batch.",
   cardSelectedHint: "Uses the shared batch settings",
   cardDraftHint: "Keeps its own settings",

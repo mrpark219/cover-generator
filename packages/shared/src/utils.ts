@@ -2,6 +2,7 @@ import { defaultTemplate, isCoverTemplate } from "./templates";
 import type { CoverTemplate, DateDisplayVariants } from "./types";
 
 export const defaultCoverSize = 1600;
+export const defaultTextColor = "#FFFFFF";
 export const coverSizeOptions = [1200, 1600, 2048] as const;
 export const supportedMimeTypes = new Set([
   "image/jpeg",
@@ -31,6 +32,36 @@ export function escapeXml(value: string) {
 export function sanitizeText(value: string, fallback = "") {
   const normalized = value.replace(/\s+/g, " ").trim();
   return normalized || fallback;
+}
+
+export function normalizeHexColor(value?: string, fallback = defaultTextColor) {
+  const candidate = (value ?? "").trim();
+  const hex = candidate.startsWith("#") ? candidate.slice(1) : candidate;
+
+  if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+    const expanded = hex
+      .split("")
+      .map((part) => `${part}${part}`)
+      .join("")
+      .toUpperCase();
+    return `#${expanded}`;
+  }
+
+  if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+    return `#${hex.toUpperCase()}`;
+  }
+
+  return fallback;
+}
+
+export function hexColorToRgba(value: string, alpha = 1) {
+  const normalized = normalizeHexColor(value);
+  const hex = normalized.slice(1);
+  const red = Number.parseInt(hex.slice(0, 2), 16);
+  const green = Number.parseInt(hex.slice(2, 4), 16);
+  const blue = Number.parseInt(hex.slice(4, 6), 16);
+
+  return `rgba(${red},${green},${blue},${alpha})`;
 }
 
 function parseDateInput(dateInput: string) {

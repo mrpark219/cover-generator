@@ -23,6 +23,7 @@ export interface CoverRenderInput {
   date: string;
   subtitle: string;
   footer?: string;
+  textColor?: string;
   template?: CoverTemplate;
   shadow?: boolean;
   blur?: boolean;
