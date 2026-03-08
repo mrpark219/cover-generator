@@ -39,11 +39,11 @@ export const koUiText: StudioCopy = {
     footer: "푸터"
   },
   placeholders: {
-    header: "APPLE MUSIC",
-    title: "Han River",
-    subtitle: "Seoul",
-    date: "VOL. 01",
-    footer: "SELF UPLOAD"
+    header: "@mrpark219",
+    title: "SungHwan Park",
+    subtitle: "cover-generator",
+    date: "KOREA · 2026",
+    footer: "made by mrpark219"
   },
   templates: {
     modern: {

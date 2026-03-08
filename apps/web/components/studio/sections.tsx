@@ -308,7 +308,6 @@ export function PreviewSection({
   copy,
   activeImage,
   form,
-  activeField,
   preview,
   selectedImageCount,
   totalImageCount,
@@ -318,7 +317,9 @@ export function PreviewSection({
   onFocusYChange,
   onMoveSelectedPreview,
   onFocusSelectedGroup,
-  onInsertSymbol,
+  onTextColorChange,
+  onShadowChange,
+  onBlurChange,
   onDownloadCurrent,
   onDownloadSelected,
   busyAction,
@@ -327,7 +328,6 @@ export function PreviewSection({
   copy: StudioCopy;
   activeImage: UploadedImageItem | null;
   form: FormState;
-  activeField: EditableField;
   preview: PreviewState;
   selectedImageCount: number;
   totalImageCount: number;
@@ -337,12 +337,16 @@ export function PreviewSection({
   onFocusYChange: (value: number) => void;
   onMoveSelectedPreview: (direction: "previous" | "next") => void;
   onFocusSelectedGroup: () => void;
-  onInsertSymbol: (value: string) => void;
+  onTextColorChange: (value: string) => void;
+  onShadowChange: (value: boolean) => void;
+  onBlurChange: (value: boolean) => void;
   onDownloadCurrent: () => void;
   onDownloadSelected: () => void;
   busyAction: "upload" | "url" | "single" | "batch" | null;
   busyMessage: string | null;
 }) {
+  const normalizedTextColor = normalizeHexColor(form.textColor, defaultTextColor);
+
   return (
     <section className={`${panelClass} p-2.5 sm:p-3`}>
       <div className="flex items-start justify-between gap-4">
@@ -484,29 +488,75 @@ export function PreviewSection({
       ) : null}
 
       <div className="mt-2 rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
-        <div>
-          <p className="text-[13px] font-semibold text-[#111111]">
-            {copy.quickSymbols}
-          </p>
-          <p className="mt-0.5 text-[11px] text-black/52">
-            {copy.insertsInto(copy.fields[activeField])}
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[13px] font-semibold text-[#111111]">
+              {copy.textColor}
+            </p>
+            <p className="mt-0.5 text-[11px] text-black/52">{normalizedTextColor}</p>
+          </div>
+          <button
+            className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42 transition hover:bg-[#f3f4f6]"
+            onClick={() => onTextColorChange(defaultTextColor)}
+            type="button"
+          >
+            {copy.resetColor}
+          </button>
         </div>
-        <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-6 xl:grid-cols-4">
-          {quickSymbols.map((symbol) => (
+        <div className="mt-2.5 flex items-center gap-2">
+          <input
+            aria-label={copy.textColor}
+            className="h-10 w-12 cursor-pointer rounded-xl border-2 border-[#e6e6e6] bg-white p-1"
+            onChange={(event) => onTextColorChange(event.target.value)}
+            type="color"
+            value={normalizedTextColor}
+          />
+          <input
+            className="h-10 w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+            inputMode="text"
+            maxLength={7}
+            onChange={(event) => onTextColorChange(event.target.value)}
+            placeholder="#FFFFFF"
+            type="text"
+            value={form.textColor}
+          />
+        </div>
+        <div className="mt-2 grid grid-cols-8 gap-1.5">
+          {textColorSwatches.map((color) => (
             <button
-              className="inline-flex h-7 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
-              key={`${symbol.title}-${symbol.value}`}
-              onClick={() => onInsertSymbol(symbol.value)}
-              onMouseDown={(event) => {
-                event.preventDefault();
-              }}
-              title={symbol.title}
+              aria-label={color}
+              className={[
+                "h-7 rounded-lg border-2 transition",
+                normalizeHexColor(color) === normalizedTextColor
+                  ? "border-[#111111] scale-[1.02]"
+                  : "border-white/80 hover:border-[#d3d3d7]"
+              ].join(" ")}
+              key={color}
+              onClick={() => onTextColorChange(color)}
+              style={{ backgroundColor: color }}
               type="button"
-            >
-              {symbol.label}
-            </button>
+            />
           ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+          {copy.effects}
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
+          <OptionToggle
+            checked={form.shadow}
+            description={copy.useShadowDescription}
+            label={copy.useShadow}
+            onChange={onShadowChange}
+          />
+          <OptionToggle
+            checked={form.blur}
+            description={copy.useBlurDescription}
+            label={copy.useBlur}
+            onChange={onBlurChange}
+          />
         </div>
       </div>
 
@@ -557,10 +607,7 @@ export function SettingsSection({
   onTextFieldChange,
   onActiveFieldChange,
   onTemplateChange,
-  onSizeChange,
-  onTextColorChange,
-  onShadowChange,
-  onBlurChange
+  onSizeChange
 }: {
   copy: StudioCopy;
   rawForm: FormState;
@@ -572,12 +619,7 @@ export function SettingsSection({
   onActiveFieldChange: (field: EditableField) => void;
   onTemplateChange: (template: CoverTemplate) => void;
   onSizeChange: (size: number) => void;
-  onTextColorChange: (value: string) => void;
-  onShadowChange: (value: boolean) => void;
-  onBlurChange: (value: boolean) => void;
 }) {
-  const normalizedTextColor = normalizeHexColor(rawForm.textColor, defaultTextColor);
-
   return (
     <section className={`${panelClass} p-2.5 sm:p-3`}>
       <div className="space-y-2">
@@ -638,79 +680,6 @@ export function SettingsSection({
                 </option>
               ))}
             </select>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[13px] font-semibold text-[#111111]">
-                {copy.textColor}
-              </p>
-              <p className="mt-0.5 text-[11px] text-black/52">{normalizedTextColor}</p>
-            </div>
-            <button
-              className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42 transition hover:bg-[#f3f4f6]"
-              onClick={() => onTextColorChange(defaultTextColor)}
-              type="button"
-            >
-              {copy.resetColor}
-            </button>
-          </div>
-          <div className="mt-2.5 flex items-center gap-2">
-            <input
-              aria-label={copy.textColor}
-              className="h-10 w-12 cursor-pointer rounded-xl border-2 border-[#e6e6e6] bg-white p-1"
-              onChange={(event) => onTextColorChange(event.target.value)}
-              type="color"
-              value={normalizedTextColor}
-            />
-            <input
-              className="h-10 w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-              inputMode="text"
-              maxLength={7}
-              onChange={(event) => onTextColorChange(event.target.value)}
-              placeholder="#FFFFFF"
-              type="text"
-              value={rawForm.textColor}
-            />
-          </div>
-          <div className="mt-2 grid grid-cols-8 gap-1.5">
-            {textColorSwatches.map((color) => (
-              <button
-                aria-label={color}
-                className={[
-                  "h-7 rounded-lg border-2 transition",
-                  normalizeHexColor(color) === normalizedTextColor
-                    ? "border-[#111111] scale-[1.02]"
-                    : "border-white/80 hover:border-[#d3d3d7]"
-                ].join(" ")}
-                key={color}
-                onClick={() => onTextColorChange(color)}
-                style={{ backgroundColor: color }}
-                type="button"
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
-            {copy.effects}
-          </p>
-          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
-            <OptionToggle
-              checked={rawForm.shadow}
-              description={copy.useShadowDescription}
-              label={copy.useShadow}
-              onChange={onShadowChange}
-            />
-            <OptionToggle
-              checked={rawForm.blur}
-              description={copy.useBlurDescription}
-              label={copy.useBlur}
-              onChange={onBlurChange}
-            />
           </div>
         </div>
       </div>
@@ -1004,10 +973,14 @@ export function ImagesSection({
 
 export function DetailsSection({
   copy,
-  cliCommand
+  cliCommand,
+  activeField,
+  onInsertSymbol
 }: {
   copy: StudioCopy;
   cliCommand: string;
+  activeField: EditableField;
+  onInsertSymbol: (value: string) => void;
 }) {
   return (
     <details className={`${panelClass} group shrink-0 overflow-hidden`}>
@@ -1064,6 +1037,31 @@ export function DetailsSection({
             </div>
           </section>
         </div>
+
+        <section className="mt-3">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+            {copy.quickSymbols}
+          </p>
+          <p className="mt-1 text-[11px] text-black/52">
+            {copy.insertsInto(copy.fields[activeField])}
+          </p>
+          <div className="mt-2 grid grid-cols-6 gap-1.5 sm:grid-cols-8 xl:grid-cols-10">
+            {quickSymbols.map((symbol) => (
+              <button
+                className="inline-flex h-8 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+                key={`${symbol.title}-${symbol.value}`}
+                onClick={() => onInsertSymbol(symbol.value)}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                }}
+                title={symbol.title}
+                type="button"
+              >
+                {symbol.label}
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
     </details>
   );

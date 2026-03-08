@@ -29,7 +29,11 @@ import {
   type UploadedImageState
 } from "../lib/browser-image";
 import { languageStorageKey, uiText, type Language } from "../lib/i18n";
-import { initialFormState, templateFieldLayouts } from "./studio/constants";
+import {
+  defaultStudioImage,
+  initialFormState,
+  templateFieldLayouts
+} from "./studio/constants";
 import {
   DetailsSection,
   HeaderSection,
@@ -70,6 +74,17 @@ function resolveFormTextValue(value: string, fallback: string) {
 function cloneFormState(value: FormState): FormState {
   return {
     ...value
+  };
+}
+
+function createInitialSampleItem(): UploadedImageItem {
+  return {
+    id: "sample-image",
+    ...defaultStudioImage,
+    focusX: 0.5,
+    focusY: 0.5,
+    selected: false,
+    draftForm: cloneFormState(initialFormState)
   };
 }
 
@@ -162,8 +177,8 @@ export function CoverStudio() {
   const [urlInput, setUrlInput] = useState("");
   const [sharedForm, setSharedForm] = useState<FormState>(initialFormState);
   const [activeField, setActiveField] = useState<EditableField>("title");
-  const [images, setImages] = useState<UploadedImageItem[]>([]);
-  const [activeImageId, setActiveImageId] = useState<string | null>(null);
+  const [images, setImages] = useState<UploadedImageItem[]>(() => [createInitialSampleItem()]);
+  const [activeImageId, setActiveImageId] = useState<string | null>("sample-image");
   const [preview, setPreview] = useState<PreviewState>({
     url: null,
     svg: null,
@@ -766,7 +781,6 @@ export function CoverStudio() {
         <aside className="space-y-3">
           <PreviewSection
             activeImage={activeImage}
-            activeField={activeField}
             activeSelectedIndex={activeSelectedIndex}
             busyAction={busyAction}
             busyMessage={busyMessage}
@@ -790,7 +804,24 @@ export function CoverStudio() {
               })
             }
             onMoveSelectedPreview={moveSelectedPreview}
-            onInsertSymbol={insertSymbol}
+            onTextColorChange={(textColor) =>
+              updateFormState((current) => ({
+                ...current,
+                textColor
+              }))
+            }
+            onShadowChange={(shadow) =>
+              updateFormState((current) => ({
+                ...current,
+                shadow
+              }))
+            }
+            onBlurChange={(blur) =>
+              updateFormState((current) => ({
+                ...current,
+                blur
+              }))
+            }
             onResetPosition={() =>
               updateActiveImageFocus({
                 focusX: 0.5,
@@ -808,18 +839,6 @@ export function CoverStudio() {
             copy={copy}
             fieldLayout={fieldLayout}
             onActiveFieldChange={setActiveField}
-            onBlurChange={(blur) =>
-              updateFormState((current) => ({
-                ...current,
-                blur
-              }))
-            }
-            onShadowChange={(shadow) =>
-              updateFormState((current) => ({
-                ...current,
-                shadow
-              }))
-            }
             onSizeChange={(size) =>
               updateFormState((current) => ({
                 ...current,
@@ -830,12 +849,6 @@ export function CoverStudio() {
               updateFormState((current) => ({
                 ...current,
                 template
-              }))
-            }
-            onTextColorChange={(textColor) =>
-              updateFormState((current) => ({
-                ...current,
-                textColor
               }))
             }
             onTextFieldChange={setTextField}
@@ -869,7 +882,12 @@ export function CoverStudio() {
             urlInput={urlInput}
           />
 
-          <DetailsSection cliCommand={cliCommand} copy={copy} />
+          <DetailsSection
+            activeField={activeField}
+            cliCommand={cliCommand}
+            copy={copy}
+            onInsertSymbol={insertSymbol}
+          />
         </section>
       </div>
     </main>
