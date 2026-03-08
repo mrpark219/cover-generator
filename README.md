@@ -1,6 +1,6 @@
 # cover-generator
 
-`cover-generator` is a local monorepo that produces Apple Music-style square date covers from a single photo. It includes a polished Next.js web UI and a CLI, both powered by the same shared SVG renderer.
+`cover-generator` is a local monorepo that produces Apple Music-style square date covers from local photos. It includes a polished Next.js web UI and a CLI, both powered by the same shared SVG renderer.
 
 ## Stack
 
@@ -46,7 +46,8 @@ Open `http://localhost:3000`.
 
 The web app supports:
 
-- one image upload
+- multi-image upload with active preview switching
+- select/include per image and batch ZIP download
 - header, title, freeform date/meta, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`

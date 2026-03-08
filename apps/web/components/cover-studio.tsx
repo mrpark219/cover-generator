@@ -6,6 +6,7 @@ import {
   buildOutputFileName,
   coverTemplates,
   defaultTemplate,
+  slugifyFilePart,
   supportedMimeTypes,
   type CoverTemplate
 } from "@cover-generator/shared";
@@ -20,6 +21,7 @@ import {
   downloadBlob,
   fileToDataUrl,
   svgToPngBlob,
+  zipFilesToBlob,
   type UploadedImageState
 } from "../lib/browser-image";
 
@@ -40,6 +42,11 @@ interface PreviewState {
   width: number;
   height: number;
   error: string | null;
+}
+
+interface UploadedImageItem extends UploadedImageState {
+  id: string;
+  selected: boolean;
 }
 
 type EditableField = keyof Pick<
@@ -236,7 +243,7 @@ function EmptyPreview() {
         Not Selected Yet
       </p>
       <p className="mt-3 max-w-[14rem] text-sm leading-6 text-black/55">
-        Upload one image to render a local Apple Music-style cover preview.
+        Upload one or more images to render a local Apple Music-style cover preview.
       </p>
     </div>
   );
@@ -246,12 +253,26 @@ function quoteCliValue(value: string) {
   return JSON.stringify(value);
 }
 
+function createUploadId(file: File, index: number) {
+  const randomPart =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${index}`;
+
+  return `${file.name}-${file.lastModified}-${file.size}-${randomPart}`;
+}
+
+function stripExtension(fileName: string) {
+  return fileName.replace(/\.[^.]+$/, "");
+}
+
 export function CoverStudio() {
   const inputId = useId();
   const [form, setForm] = useState<FormState>(initialFormState);
   const [activeField, setActiveField] = useState<EditableField>("title");
   const deferredForm = useDeferredValue(form);
-  const [image, setImage] = useState<UploadedImageState | null>(null);
+  const [images, setImages] = useState<UploadedImageItem[]>([]);
+  const [activeImageId, setActiveImageId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
     url: null,
     svg: null,
@@ -260,6 +281,9 @@ export function CoverStudio() {
     error: null
   });
   const [busyMessage, setBusyMessage] = useState<string | null>(null);
+  const [busyAction, setBusyAction] = useState<"upload" | "single" | "batch" | null>(
+    null
+  );
   const previewUrlRef = useRef<string | null>(null);
   const fieldRefs = useRef<
     Record<EditableField, HTMLInputElement | HTMLTextAreaElement | null>
@@ -270,9 +294,14 @@ export function CoverStudio() {
     date: null,
     footer: null
   });
+  const activeImage =
+    images.find((candidate) => candidate.id === activeImageId) ?? null;
+  const selectedImages = images.filter((candidate) => candidate.selected);
+  const selectedImageCount = selectedImages.length;
+  const totalImageCount = images.length;
 
   useEffect(() => {
-    if (!image) {
+    if (!activeImage) {
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
         previewUrlRef.current = null;
@@ -290,7 +319,7 @@ export function CoverStudio() {
 
     try {
       const result = renderCoverSvg({
-        image: { src: image.dataUrl, mimeType: image.mimeType },
+        image: { src: activeImage.dataUrl, mimeType: activeImage.mimeType },
         header: deferredForm.header,
         title: deferredForm.title,
         date: deferredForm.date,
@@ -323,7 +352,7 @@ export function CoverStudio() {
         error: error instanceof Error ? error.message : "Preview rendering failed."
       }));
     }
-  }, [deferredForm, image]);
+  }, [activeImage, deferredForm]);
 
   useEffect(() => {
     return () => {
@@ -371,28 +400,86 @@ export function CoverStudio() {
     });
   }
 
-  async function handleFile(file: File | null) {
-    if (!file) {
+  function createCoverFileName(imageItem: UploadedImageState) {
+    const baseName = buildOutputFileName(form.title, form.date, form.template).replace(
+      /\.png$/,
+      ""
+    );
+    const imagePart = slugifyFilePart(stripExtension(imageItem.fileName));
+
+    return `${baseName}-${imagePart || "image"}.png`;
+  }
+
+  function clearImages() {
+    setImages([]);
+    setActiveImageId(null);
+    setPreview({
+      url: null,
+      svg: null,
+      width: 1600,
+      height: 1600,
+      error: null
+    });
+  }
+
+  function toggleImageSelection(imageId: string) {
+    setImages((current) =>
+      current.map((imageItem) =>
+        imageItem.id === imageId
+          ? {
+              ...imageItem,
+              selected: !imageItem.selected
+            }
+          : imageItem
+      )
+    );
+  }
+
+  function setAllSelections(selected: boolean) {
+    setImages((current) =>
+      current.map((imageItem) => ({
+        ...imageItem,
+        selected
+      }))
+    );
+  }
+
+  async function handleFiles(files: FileList | File[] | null) {
+    if (!files || files.length === 0) {
       return;
     }
 
-    if (!supportedMimeTypes.has(file.type)) {
+    const candidates = Array.from(files);
+    const validFiles = candidates.filter((file) => supportedMimeTypes.has(file.type));
+
+    if (validFiles.length === 0) {
       setPreview((current) => ({
         ...current,
-        error: "Upload a JPG, PNG, WebP, or AVIF image."
+        error: "Upload JPG, PNG, WebP, or AVIF images."
       }));
       return;
     }
 
-    setBusyMessage("Preparing image...");
+    setBusyAction("upload");
+    setBusyMessage(
+      validFiles.length > 1
+        ? `Preparing ${validFiles.length} images...`
+        : "Preparing image..."
+    );
 
     try {
-      const dataUrl = await fileToDataUrl(file);
-      setImage({
-        dataUrl,
-        fileName: file.name,
-        mimeType: file.type
-      });
+      const uploads = await Promise.all(
+        validFiles.map(async (file, index) => ({
+          id: createUploadId(file, index),
+          dataUrl: await fileToDataUrl(file),
+          fileName: file.name,
+          mimeType: file.type,
+          selected: true
+        }))
+      );
+
+      setImages((current) => [...current, ...uploads]);
+      setActiveImageId((current) => current ?? uploads[0]?.id ?? null);
       setPreview((current) => ({
         ...current,
         error: null
@@ -404,22 +491,21 @@ export function CoverStudio() {
       }));
     } finally {
       setBusyMessage(null);
+      setBusyAction(null);
     }
   }
 
   async function handleDownload() {
-    if (!preview.svg) {
+    if (!preview.svg || !activeImage) {
       return;
     }
 
+    setBusyAction("single");
     setBusyMessage("Exporting PNG...");
 
     try {
       const pngBlob = await svgToPngBlob(preview.svg, preview.width, preview.height);
-      downloadBlob(
-        pngBlob,
-        buildOutputFileName(form.title, form.date, form.template)
-      );
+      downloadBlob(pngBlob, createCoverFileName(activeImage));
     } catch (error) {
       setPreview((current) => ({
         ...current,
@@ -427,6 +513,63 @@ export function CoverStudio() {
       }));
     } finally {
       setBusyMessage(null);
+      setBusyAction(null);
+    }
+  }
+
+  async function handleBatchDownload() {
+    if (selectedImages.length === 0) {
+      return;
+    }
+
+    setBusyAction("batch");
+    setBusyMessage(
+      selectedImages.length > 1
+        ? `Exporting ${selectedImages.length} covers...`
+        : "Exporting selected cover..."
+    );
+
+    try {
+      const files: Array<{ fileName: string; blob: Blob }> = [];
+
+      for (const imageItem of selectedImages) {
+        const renderResult = renderCoverSvg({
+          image: { src: imageItem.dataUrl, mimeType: imageItem.mimeType },
+          header: form.header,
+          title: form.title,
+          date: form.date,
+          subtitle: form.subtitle,
+          footer: form.footer,
+          template: form.template,
+          shadow: form.shadow,
+          blur: form.blur
+        });
+        const pngBlob = await svgToPngBlob(
+          renderResult.svg,
+          renderResult.width,
+          renderResult.height
+        );
+
+        files.push({
+          fileName: createCoverFileName(imageItem),
+          blob: pngBlob
+        });
+      }
+
+      const zipBlob = await zipFilesToBlob(files);
+      const zipName = `${buildOutputFileName(form.title, form.date, form.template).replace(
+        /\.png$/,
+        ""
+      )}-selected.zip`;
+      downloadBlob(zipBlob, zipName);
+    } catch (error) {
+      setPreview((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : "ZIP export failed."
+      }));
+    } finally {
+      setBusyMessage(null);
+      setBusyAction(null);
     }
   }
 
@@ -455,7 +598,7 @@ export function CoverStudio() {
                   Cover Preview
                 </p>
                 <p className="mt-1 text-sm text-black/58">
-                  {image ? image.fileName : "not selected yet"}
+                  {activeImage ? activeImage.fileName : "not selected yet"}
                 </p>
               </div>
               <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/42">
@@ -469,7 +612,7 @@ export function CoverStudio() {
                   <img
                     alt=""
                     className="absolute inset-[-12%] h-[124%] w-[124%] scale-105 rounded-[36px] object-cover blur-3xl opacity-60"
-                    src={image?.dataUrl ?? preview.url}
+                    src={activeImage?.dataUrl ?? preview.url}
                   />
                   <img
                     alt="Cover preview"
@@ -486,13 +629,13 @@ export function CoverStudio() {
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#111111]">Source</p>
                 <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
-                  Self upload
+                  {totalImageCount > 0 ? `${selectedImageCount}/${totalImageCount} selected` : "Self upload"}
                 </span>
               </div>
               <p className="mt-2 text-sm leading-5 text-black/55">
-                {image
-                  ? `${image.fileName} is ready for preview and export.`
-                  : "Choose one photo to unlock preview and PNG export."}
+                {activeImage
+                  ? `${activeImage.fileName} is active. Switch thumbnails below and export one PNG or a ZIP of the selected set.`
+                  : "Choose one or more photos to unlock preview, single export, and ZIP batch export."}
               </p>
             </div>
 
@@ -502,16 +645,34 @@ export function CoverStudio() {
               </div>
             ) : null}
 
-            <button
-              className="mt-4 inline-flex w-full items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
-              disabled={!preview.svg || Boolean(busyMessage)}
-              onClick={() => {
-                void handleDownload();
-              }}
-              type="button"
-            >
-              {busyMessage ?? "Download PNG"}
-            </button>
+            <div className="mt-4 grid gap-3">
+              <button
+                className="inline-flex w-full items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0] disabled:cursor-not-allowed disabled:border-[#b6d7ff] disabled:bg-[#b6d7ff]"
+                disabled={!preview.svg || Boolean(busyMessage)}
+                onClick={() => {
+                  void handleDownload();
+                }}
+                type="button"
+              >
+                {busyAction === "single" && busyMessage
+                  ? busyMessage
+                  : "Download Current PNG"}
+              </button>
+              <button
+                className="inline-flex w-full items-center justify-center rounded-xl border-[3px] border-[#d7dbe3] bg-[#fafafc] px-4 py-3 text-sm font-semibold text-[#111111] transition hover:border-[#c3cad5] hover:bg-white disabled:cursor-not-allowed disabled:border-[#e4e8ef] disabled:text-black/35"
+                disabled={selectedImageCount === 0 || Boolean(busyMessage)}
+                onClick={() => {
+                  void handleBatchDownload();
+                }}
+                type="button"
+              >
+                {busyAction === "batch" && busyMessage
+                  ? busyMessage
+                  : selectedImageCount > 0
+                    ? `Download Selected ZIP (${selectedImageCount})`
+                    : "Download Selected ZIP"}
+              </button>
+            </div>
           </section>
 
           <section className={`${panelClass} p-4`}>
@@ -679,7 +840,7 @@ export function CoverStudio() {
               }}
               onDrop={(event) => {
                 event.preventDefault();
-                void handleFile(event.dataTransfer.files.item(0));
+                void handleFiles(event.dataTransfer.files);
               }}
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -688,19 +849,19 @@ export function CoverStudio() {
                     Self Upload
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#111111]">
-                    Drag one photo here or choose from disk.
+                    Drag multiple photos here or choose from disk.
                   </h2>
                   <p className="mt-3 max-w-xl text-sm leading-6 text-black/58">
-                    The renderer uses one square composition path for both the
-                    live preview and the CLI export. Long text is wrapped and
-                    resized inside the shared package.
+                    Upload a batch, switch the active preview image, and export
+                    either the current cover or a ZIP of selected covers with
+                    the same renderer and text settings.
                   </p>
                 </div>
                 <label
                   className="inline-flex cursor-pointer items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0]"
                   htmlFor={inputId}
                 >
-                  Choose Image
+                  Choose Images
                 </label>
               </div>
 
@@ -709,19 +870,21 @@ export function CoverStudio() {
                 className="sr-only"
                 id={inputId}
                 onChange={(event) => {
-                  void handleFile(event.target.files?.item(0) ?? null);
+                  void handleFiles(event.target.files);
+                  event.currentTarget.value = "";
                 }}
+                multiple
                 type="file"
               />
 
               <div className="mt-5 rounded-2xl border-[3px] border-dashed border-[#d4d4d8] bg-[#fafafc] p-5">
                 <div className="grid gap-4 sm:grid-cols-[6rem_minmax(0,1fr)]">
                   <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-[#eceef2]">
-                    {image ? (
+                    {activeImage ? (
                       <img
                         alt="Uploaded source"
                         className="h-full w-full object-cover"
-                        src={image.dataUrl}
+                        src={activeImage.dataUrl}
                       />
                     ) : (
                       <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/35">
@@ -731,14 +894,118 @@ export function CoverStudio() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[#111111]">
-                      {image ? image.fileName : "No image selected"}
+                      {activeImage ? activeImage.fileName : "No image selected"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-black/58">
-                      {image
-                        ? "Your uploaded photo is now driving the preview and the exported cover."
-                        : "JPG, PNG, WebP, and AVIF are supported. The image stays local in your browser."}
+                      {activeImage
+                        ? `Active preview image. ${selectedImageCount} of ${totalImageCount} uploaded images will be included in batch export.`
+                        : "JPG, PNG, WebP, and AVIF are supported. Images stay local in your browser."}
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-2xl border-[3px] border-[#e6e6e6] bg-white p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                      Image Collection
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-black/58">
+                      Click a card to change the live preview. Use the checkbox
+                      to include or exclude that image from batch export.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      disabled={images.length === 0}
+                      onClick={() => setAllSelections(true)}
+                      type="button"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      disabled={images.length === 0}
+                      onClick={() => setAllSelections(false)}
+                      type="button"
+                    >
+                      Select None
+                    </button>
+                    <button
+                      className="rounded-xl border-[3px] border-[#f0d2ca] bg-[#fff6f4] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a24a32] transition hover:border-[#e6beb2] hover:bg-white disabled:cursor-not-allowed disabled:text-[#d3a69b]"
+                      disabled={images.length === 0}
+                      onClick={clearImages}
+                      type="button"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {images.length > 0 ? (
+                    images.map((imageItem) => {
+                      const isActive = imageItem.id === activeImageId;
+
+                      return (
+                        <div
+                          className={[
+                            "overflow-hidden rounded-2xl border-[3px] bg-[#fafafc] transition",
+                            isActive
+                              ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
+                              : "border-[#e6e6e6]"
+                          ].join(" ")}
+                          key={imageItem.id}
+                        >
+                          <button
+                            className="block w-full"
+                            onClick={() => setActiveImageId(imageItem.id)}
+                            type="button"
+                          >
+                            <img
+                              alt={imageItem.fileName}
+                              className="h-36 w-full object-cover"
+                              src={imageItem.dataUrl}
+                            />
+                          </button>
+                          <div className="p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <label className="flex items-center gap-2 text-sm font-medium text-[#111111]">
+                                <input
+                                  checked={imageItem.selected}
+                                  className="h-4 w-4 rounded border-[#d4d4d8] text-[#027fff] focus:ring-[#027fff]"
+                                  onChange={() => toggleImageSelection(imageItem.id)}
+                                  type="checkbox"
+                                />
+                                Include
+                              </label>
+                              {isActive ? (
+                                <span className="rounded-lg bg-[#ebf5ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#027fff]">
+                                  Active
+                                </span>
+                              ) : null}
+                            </div>
+                            <p className="mt-2 truncate text-sm font-semibold text-[#111111]">
+                              {imageItem.fileName}
+                            </p>
+                            <p className="mt-1 text-xs text-black/46">
+                              {imageItem.selected
+                                ? "Included in ZIP export."
+                                : "Skipped from ZIP export."}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-2xl border-[3px] border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-6 text-sm leading-6 text-black/52 sm:col-span-2 xl:col-span-3">
+                      Upload multiple images to build a batch. Each image can
+                      be previewed individually and included or excluded before
+                      downloading the final ZIP.
+                    </div>
+                  )}
                 </div>
               </div>
             </section>

@@ -74,6 +74,26 @@ export function downloadBlob(blob: Blob, fileName: string) {
   link.href = url;
   link.download = fileName;
   link.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
+export async function zipFilesToBlob(
+  files: Array<{ fileName: string; blob: Blob }>
+) {
+  const { default: JSZip } = await import("jszip");
+  const zip = new JSZip();
+
+  for (const file of files) {
+    zip.file(file.fileName, file.blob);
+  }
+
+  return await zip.generateAsync({
+    type: "blob",
+    compression: "DEFLATE",
+    compressionOptions: {
+      level: 6
+    }
+  });
+}
