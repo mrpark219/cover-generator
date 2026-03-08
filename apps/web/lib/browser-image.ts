@@ -1,3 +1,5 @@
+import { supportedMimeTypes } from "@cover-generator/shared";
+
 export interface UploadedImageState {
   dataUrl: string;
   fileName: string;
@@ -23,6 +25,74 @@ export function fileToDataUrl(file: File) {
 
     reader.readAsDataURL(file);
   });
+}
+
+function blobToDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+      reject(new Error("The selected file could not be read."));
+    };
+
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        reject(new Error("Unexpected file reader result."));
+        return;
+      }
+
+      resolve(reader.result);
+    };
+
+    reader.readAsDataURL(blob);
+  });
+}
+
+function normalizeMimeType(value: string) {
+  const normalized = value.toLowerCase();
+
+  if (normalized === "image/jpg") {
+    return "image/jpeg";
+  }
+
+  return normalized;
+}
+
+function inferRemoteFileName(url: string, mimeType: string) {
+  try {
+    const parsed = new URL(url);
+    const pathSegment = parsed.pathname.split("/").pop();
+
+    if (pathSegment && /\.[a-z0-9]+$/i.test(pathSegment)) {
+      return decodeURIComponent(pathSegment);
+    }
+  } catch {
+    // Fall through to the generated fallback name.
+  }
+
+  const extension = mimeType.split("/")[1] ?? "img";
+  return `remote-image.${extension}`;
+}
+
+export async function fetchImageUrlAsUpload(url: string): Promise<UploadedImageState> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`The image request failed with status ${response.status}.`);
+  }
+
+  const blob = await response.blob();
+  const mimeType = normalizeMimeType(blob.type);
+
+  if (!supportedMimeTypes.has(mimeType)) {
+    throw new Error("Unsupported image format.");
+  }
+
+  return {
+    dataUrl: await blobToDataUrl(blob),
+    fileName: inferRemoteFileName(url, mimeType),
+    mimeType
+  };
 }
 
 async function loadImage(source: string) {

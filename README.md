@@ -46,10 +46,12 @@ Open `http://localhost:3000`.
 
 The web app supports:
 
-- multi-image upload with active preview switching
+- self upload and direct image URL paste
+- multi-image import with active preview switching
 - double-click selection for shared batch editing and ZIP download
 - per-image draft text/template settings before selection
 - square resolution selection: `1200`, `1600`, `2048`
+- Korean and English UI switching
 - header, title, freeform date/meta, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`
@@ -125,6 +127,8 @@ This keeps layout logic in one place:
 - text wrapping
 - text shrinking
 - date formatting
+
+UI copy for the web app is centralized in `apps/web/lib/studio-copy.ts`, so adding more languages later only requires extending the copy dictionary and the language selector.
 
 ## Templates
 
