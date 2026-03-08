@@ -68,13 +68,22 @@ type EditableField = keyof Pick<
 >;
 
 type SourceMode = "upload" | "url";
+type FieldAlignment = "left" | "center" | "right";
+type FieldTone = "title" | "body" | "meta";
+
+interface TemplateFieldLayoutItem {
+  field: EditableField;
+  span?: "full";
+  align: FieldAlignment;
+  tone: FieldTone;
+}
 
 const initialFormState: FormState = {
-  header: "APPLE MUSIC",
-  title: "Han River",
-  date: "2026-03-01",
-  subtitle: "Seoul",
-  footer: "SELF UPLOAD",
+  header: "",
+  title: "",
+  date: "",
+  subtitle: "",
+  footer: "",
   template: defaultTemplate,
   size: defaultCoverSize,
   shadow: false,
@@ -155,6 +164,30 @@ const quickSymbols: Array<{
   { label: "✦", value: "✦", title: "Sparkle" }
 ];
 
+const templateFieldLayouts: Record<CoverTemplate, TemplateFieldLayoutItem[]> = {
+  modern: [
+    { field: "header", span: "full", align: "left", tone: "meta" },
+    { field: "title", span: "full", align: "left", tone: "title" },
+    { field: "subtitle", span: "full", align: "left", tone: "body" },
+    { field: "footer", align: "left", tone: "meta" },
+    { field: "date", align: "right", tone: "meta" }
+  ],
+  normal: [
+    { field: "header", span: "full", align: "right", tone: "meta" },
+    { field: "title", span: "full", align: "center", tone: "title" },
+    { field: "subtitle", span: "full", align: "center", tone: "body" },
+    { field: "footer", span: "full", align: "center", tone: "meta" },
+    { field: "date", span: "full", align: "center", tone: "meta" }
+  ],
+  classic: [
+    { field: "header", align: "right", tone: "meta" },
+    { field: "date", align: "right", tone: "meta" },
+    { field: "title", span: "full", align: "left", tone: "title" },
+    { field: "subtitle", span: "full", align: "left", tone: "body" },
+    { field: "footer", span: "full", align: "left", tone: "meta" }
+  ]
+};
+
 function BrandLogo() {
   return (
     <div className="flex h-11 w-11 items-center justify-center rounded-[16px] border border-black/8 bg-[linear-gradient(180deg,#ffffff_0%,#f2f4f8_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(15,23,42,0.08)]">
@@ -194,14 +227,23 @@ function BrandLogo() {
 
 function FieldLabel({
   htmlFor,
-  children
+  children,
+  align = "left"
 }: {
   htmlFor: string;
   children: string;
+  align?: FieldAlignment;
 }) {
   return (
     <label
-      className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-black/45"
+      className={[
+        "mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-black/45",
+        align === "center"
+          ? "text-center"
+          : align === "right"
+            ? "text-right"
+            : "text-left"
+      ].join(" ")}
       htmlFor={htmlFor}
     >
       {children}
@@ -312,6 +354,11 @@ function stripExtension(fileName: string) {
   return fileName.replace(/\.[^.]+$/, "");
 }
 
+function resolveFormTextValue(value: string, fallback: string) {
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
+
 function cloneFormState(value: FormState): FormState {
   return {
     ...value
@@ -381,19 +428,41 @@ export function CoverStudio() {
   const activeSelectedIndex = activeImage
     ? selectedImages.findIndex((candidate) => candidate.id === activeImage.id)
     : -1;
-  const form = activeImage
+  const copy = uiText[language];
+  const rawForm = activeImage
     ? activeImage.selected
       ? sharedForm
       : activeImage.draftForm
     : sharedForm;
+  const form = {
+    ...rawForm,
+    header: resolveFormTextValue(rawForm.header, copy.placeholders.header),
+    title: resolveFormTextValue(rawForm.title, copy.placeholders.title),
+    subtitle: resolveFormTextValue(rawForm.subtitle, copy.placeholders.subtitle),
+    date: resolveFormTextValue(rawForm.date, copy.placeholders.date),
+    footer: resolveFormTextValue(rawForm.footer, copy.placeholders.footer)
+  };
   const deferredForm = useDeferredValue(form);
-  const copy = uiText[language];
   const fieldLabels: Record<EditableField, string> = {
     header: copy.fields.header,
     title: copy.fields.title,
     subtitle: copy.fields.subtitle,
     date: copy.fields.date,
     footer: copy.fields.footer
+  };
+  const fieldLayout = templateFieldLayouts[rawForm.template];
+  const alignmentClassNames: Record<FieldAlignment, string> = {
+    left: "text-left",
+    center: "text-center",
+    right: "text-right"
+  };
+  const resolvedSharedForm = {
+    ...sharedForm,
+    header: resolveFormTextValue(sharedForm.header, copy.placeholders.header),
+    title: resolveFormTextValue(sharedForm.title, copy.placeholders.title),
+    subtitle: resolveFormTextValue(sharedForm.subtitle, copy.placeholders.subtitle),
+    date: resolveFormTextValue(sharedForm.date, copy.placeholders.date),
+    footer: resolveFormTextValue(sharedForm.footer, copy.placeholders.footer)
   };
 
   useEffect(() => {
@@ -775,7 +844,7 @@ export function CoverStudio() {
       const files: Array<{ fileName: string; blob: Blob }> = [];
 
       for (const imageItem of selectedImages) {
-        const selectedForm = sharedForm;
+        const selectedForm = resolvedSharedForm;
         const renderResult = renderCoverSvg({
           image: {
             src: imageItem.dataUrl,
@@ -802,16 +871,16 @@ export function CoverStudio() {
         );
 
         files.push({
-          fileName: createCoverFileName(imageItem, sharedForm),
+          fileName: createCoverFileName(imageItem, resolvedSharedForm),
           blob: pngBlob
         });
       }
 
       const zipBlob = await zipFilesToBlob(files);
       const zipName = `${buildOutputFileName(
-        sharedForm.title,
-        sharedForm.date,
-        sharedForm.template
+        resolvedSharedForm.title,
+        resolvedSharedForm.date,
+        resolvedSharedForm.template
       ).replace(/\.png$/, "")}-selected.zip`;
       downloadBlob(zipBlob, zipName);
     } catch (error) {
@@ -823,6 +892,62 @@ export function CoverStudio() {
       setBusyMessage(null);
       setBusyAction(null);
     }
+  }
+
+  function renderTextField(item: TemplateFieldLayoutItem) {
+    const alignClassName = alignmentClassNames[item.align];
+    const wrapperClassName = item.span === "full" ? "sm:col-span-2" : "";
+    const isTitle = item.field === "title";
+    const isUppercaseField = item.field === "header" || item.field === "footer";
+    const textSizeClassName =
+      item.tone === "meta" ? "text-[12px]" : item.tone === "body" ? "text-[14px]" : "";
+
+    if (isTitle) {
+      return (
+        <div className={wrapperClassName} key={item.field}>
+          <FieldLabel align={item.align} htmlFor={item.field}>
+            {copy.fields[item.field]}
+          </FieldLabel>
+          <textarea
+            className={[
+              "min-h-[56px] w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[16px] font-semibold leading-[1.2] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]",
+              alignClassName
+            ].join(" ")}
+            id={item.field}
+            maxLength={120}
+            onChange={(event) => setTextField(item.field, event.target.value)}
+            onFocus={() => setActiveField(item.field)}
+            placeholder={copy.placeholders[item.field]}
+            ref={setFieldRef(item.field)}
+            value={rawForm[item.field]}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className={wrapperClassName} key={item.field}>
+        <FieldLabel align={item.align} htmlFor={item.field}>
+          {copy.fields[item.field]}
+        </FieldLabel>
+        <input
+          className={[
+            "w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]",
+            alignClassName,
+            textSizeClassName,
+            isUppercaseField ? "uppercase tracking-[0.14em]" : ""
+          ].join(" ")}
+          id={item.field}
+          maxLength={item.field === "header" || item.field === "footer" ? 48 : 80}
+          onChange={(event) => setTextField(item.field, event.target.value)}
+          onFocus={() => setActiveField(item.field)}
+          placeholder={copy.placeholders[item.field]}
+          ref={setFieldRef(item.field)}
+          type="text"
+          value={rawForm[item.field]}
+        />
+      </div>
+    );
   }
 
   const cliCommand = [
@@ -1096,82 +1221,8 @@ export function CoverStudio() {
                 </p>
               </div>
 
-              <div>
-                <FieldLabel htmlFor="title">{copy.fields.title}</FieldLabel>
-                <textarea
-                  className="min-h-[56px] w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[16px] font-semibold leading-[1.2] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                  id="title"
-                  maxLength={120}
-                  onChange={(event) => setTextField("title", event.target.value)}
-                  onFocus={() => setActiveField("title")}
-                  placeholder={copy.placeholders.title}
-                  ref={setFieldRef("title")}
-                  value={form.title}
-                />
-              </div>
-
               <div className="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <FieldLabel htmlFor="header">{copy.fields.header}</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium uppercase tracking-[0.14em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                    id="header"
-                    maxLength={48}
-                    onChange={(event) => setTextField("header", event.target.value)}
-                    onFocus={() => setActiveField("header")}
-                    placeholder={copy.placeholders.header}
-                    ref={setFieldRef("header")}
-                    type="text"
-                    value={form.header}
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel htmlFor="footer">{copy.fields.footer}</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium uppercase tracking-[0.14em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                    id="footer"
-                    maxLength={48}
-                    onChange={(event) => setTextField("footer", event.target.value)}
-                    onFocus={() => setActiveField("footer")}
-                    placeholder={copy.placeholders.footer}
-                    ref={setFieldRef("footer")}
-                    type="text"
-                    value={form.footer}
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <FieldLabel htmlFor="subtitle">{copy.fields.subtitle}</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                    id="subtitle"
-                    maxLength={80}
-                    onChange={(event) => setTextField("subtitle", event.target.value)}
-                    onFocus={() => setActiveField("subtitle")}
-                    placeholder={copy.placeholders.subtitle}
-                    ref={setFieldRef("subtitle")}
-                    type="text"
-                    value={form.subtitle}
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel htmlFor="date">{copy.fields.date}</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2.5 text-[13px] font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                    id="date"
-                    maxLength={80}
-                    onChange={(event) => setTextField("date", event.target.value)}
-                    onFocus={() => setActiveField("date")}
-                    placeholder={copy.placeholders.date}
-                    ref={setFieldRef("date")}
-                    type="text"
-                    value={form.date}
-                  />
-                </div>
+                {fieldLayout.map((item) => renderTextField(item))}
               </div>
 
               <div className="grid gap-2.5 md:grid-cols-[minmax(0,1fr)_10rem] xl:grid-cols-1">

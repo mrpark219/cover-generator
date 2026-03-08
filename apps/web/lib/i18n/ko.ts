@@ -42,7 +42,7 @@ export const koUiText: StudioCopy = {
     header: "APPLE MUSIC",
     title: "Han River",
     subtitle: "Seoul",
-    date: "2026-03-01 또는 Vol. 01",
+    date: "VOL. 01",
     footer: "SELF UPLOAD"
   },
   templates: {
