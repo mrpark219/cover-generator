@@ -652,7 +652,7 @@ export function CoverStudio() {
     const seedForm = cloneFormState(activeImage?.draftForm ?? baseForm);
     const nextGroup: ImageGroup = {
       id: createGroupId(groupIndex),
-      name: `Group ${groupIndex}`,
+      name: copy.groupName(groupIndex),
       form: seedForm
     };
 
@@ -860,6 +860,8 @@ export function CoverStudio() {
 
         <aside className="space-y-3">
           <SettingsSection
+            activeGroupName={activeGroup?.name ?? null}
+            activeImageName={activeImage?.fileName ?? null}
             activeField={activeField}
             copy={copy}
             fieldLayout={templateFieldLayout}

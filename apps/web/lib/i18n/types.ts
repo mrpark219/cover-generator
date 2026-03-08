@@ -31,6 +31,10 @@ export interface StudioCopy {
   exportBatchBusy: (count: number) => string;
   settings: string;
   settingsDescription: string;
+  editingTarget: string;
+  editingImage: string;
+  editingGroupLabel: string;
+  editingTargetHint: string;
   fields: Record<"header" | "title" | "subtitle" | "date" | "footer", string>;
   placeholders: Record<"header" | "title" | "subtitle" | "date" | "footer", string>;
   templates: Record<CoverTemplate, { label: string; description: string }>;
@@ -64,9 +68,11 @@ export interface StudioCopy {
   deselectAll: string;
   clearAll: string;
   addGroup: string;
+  groupName: (index: number) => string;
   ungrouped: string;
   groupDropHint: string;
   emptyGroup: string;
+  emptyGroupEditingHint: string;
   editGroup: string;
   editImage: string;
   collection: string;

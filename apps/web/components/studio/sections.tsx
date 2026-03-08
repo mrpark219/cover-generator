@@ -2,7 +2,6 @@
 
 import {
   coverSizeOptions,
-  coverTemplates,
   defaultTextColor,
   normalizeHexColor,
   type CoverTemplate
@@ -11,9 +10,9 @@ import { languageOptions, type Language, type StudioCopy } from "../../lib/i18n"
 import {
   panelClass,
   quickSymbols,
-  textColorSwatches,
-  templatePreviewImages
+  textColorSwatches
 } from "./constants";
+import { TemplatePicker } from "./template-picker";
 import type {
   EditableField,
   FieldAlignment,
@@ -133,52 +132,6 @@ function OptionToggle({
         type="checkbox"
       />
     </label>
-  );
-}
-
-function TemplateCard({
-  template,
-  label,
-  previewAlt,
-  active,
-  onSelect
-}: {
-  template: CoverTemplate;
-  label: string;
-  previewAlt: string;
-  active: boolean;
-  onSelect: (template: CoverTemplate) => void;
-}) {
-  return (
-    <div
-      aria-checked={active}
-      className={[
-        "cursor-pointer rounded-[18px] border-2 p-1.5 text-left transition",
-        active
-          ? "border-[#027fff] bg-[#f7fbff]"
-          : "border-[#e6e6e6] bg-white hover:border-[#d3d3d7]"
-      ].join(" ")}
-      onClick={() => onSelect(template)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect(template);
-        }
-      }}
-      role="radio"
-      tabIndex={0}
-    >
-      <div className="overflow-hidden rounded-xl bg-[#eceef2]">
-        <img
-          alt={previewAlt}
-          className="block h-14 w-full object-cover"
-          src={templatePreviewImages[template]}
-        />
-      </div>
-      <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[#111111]">
-        {label}
-      </p>
-    </div>
   );
 }
 
@@ -570,6 +523,8 @@ export function PreviewSection({
 export function SettingsSection({
   copy,
   rawForm,
+  activeImageName,
+  activeGroupName,
   activeField,
   fieldLayout,
   setFieldRef,
@@ -581,6 +536,8 @@ export function SettingsSection({
 }: {
   copy: StudioCopy;
   rawForm: FormState;
+  activeImageName: string | null;
+  activeGroupName: string | null;
   activeField: EditableField;
   fieldLayout: TemplateFieldLayoutItem[];
   setFieldRef: (
@@ -604,6 +561,23 @@ export function SettingsSection({
           </p>
         </div>
 
+        <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] px-3 py-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+              {copy.editingTarget}
+            </p>
+            <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/52">
+              {activeGroupName ? copy.editingGroupLabel : copy.editingImage}
+            </span>
+          </div>
+          <p className="mt-1 text-[13px] font-semibold text-[#111111]">
+            {activeGroupName ?? activeImageName ?? copy.noActiveImage}
+          </p>
+          <p className="mt-0.5 text-[11px] leading-4 text-black/52">
+            {copy.editingTargetHint}
+          </p>
+        </div>
+
         <div className="grid gap-2.5 sm:grid-cols-2">
           {fieldLayout.map((item) => (
             <TextFieldControl
@@ -621,21 +595,7 @@ export function SettingsSection({
         <div className="grid gap-2.5 md:grid-cols-[minmax(0,1fr)_10rem] xl:grid-cols-1">
           <div>
             <FieldLabel htmlFor="template-modern">{copy.template}</FieldLabel>
-            <div className="grid grid-cols-3 gap-2">
-              {coverTemplates.map((template) => (
-                <TemplateCard
-                  active={template.id === rawForm.template}
-                  key={template.id}
-                  label={copy.templates[template.id].label}
-                  onSelect={onTemplateChange}
-                  previewAlt={copy.templatePreviewAlt(copy.templates[template.id].label)}
-                  template={template.id}
-                />
-              ))}
-            </div>
-            <p className="mt-1.5 break-keep text-[11px] leading-4 text-black/52">
-              {copy.templates[rawForm.template].description}
-            </p>
+            <TemplatePicker copy={copy} onChange={onTemplateChange} value={rawForm.template} />
           </div>
 
           <div>
@@ -1012,7 +972,9 @@ export function ImagesSection({
                           {group.name}
                         </p>
                         <p className="mt-0.5 text-[11px] leading-4 text-black/52">
-                          {copy.groupDropHint}
+                          {groupImages.length > 0
+                            ? copy.groupDropHint
+                            : copy.emptyGroupEditingHint}
                         </p>
                       </div>
                       <button

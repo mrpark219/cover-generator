@@ -29,6 +29,10 @@ export const enUiText: StudioCopy = {
   settings: "Layout",
   settingsDescription:
     "Text and template can move together. Crop stays unique to each image.",
+  editingTarget: "Editing",
+  editingImage: "Image",
+  editingGroupLabel: "Group",
+  editingTargetHint: "Click an image for per-image edits. Click a group header for shared group edits.",
   fields: {
     header: "Header",
     title: "Title",
@@ -93,9 +97,11 @@ export const enUiText: StudioCopy = {
   deselectAll: "Deselect All",
   clearAll: "Clear All",
   addGroup: "Add Group",
+  groupName: (index) => `Group ${index}`,
   ungrouped: "Ungrouped",
   groupDropHint: "Drag images into a group to organize them.",
   emptyGroup: "Drop images here to add them to this group.",
+  emptyGroupEditingHint: "This group is still editable. New drops will use its shared text and template.",
   editGroup: "Edit Group",
   editImage: "Edit Image",
   collection: "Collection",

@@ -29,6 +29,10 @@ export const koUiText: StudioCopy = {
   settings: "레이아웃",
   settingsDescription:
     "텍스트와 템플릿은 함께 움직이고, 크롭은 이미지마다 따로 기억합니다.",
+  editingTarget: "편집 대상",
+  editingImage: "이미지",
+  editingGroupLabel: "그룹",
+  editingTargetHint: "이미지를 누르면 개별 편집, 그룹 헤더를 누르면 그룹 공통 편집으로 바뀝니다.",
   fields: {
     header: "헤더",
     title: "제목",
@@ -93,9 +97,11 @@ export const koUiText: StudioCopy = {
   deselectAll: "선택 해제",
   clearAll: "전체 제거",
   addGroup: "그룹 추가",
+  groupName: (index) => `그룹 ${index}`,
   ungrouped: "미분류",
   groupDropHint: "이미지를 드래그해서 그룹으로 옮기세요.",
   emptyGroup: "여기로 이미지를 드롭하면 이 그룹에 들어갑니다.",
+  emptyGroupEditingHint: "비어 있어도 이 그룹은 편집할 수 있습니다. 새로 드롭한 이미지는 이 그룹 설정을 따릅니다.",
   editGroup: "그룹 편집",
   editImage: "개별 편집",
   collection: "컬렉션",

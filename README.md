@@ -48,8 +48,9 @@ The web app supports:
 
 - self upload and direct image URL paste
 - multi-image import with active preview switching
-- double-click selection for shared batch editing and ZIP download
-- per-image draft text/template settings before selection
+- drag-and-drop grouping inside the collection
+- per-image editing and per-group shared editing
+- checkbox-based batch ZIP export
 - square resolution selection: `1200`, `1600`, `2048`
 - per-image crop position adjustment
 - Korean and English UI switching
@@ -65,6 +66,12 @@ Build the CLI first:
 
 ```bash
 npm run build
+```
+
+If you only want to verify the web app locally, this is enough:
+
+```bash
+npm run build -w @cover-generator/web
 ```
 
 Run it directly from the repo:
@@ -112,6 +119,14 @@ npm run build
 npm run lint
 ```
 
+Useful workspace-level shortcuts:
+
+```bash
+npm run build -w @cover-generator/web
+npm run lint -w @cover-generator/web
+npm run build -w @cover-generator/cli
+```
+
 ## Rendering Architecture
 
 The key design choice is that image composition lives in `packages/cover-renderer`, not in the web UI or CLI.
@@ -129,7 +144,7 @@ This keeps layout logic in one place:
 - image framing and crop behavior
 - text wrapping
 - text shrinking
-- date formatting
+- color/effect handling
 
 UI copy for the web app is organized under `apps/web/lib/i18n/`, so adding more languages later only requires adding another language file and registering it in the i18n index.
 
@@ -160,7 +175,7 @@ The goal is to keep the cover readable without letting text overflow outside the
 
 ## Assumptions
 
-- Date formatting is normalized to uppercase English labels for a consistent Apple Music-inspired look.
+- The `date` field is treated as freeform meta text and rendered as entered.
 - The implementation recreates the public behavior and visual feel of CoverX with an original local renderer.
 - Rendering is fully local. No backend service is required.
 
