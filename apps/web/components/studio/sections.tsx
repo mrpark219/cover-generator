@@ -340,7 +340,7 @@ export function PreviewSection({
   busyMessage: string | null;
 }) {
   return (
-    <section className={`${panelClass} p-2.5 sm:p-3`}>
+    <section className={`${panelClass} p-2.5 sm:p-3 xl:flex xl:h-full xl:flex-col`}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
@@ -355,7 +355,7 @@ export function PreviewSection({
         </span>
       </div>
 
-      <div className="mt-2 flex min-h-[10rem] items-center justify-center overflow-hidden rounded-[22px] bg-[#eef0f4] p-2 sm:min-h-[11.5rem] md:min-h-[12.5rem] xl:min-h-[13.5rem]">
+      <div className="mt-2 flex min-h-[10rem] items-center justify-center overflow-hidden rounded-[22px] bg-[#eef0f4] p-2 sm:min-h-[11.5rem] md:min-h-[12.5rem] xl:min-h-[15rem] xl:flex-1">
         {preview.url ? (
           <div className="relative flex items-center justify-center">
             <img
@@ -552,8 +552,8 @@ export function SettingsSection({
   const normalizedTextColor = normalizeHexColor(rawForm.textColor, defaultTextColor);
 
   return (
-    <section className={`${panelClass} p-2.5 sm:p-3`}>
-      <div className="space-y-2">
+    <section className={`${panelClass} p-2.5 sm:p-3 xl:h-full`}>
+      <div className="space-y-2 xl:flex xl:h-full xl:flex-col">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
             {copy.settings}

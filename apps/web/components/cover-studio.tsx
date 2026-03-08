@@ -762,8 +762,8 @@ export function CoverStudio() {
     >
       <HeaderSection copy={copy} language={language} onLanguageChange={setLanguage} />
 
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,19rem)_minmax(0,24rem)_minmax(0,1fr)] xl:items-start">
-        <aside className="space-y-3">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,19rem)_minmax(0,24rem)_minmax(0,1fr)] xl:items-stretch">
+        <aside className="space-y-3 xl:flex xl:h-full xl:flex-col">
           <PreviewSection
             activeImage={activeImage}
             activeSelectedIndex={activeSelectedIndex}
@@ -801,7 +801,7 @@ export function CoverStudio() {
           />
         </aside>
 
-        <aside className="space-y-3">
+        <aside className="space-y-3 xl:flex xl:h-full xl:flex-col">
           <SettingsSection
             activeField={activeField}
             copy={copy}
@@ -842,8 +842,6 @@ export function CoverStudio() {
             rawForm={rawForm}
             setFieldRef={setFieldRef}
           />
-
-          <DetailsSection cliCommand={cliCommand} copy={copy} />
         </aside>
 
         <section className="space-y-3">
@@ -870,6 +868,8 @@ export function CoverStudio() {
             sourceMode={sourceMode}
             urlInput={urlInput}
           />
+
+          <DetailsSection cliCommand={cliCommand} copy={copy} />
         </section>
       </div>
     </main>
