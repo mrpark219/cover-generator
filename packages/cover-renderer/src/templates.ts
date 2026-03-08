@@ -281,7 +281,7 @@ function renderModernTemplate(context: TemplateContext) {
     maxWidth: contentWidth,
     maxHeight: size * 0.4,
     maxLines: 3,
-    maxFontSize: scaleDesign(context, 90),
+    maxFontSize: scaleDesign(context, 84),
     minFontSize: scaleDesign(context, 38),
     lineHeight: 0.88,
     letterSpacing: 0
@@ -293,7 +293,7 @@ function renderModernTemplate(context: TemplateContext) {
         maxWidth: contentWidth,
         maxHeight: size * 0.24,
         maxLines: 2,
-        maxFontSize: scaleDesign(context, 90),
+        maxFontSize: scaleDesign(context, 82),
         minFontSize: scaleDesign(context, 28),
         lineHeight: 0.86,
         letterSpacing: 0
@@ -406,7 +406,7 @@ function renderNormalTemplate(context: TemplateContext) {
     maxWidth: size - scaleDesign(context, 72),
     maxHeight: size * 0.34,
     maxLines: 3,
-    maxFontSize: scaleDesign(context, 120),
+    maxFontSize: scaleDesign(context, 112),
     minFontSize: scaleDesign(context, 44),
     lineHeight: 0.88,
     letterSpacing: 0
@@ -418,7 +418,7 @@ function renderNormalTemplate(context: TemplateContext) {
         maxWidth: size - scaleDesign(context, 96),
         maxHeight: size * 0.2,
         maxLines: 2,
-        maxFontSize: scaleDesign(context, 35),
+        maxFontSize: scaleDesign(context, 32),
         minFontSize: scaleDesign(context, 18),
         lineHeight: 0.9,
         letterSpacing: 0
@@ -538,7 +538,7 @@ function renderClassicTemplate(context: TemplateContext) {
     maxWidth: size - leftInset * 2,
     maxHeight: size * 0.28,
     maxLines: 3,
-    maxFontSize: scaleDesign(context, 70),
+    maxFontSize: scaleDesign(context, 66),
     minFontSize: scaleDesign(context, 32),
     lineHeight: 0.92,
     letterSpacing: 0
@@ -550,7 +550,7 @@ function renderClassicTemplate(context: TemplateContext) {
         maxWidth: size - leftInset * 2,
         maxHeight: size * 0.24,
         maxLines: 2,
-        maxFontSize: scaleDesign(context, 70),
+        maxFontSize: scaleDesign(context, 64),
         minFontSize: scaleDesign(context, 26),
         lineHeight: 0.92,
         letterSpacing: 0
