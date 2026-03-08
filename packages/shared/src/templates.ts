@@ -6,19 +6,19 @@ export const coverTemplates: CoverTemplateOption[] = [
   {
     id: "modern",
     label: "Modern",
-    description: "Large title, small header, and a clean Apple Music-style overlay.",
+    description: "Left-aligned hero title with the cleaner Apple Music auto-cover feel.",
     mood: "fresh"
   },
   {
     id: "normal",
     label: "Normal",
-    description: "Centered text stack with soft contrast and balanced spacing.",
+    description: "Centered stack with softer hierarchy and calmer spacing.",
     mood: "soft"
   },
   {
     id: "classic",
     label: "Classic",
-    description: "Bolder contrast with a more nostalgic playlist-cover composition.",
+    description: "Higher contrast with a more editorial top-label treatment.",
     mood: "timeless"
   }
 ];

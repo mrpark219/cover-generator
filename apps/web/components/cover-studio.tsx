@@ -56,6 +56,54 @@ const initialFormState: FormState = {
 const panelClass =
   "rounded-2xl border-[3px] border-[#e6e6e6] bg-white";
 
+const templatePreviewBackground = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+    <defs>
+      <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f06767" />
+        <stop offset="45%" stop-color="#8f64ff" />
+        <stop offset="100%" stop-color="#1b5dd6" />
+      </linearGradient>
+      <radialGradient id="glow-a" cx="22%" cy="18%" r="54%">
+        <stop offset="0%" stop-color="#ffcf70" stop-opacity="0.95" />
+        <stop offset="100%" stop-color="#ffcf70" stop-opacity="0" />
+      </radialGradient>
+      <radialGradient id="glow-b" cx="78%" cy="78%" r="58%">
+        <stop offset="0%" stop-color="#091e6b" stop-opacity="0.9" />
+        <stop offset="100%" stop-color="#091e6b" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <rect width="600" height="600" fill="url(#base)" />
+    <rect width="600" height="600" fill="url(#glow-a)" />
+    <rect width="600" height="600" fill="url(#glow-b)" />
+  </svg>
+`)}`;
+
+const templatePreviewTitles: Record<CoverTemplate, string> = {
+  modern: "Blue Hour",
+  normal: "Morning Air",
+  classic: "Late Drive"
+};
+
+const templatePreviewImages = Object.fromEntries(
+  coverTemplates.map((template) => [
+    template.id,
+    `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      renderCoverSvg({
+        image: { src: templatePreviewBackground, mimeType: "image/svg+xml" },
+        header: template.id === "classic" ? "@slowlydev" : "APPLE MUSIC",
+        title: templatePreviewTitles[template.id],
+        date: "2026-03-01",
+        subtitle: "Seoul",
+        footer: template.id === "normal" ? "Playlist" : "SELF UPLOAD",
+        template: template.id,
+        shadow: true,
+        blur: false
+      }).svg
+    )}`
+  ])
+) as Record<CoverTemplate, string>;
+
 function FieldLabel({
   htmlFor,
   children
@@ -103,38 +151,13 @@ function OptionToggle({
 }
 
 function TemplateMini({ template }: { template: CoverTemplate }) {
-  if (template === "modern") {
-    return (
-      <div className="relative h-24 rounded-xl bg-[linear-gradient(180deg,#d6d2c5_0%,#ad8e66_100%)]">
-        <div className="absolute left-3 top-3 h-1.5 w-12 rounded-full bg-white/70" />
-        <div className="absolute left-3 top-6 h-1.5 w-8 rounded-full bg-white/55" />
-        <div className="absolute inset-x-0 bottom-0 h-10 rounded-b-xl bg-black/28" />
-        <div className="absolute bottom-5 left-3 h-3 w-16 rounded-full bg-white/88" />
-        <div className="absolute bottom-2 left-3 h-1.5 w-20 rounded-full bg-white/55" />
-      </div>
-    );
-  }
-
-  if (template === "normal") {
-    return (
-      <div className="relative h-24 rounded-xl bg-[linear-gradient(180deg,#d8d3c7_0%,#8d7862_100%)]">
-        <div className="absolute left-1/2 top-3 h-3 w-16 -translate-x-1/2 rounded-full bg-white/60" />
-        <div className="absolute left-1/2 top-11 h-3 w-20 -translate-x-1/2 rounded-full bg-white/90" />
-        <div className="absolute left-1/2 top-[3.9rem] h-2 w-11 -translate-x-1/2 rounded-full bg-white/65" />
-        <div className="absolute left-1/2 bottom-3 h-1.5 w-14 -translate-x-1/2 rounded-full bg-white/55" />
-      </div>
-    );
-  }
-
   return (
-    <div className="relative h-24 rounded-xl bg-[linear-gradient(180deg,#cab79b_0%,#594839_100%)]">
-      <div className="absolute left-3 top-3 text-4xl font-bold leading-none text-white/20">
-        01
-      </div>
-      <div className="absolute inset-x-2 bottom-2 rounded-lg bg-black/30 p-2">
-        <div className="h-3 w-16 rounded-full bg-white/90" />
-        <div className="mt-2 h-1.5 w-20 rounded-full bg-white/55" />
-      </div>
+    <div className="overflow-hidden rounded-xl bg-[#eceef2]">
+      <img
+        alt={`${template} template preview`}
+        className="block h-28 w-full object-cover"
+        src={templatePreviewImages[template]}
+      />
     </div>
   );
 }
@@ -410,27 +433,6 @@ export function CoverStudio() {
           <section className={`${panelClass} p-4`}>
             <div className="space-y-4">
               <div>
-                <FieldLabel htmlFor="template">Cover Style</FieldLabel>
-                <select
-                  className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition focus:border-[#027fff]"
-                  id="template"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      template: event.target.value as CoverTemplate
-                    }))
-                  }
-                  value={form.template}
-                >
-                  {coverTemplates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
                 <FieldLabel htmlFor="header">Header</FieldLabel>
                 <input
                   className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
@@ -667,6 +669,10 @@ export function CoverStudio() {
                   />
                 ))}
               </div>
+              <p className="mt-4 text-sm leading-6 text-black/58">
+                Template selection lives here only, matching the utility flow of
+                the reference site.
+              </p>
             </section>
           </div>
 

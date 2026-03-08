@@ -10,35 +10,42 @@ import type { CoverRenderInput, CoverRenderResult } from "@cover-generator/share
 import { fitTextBlock } from "./text-layout";
 import { renderLabel, renderMultilineText } from "./svg";
 
+const displayFont =
+  "'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const serifFont = "Georgia, 'Times New Roman', serif";
+
 interface TemplateContext {
-  input: Required<
-    Pick<CoverRenderInput, "header" | "title" | "date" | "subtitle" | "footer">
-  > &
+  input: Required<Pick<CoverRenderInput, "header" | "title" | "subtitle" | "footer">> &
     Pick<CoverRenderInput, "image"> & {
+      date: string;
       size: number;
       template: CoverRenderResult["template"];
       shadow: boolean;
       blur: boolean;
     };
-  date: ReturnType<typeof formatDateVariants>;
+  date: ReturnType<typeof formatDateVariants> | null;
   ids: {
-    photoClip: string;
     blurFilter: string;
-    softBlurFilter: string;
     textShadowFilter: string;
+    topFade: string;
+    bottomFade: string;
+    bottomHeavyFade: string;
+    centerShade: string;
+    sideShade: string;
   };
 }
 
 function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
   const template = resolveTemplate(rawInput.template);
   const size = rawInput.size ?? defaultCoverSize;
-  const header = sanitizeText(rawInput.header ?? "APPLE MUSIC");
+  const header = sanitizeText(rawInput.header ?? "", "APPLE MUSIC");
   const title = sanitizeText(rawInput.title, "Untitled Memory");
-  const subtitle = sanitizeText(rawInput.subtitle, "Somewhere");
-  const footer = sanitizeText(rawInput.footer ?? "SELF UPLOAD");
-  const date = formatDateVariants(rawInput.date);
+  const subtitle = sanitizeText(rawInput.subtitle, "");
+  const footer = sanitizeText(rawInput.footer ?? "", "");
+  const rawDate = sanitizeText(rawInput.date, "");
+  const date = rawDate ? formatDateVariants(rawDate) : null;
   const seed = hashString(
-    `${template}-${header}-${title}-${subtitle}-${footer}-${date.raw}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
+    `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
   );
 
   return {
@@ -46,9 +53,9 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
       image: rawInput.image,
       header,
       title,
-      date: date.raw,
       subtitle,
       footer,
+      date: rawDate,
       size,
       template,
       shadow: Boolean(rawInput.shadow),
@@ -56,50 +63,51 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
     },
     date,
     ids: {
-      photoClip: `photo-${seed}`,
       blurFilter: `blur-${seed}`,
-      softBlurFilter: `soft-blur-${seed}`,
-      textShadowFilter: `text-shadow-${seed}`
+      textShadowFilter: `text-shadow-${seed}`,
+      topFade: `top-fade-${seed}`,
+      bottomFade: `bottom-fade-${seed}`,
+      bottomHeavyFade: `bottom-heavy-fade-${seed}`,
+      centerShade: `center-shade-${seed}`,
+      sideShade: `side-shade-${seed}`
     }
   };
 }
 
 function createBaseDefs(context: TemplateContext) {
-  const { size } = context.input;
-  const radius = 88;
-
   return `
     <defs>
-      <clipPath id="${context.ids.photoClip}">
-        <rect x="0" y="0" width="${size}" height="${size}" rx="${radius}" ry="${radius}" />
-      </clipPath>
-      <filter id="${context.ids.blurFilter}">
-        <feGaussianBlur stdDeviation="34" />
-      </filter>
-      <filter id="${context.ids.softBlurFilter}">
-        <feGaussianBlur stdDeviation="12" />
+      <filter id="${context.ids.blurFilter}" x="-12%" y="-12%" width="124%" height="124%">
+        <feGaussianBlur stdDeviation="36" />
       </filter>
       <filter id="${context.ids.textShadowFilter}" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="rgba(0,0,0,0.42)" />
+        <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="rgba(0,0,0,0.44)" />
       </filter>
-      <linearGradient id="coverx-vignette-${context.ids.photoClip}" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stop-color="rgba(0,0,0,0.08)" />
-        <stop offset="46%" stop-color="rgba(0,0,0,0.12)" />
-        <stop offset="100%" stop-color="rgba(0,0,0,0.68)" />
+      <linearGradient id="${context.ids.topFade}" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0.34)" />
+        <stop offset="36%" stop-color="rgba(0,0,0,0.1)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0)" />
       </linearGradient>
-      <linearGradient id="coverx-soft-vignette-${context.ids.photoClip}" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stop-color="rgba(12,12,14,0.08)" />
-        <stop offset="65%" stop-color="rgba(12,12,14,0.18)" />
-        <stop offset="100%" stop-color="rgba(12,12,14,0.52)" />
+      <linearGradient id="${context.ids.bottomFade}" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)" />
+        <stop offset="58%" stop-color="rgba(0,0,0,0.1)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.78)" />
       </linearGradient>
-      <linearGradient id="coverx-classic-vignette-${context.ids.photoClip}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="rgba(8,8,10,0.12)" />
-        <stop offset="45%" stop-color="rgba(8,8,10,0.18)" />
-        <stop offset="100%" stop-color="rgba(8,8,10,0.74)" />
+      <linearGradient id="${context.ids.bottomHeavyFade}" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)" />
+        <stop offset="46%" stop-color="rgba(0,0,0,0.24)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.88)" />
       </linearGradient>
-      <linearGradient id="coverx-bottom-panel-${context.ids.photoClip}" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="rgba(22,22,24,0.08)" />
-        <stop offset="100%" stop-color="rgba(22,22,24,0.36)" />
+      <radialGradient id="${context.ids.centerShade}" cx="50%" cy="62%" r="72%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)" />
+        <stop offset="62%" stop-color="rgba(0,0,0,0.08)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.28)" />
+      </radialGradient>
+      <linearGradient id="${context.ids.sideShade}" x1="0%" y1="50%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0.26)" />
+        <stop offset="22%" stop-color="rgba(0,0,0,0.08)" />
+        <stop offset="78%" stop-color="rgba(0,0,0,0.08)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.22)" />
       </linearGradient>
     </defs>
   `;
@@ -109,47 +117,43 @@ function textFilter(context: TemplateContext) {
   return context.input.shadow ? `url(#${context.ids.textShadowFilter})` : undefined;
 }
 
-function renderPhotoLayers(context: TemplateContext, opacity = 1) {
+function renderPhotoLayers(context: TemplateContext, foregroundOpacity = 1) {
   const { image, size, blur } = context.input;
 
+  if (!blur) {
+    return `
+      <image
+        href="${escapeXml(image.src)}"
+        x="0"
+        y="0"
+        width="${size}"
+        height="${size}"
+        preserveAspectRatio="xMidYMid slice"
+        opacity="${foregroundOpacity}"
+      />
+    `;
+  }
+
   return `
-    <g clip-path="url(#${context.ids.photoClip})">
-      ${
-        blur
-          ? `
-            <image
-              href="${escapeXml(image.src)}"
-              x="-48"
-              y="-48"
-              width="${size + 96}"
-              height="${size + 96}"
-              preserveAspectRatio="xMidYMid slice"
-              filter="url(#${context.ids.blurFilter})"
-              opacity="0.92"
-            />
-            <image
-              href="${escapeXml(image.src)}"
-              x="0"
-              y="0"
-              width="${size}"
-              height="${size}"
-              preserveAspectRatio="xMidYMid slice"
-              opacity="0.58"
-            />
-          `
-          : `
-            <image
-              href="${escapeXml(image.src)}"
-              x="0"
-              y="0"
-              width="${size}"
-              height="${size}"
-              preserveAspectRatio="xMidYMid slice"
-              opacity="${opacity}"
-            />
-          `
-      }
-    </g>
+    <image
+      href="${escapeXml(image.src)}"
+      x="-72"
+      y="-72"
+      width="${size + 144}"
+      height="${size + 144}"
+      preserveAspectRatio="xMidYMid slice"
+      filter="url(#${context.ids.blurFilter})"
+      opacity="0.96"
+    />
+    <image
+      href="${escapeXml(image.src)}"
+      x="0"
+      y="0"
+      width="${size}"
+      height="${size}"
+      preserveAspectRatio="xMidYMid slice"
+      opacity="0.36"
+    />
   `;
 }
 
@@ -158,245 +162,232 @@ function renderMetaLine({
   x,
   y,
   anchor = "start",
-  fill = "rgba(255,255,255,0.84)",
-  opacity = 1
+  fill = "rgba(255,255,255,0.82)"
 }: {
   context: TemplateContext;
   x: number;
   y: number;
   anchor?: "start" | "middle" | "end";
   fill?: string;
-  opacity?: number;
 }) {
-  const parts = [context.input.subtitle.toUpperCase(), context.date.long].filter(Boolean);
+  const parts = [context.input.subtitle, context.date?.compact].filter(Boolean);
+
+  if (parts.length === 0) {
+    return "";
+  }
 
   return renderLabel({
     text: parts.join("  ·  "),
     x,
     y,
     fill,
-    opacity,
+    anchor,
+    fontSize: 29,
+    fontWeight: 500,
+    letterSpacing: 0.4,
+    filter: textFilter(context)
+  });
+}
+
+function renderHeader(context: TemplateContext, x: number, y: number, anchor: "start" | "middle" | "end" = "start") {
+  if (!context.input.header) {
+    return "";
+  }
+
+  return renderLabel({
+    text: context.input.header,
+    x,
+    y,
+    fill: "rgba(255,255,255,0.9)",
     anchor,
     fontSize: 24,
-    fontWeight: 500,
-    letterSpacing: 1.2,
+    fontWeight: 600,
+    letterSpacing: 2.2,
+    filter: textFilter(context)
+  });
+}
+
+function renderFooter(context: TemplateContext, x: number, y: number, anchor: "start" | "middle" | "end" = "start") {
+  if (!context.input.footer) {
+    return "";
+  }
+
+  return renderLabel({
+    text: context.input.footer,
+    x,
+    y,
+    fill: "rgba(255,255,255,0.88)",
+    anchor,
+    fontSize: 22,
+    fontWeight: 600,
+    letterSpacing: 2.6,
     filter: textFilter(context)
   });
 }
 
 function renderModernTemplate(context: TemplateContext) {
-  const { size, header, title, footer } = context.input;
+  const { size, title } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: 1160,
-    maxHeight: 320,
+    maxWidth: size - 144,
+    maxHeight: 340,
     maxLines: 3,
-    maxFontSize: 152,
-    minFontSize: 72,
-    lineHeight: 0.94,
-    letterSpacing: -1.7
+    maxFontSize: 150,
+    minFontSize: 70,
+    lineHeight: 0.92,
+    letterSpacing: -2.2
   });
+  const titleTop = size - 304 - titleBlock.height;
+  const metaY = titleTop + titleBlock.height + 56;
 
   return `
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="#121315" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#0D0D0F" />
     ${renderPhotoLayers(context)}
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="url(#coverx-vignette-${context.ids.photoClip})" />
-    <rect x="52" y="52" width="${size - 104}" height="${size - 104}" rx="68" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" />
-    ${renderLabel({
-      text: header,
-      x: 92,
-      y: 122,
-      fill: "#FFFFFF",
-      opacity: 0.92,
-      fontSize: 22,
-      fontWeight: 600,
-      letterSpacing: 6,
-      filter: textFilter(context)
-    })}
-    ${renderLabel({
-      text: context.date.compact,
-      x: 92,
-      y: 166,
-      fill: "rgba(255,255,255,0.74)",
-      fontSize: 26,
-      fontWeight: 500,
-      letterSpacing: 1.4,
-      filter: textFilter(context)
-    })}
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.centerShade})" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.topFade})" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomFade})" />
+    ${renderHeader(context, 72, 84)}
     ${renderMultilineText({
       block: titleBlock,
-      x: 92,
-      y: 1064,
+      x: 72,
+      y: titleTop,
       fill: "#FFFFFF",
       fontWeight: 700,
-      letterSpacing: -1.7,
+      letterSpacing: -2.2,
+      fontFamily: displayFont,
       filter: textFilter(context)
     })}
     ${renderMetaLine({
       context,
-      x: 92,
-      y: 1132 + titleBlock.height
+      x: 72,
+      y: metaY
     })}
-    ${renderLabel({
-      text: footer,
-      x: size - 92,
-      y: size - 92,
-      fill: "rgba(255,255,255,0.88)",
-      anchor: "end",
-      fontSize: 28,
-      fontWeight: 600,
-      letterSpacing: 2.8,
-      filter: textFilter(context)
-    })}
+    ${renderFooter(context, size - 72, size - 72, "end")}
   `;
 }
 
 function renderNormalTemplate(context: TemplateContext) {
-  const { size, header, title, footer } = context.input;
+  const { size, title } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: 1120,
-    maxHeight: 270,
+    maxWidth: size - 220,
+    maxHeight: 320,
     maxLines: 3,
-    maxFontSize: 128,
+    maxFontSize: 136,
     minFontSize: 64,
-    lineHeight: 0.98,
-    letterSpacing: -1.4
+    lineHeight: 0.95,
+    letterSpacing: -1.2
   });
+  const titleTop = size * 0.44 - titleBlock.height / 2;
+  const subtitleY = titleTop + titleBlock.height + 60;
+  const dateY = subtitleY + 48;
 
   return `
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="#16181C" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#111214" />
     ${renderPhotoLayers(context, 0.94)}
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="url(#coverx-soft-vignette-${context.ids.photoClip})" />
-    <rect x="58" y="58" width="${size - 116}" height="${size - 116}" rx="70" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="3" />
-    ${
-      header
-        ? `
-          <rect x="196" y="134" width="${size - 392}" height="60" rx="30" fill="rgba(255,255,255,0.14)" />
-          ${renderLabel({
-            text: header,
-            x: size / 2,
-            y: 172,
-            fill: "#FFFFFF",
-            anchor: "middle",
-            fontSize: 23,
-            fontWeight: 600,
-            letterSpacing: 4,
-            filter: textFilter(context)
-          })}
-        `
-        : ""
-    }
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.centerShade})" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.topFade})" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomHeavyFade})" />
+    ${renderHeader(context, size / 2, 92, "middle")}
     ${renderMultilineText({
       block: titleBlock,
       x: size / 2,
-      y: 980,
+      y: titleTop,
       fill: "#FFFFFF",
       anchor: "middle",
       fontWeight: 700,
-      letterSpacing: -1.4,
+      letterSpacing: -1.2,
+      fontFamily: serifFont,
       filter: textFilter(context)
     })}
-    ${renderLabel({
-      text: context.input.subtitle.toUpperCase(),
-      x: size / 2,
-      y: 1072 + titleBlock.height,
-      fill: "rgba(255,255,255,0.82)",
-      anchor: "middle",
-      fontSize: 28,
-      fontWeight: 500,
-      letterSpacing: 4.4,
-      filter: textFilter(context)
-    })}
-    ${renderLabel({
-      text: context.date.long,
-      x: size / 2,
-      y: 1132 + titleBlock.height,
-      fill: "rgba(255,255,255,0.72)",
-      anchor: "middle",
-      fontSize: 24,
-      fontWeight: 500,
-      letterSpacing: 1.2,
-      filter: textFilter(context)
-    })}
-    ${renderLabel({
-      text: footer,
-      x: size / 2,
-      y: size - 92,
-      fill: "rgba(255,255,255,0.84)",
-      anchor: "middle",
-      fontSize: 22,
-      fontWeight: 600,
-      letterSpacing: 6,
-      filter: textFilter(context)
-    })}
+    ${
+      context.input.subtitle
+        ? renderLabel({
+            text: context.input.subtitle,
+            x: size / 2,
+            y: subtitleY,
+            fill: "rgba(255,255,255,0.86)",
+            anchor: "middle",
+            fontSize: 31,
+            fontWeight: 500,
+            letterSpacing: 0.6,
+            filter: textFilter(context)
+          })
+        : ""
+    }
+    ${
+      context.date
+        ? renderLabel({
+            text: context.date.long,
+            x: size / 2,
+            y: context.input.subtitle ? dateY : subtitleY,
+            fill: "rgba(255,255,255,0.72)",
+            anchor: "middle",
+            fontSize: 25,
+            fontWeight: 500,
+            letterSpacing: 0.4,
+            filter: textFilter(context)
+          })
+        : ""
+    }
+    ${renderFooter(context, size / 2, size - 76, "middle")}
   `;
 }
 
 function renderClassicTemplate(context: TemplateContext) {
-  const { size, header, title, footer } = context.input;
+  const { size, title } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
     maxWidth: 980,
-    maxHeight: 280,
+    maxHeight: 320,
     maxLines: 3,
-    maxFontSize: 138,
+    maxFontSize: 142,
     minFontSize: 68,
-    lineHeight: 0.95,
-    letterSpacing: -1.6
+    lineHeight: 0.93,
+    letterSpacing: -1.8
   });
+  const titleTop = size - 368 - titleBlock.height;
+  const metaY = titleTop + titleBlock.height + 52;
+  const dateLabel = context.date?.numeric ?? context.input.date;
 
   return `
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="#0F1012" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#0B0B0D" />
     ${renderPhotoLayers(context)}
-    <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="url(#coverx-classic-vignette-${context.ids.photoClip})" />
-    <rect x="50" y="50" width="${size - 100}" height="${size - 100}" rx="66" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" />
-    <text
-      x="88"
-      y="326"
-      fill="rgba(255,255,255,0.16)"
-      font-family="'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      font-size="248"
-      font-weight="700"
-      letter-spacing="-10"
-    >${escapeXml(context.date.day)}</text>
-    <rect x="72" y="1042" width="${size - 144}" height="360" rx="46" fill="url(#coverx-bottom-panel-${context.ids.photoClip})" filter="url(#${context.ids.softBlurFilter})" />
-    <rect x="72" y="1042" width="${size - 144}" height="360" rx="46" fill="rgba(12,12,14,0.18)" stroke="rgba(255,255,255,0.12)" />
-    ${renderLabel({
-      text: header,
-      x: 108,
-      y: 1098,
-      fill: "rgba(255,255,255,0.88)",
-      fontSize: 25,
-      fontWeight: 600,
-      letterSpacing: 4.6,
-      filter: textFilter(context)
-    })}
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.sideShade})" />
+    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomHeavyFade})" />
+    ${renderHeader(context, 72, 84)}
+    ${renderFooter(context, size - 72, 84, "end")}
+    <line x1="72" y1="${size - 430}" x2="${size - 72}" y2="${size - 430}" stroke="rgba(255,255,255,0.18)" stroke-width="2" />
     ${renderMultilineText({
       block: titleBlock,
-      x: 108,
-      y: 1124,
+      x: 72,
+      y: titleTop,
       fill: "#FFFFFF",
       fontWeight: 700,
-      letterSpacing: -1.6,
+      letterSpacing: -1.8,
+      fontFamily: displayFont,
       filter: textFilter(context)
     })}
     ${renderMetaLine({
       context,
-      x: 108,
-      y: 1208 + titleBlock.height
+      x: 72,
+      y: metaY
     })}
-    ${renderLabel({
-      text: footer,
-      x: size - 108,
-      y: 1098,
-      fill: "rgba(255,255,255,0.88)",
-      anchor: "end",
-      fontSize: 21,
-      fontWeight: 600,
-      letterSpacing: 5.6,
-      filter: textFilter(context)
-    })}
+    ${
+      dateLabel
+        ? renderLabel({
+            text: dateLabel,
+            x: size - 72,
+            y: size - 72,
+            fill: "rgba(255,255,255,0.84)",
+            anchor: "end",
+            fontSize: 22,
+            fontWeight: 500,
+            letterSpacing: 0.6,
+            filter: textFilter(context)
+          })
+        : ""
+    }
   `;
 }
 
