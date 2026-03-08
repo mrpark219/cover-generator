@@ -63,6 +63,12 @@ export interface StudioCopy {
   selectAll: string;
   deselectAll: string;
   clearAll: string;
+  addGroup: string;
+  ungrouped: string;
+  groupDropHint: string;
+  emptyGroup: string;
+  editGroup: string;
+  editImage: string;
   collection: string;
   collectionHint: string;
   uploadedCount: (count: number) => string;

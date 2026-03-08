@@ -44,6 +44,7 @@ import {
 import type {
   EditableField,
   FormState,
+  ImageGroup,
   PreviewState,
   SourceMode,
   UploadedImageItem
@@ -60,6 +61,15 @@ function createUploadId(seed: string, index: number) {
       : `${Date.now()}-${index}`;
 
   return `${seed}-${randomPart}`;
+}
+
+function createGroupId(index: number) {
+  const randomPart =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${index}`;
+
+  return `group-${randomPart}`;
 }
 
 function stripExtension(fileName: string) {
@@ -83,7 +93,8 @@ function createInitialSampleItem(): UploadedImageItem {
     ...defaultStudioImage,
     focusX: 0.5,
     focusY: 0.5,
-    selected: false,
+    checked: false,
+    groupId: null,
     draftForm: cloneFormState(initialFormState)
   };
 }
@@ -175,10 +186,11 @@ export function CoverStudio() {
   const [hasLoadedLanguage, setHasLoadedLanguage] = useState(false);
   const [sourceMode, setSourceMode] = useState<SourceMode>("upload");
   const [urlInput, setUrlInput] = useState("");
-  const [sharedForm, setSharedForm] = useState<FormState>(initialFormState);
   const [activeField, setActiveField] = useState<EditableField>("title");
+  const [groups, setGroups] = useState<ImageGroup[]>([]);
   const [images, setImages] = useState<UploadedImageItem[]>(() => [createInitialSampleItem()]);
   const [activeImageId, setActiveImageId] = useState<string | null>("sample-image");
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
     url: null,
     svg: null,
@@ -202,17 +214,11 @@ export function CoverStudio() {
   });
   const activeImage =
     images.find((candidate) => candidate.id === activeImageId) ?? null;
-  const selectedImages = images.filter((candidate) => candidate.selected);
-  const selectedImageCount = selectedImages.length;
-  const activeSelectedIndex = activeImage
-    ? selectedImages.findIndex((candidate) => candidate.id === activeImage.id)
-    : -1;
+  const checkedImages = images.filter((candidate) => candidate.checked);
+  const checkedImageCount = checkedImages.length;
+  const activeGroup = groups.find((candidate) => candidate.id === activeGroupId) ?? null;
   const copy = uiText[language];
-  const rawForm = activeImage
-    ? activeImage.selected
-      ? sharedForm
-      : activeImage.draftForm
-    : sharedForm;
+  const rawForm = activeGroup?.form ?? activeImage?.draftForm ?? initialFormState;
   const resolvedForm = {
     ...rawForm,
     header: resolveFormTextValue(rawForm.header, copy.placeholders.header),
@@ -223,15 +229,6 @@ export function CoverStudio() {
     textColor: normalizeHexColor(rawForm.textColor, defaultTextColor)
   };
   const deferredForm = useDeferredValue(resolvedForm);
-  const resolvedSharedForm = {
-    ...sharedForm,
-    header: resolveFormTextValue(sharedForm.header, copy.placeholders.header),
-    title: resolveFormTextValue(sharedForm.title, copy.placeholders.title),
-    subtitle: resolveFormTextValue(sharedForm.subtitle, copy.placeholders.subtitle),
-    date: resolveFormTextValue(sharedForm.date, copy.placeholders.date),
-    footer: resolveFormTextValue(sharedForm.footer, copy.placeholders.footer),
-    textColor: normalizeHexColor(sharedForm.textColor, defaultTextColor)
-  };
   const importingUrlsLabel = copy.importingUrls;
   const urlEmptyError = copy.urlEmptyError;
   const urlFetchError = copy.urlFetchError;
@@ -239,6 +236,7 @@ export function CoverStudio() {
   const appendUploads = useCallback((uploads: UploadedImageItem[]) => {
     setImages((current) => [...current, ...uploads]);
     setActiveImageId((current) => current ?? uploads[0]?.id ?? null);
+    setActiveGroupId(null);
     setPreview((current) => ({
       ...current,
       error: null
@@ -268,7 +266,8 @@ export function CoverStudio() {
               ...upload,
               focusX: 0.5,
               focusY: 0.5,
-              selected: false,
+              checked: false,
+              groupId: null,
               draftForm: cloneFormState(seedForm)
             };
           })
@@ -375,7 +374,16 @@ export function CoverStudio() {
       nextForm.blur = blur;
     }
 
-    setSharedForm(nextForm);
+    setImages((current) =>
+      current.map((imageItem, index) =>
+        index === 0
+          ? {
+              ...imageItem,
+              draftForm: cloneFormState(nextForm)
+            }
+          : imageItem
+      )
+    );
 
     if (nextSourceMode === "upload" || nextSourceMode === "url") {
       setSourceMode(nextSourceMode);
@@ -466,8 +474,21 @@ export function CoverStudio() {
   }
 
   function updateFormState(updater: (current: FormState) => FormState) {
-    if (!activeImage || activeImage.selected) {
-      setSharedForm(updater);
+    if (activeGroup) {
+      setGroups((current) =>
+        current.map((group) =>
+          group.id === activeGroup.id
+            ? {
+                ...group,
+                form: updater(group.form)
+              }
+            : group
+        )
+      );
+      return;
+    }
+
+    if (!activeImage) {
       return;
     }
 
@@ -546,8 +567,11 @@ export function CoverStudio() {
   }
 
   function clearImages() {
-    setImages([]);
-    setActiveImageId(null);
+    const sample = createInitialSampleItem();
+    setImages([sample]);
+    setGroups([]);
+    setActiveImageId(sample.id);
+    setActiveGroupId(null);
     setPreview({
       url: null,
       svg: null,
@@ -557,63 +581,26 @@ export function CoverStudio() {
     });
   }
 
-  function toggleImageSelection(imageId: string) {
-    const targetImage = images.find((imageItem) => imageItem.id === imageId);
-    if (!targetImage) {
-      return;
-    }
-
-    if (!targetImage.selected && selectedImageCount === 0) {
-      setSharedForm(cloneFormState(targetImage.draftForm));
-    }
-
+  function toggleImageChecked(imageId: string) {
     setImages((current) =>
       current.map((imageItem) =>
         imageItem.id === imageId
           ? {
               ...imageItem,
-              selected: !imageItem.selected
+              checked: !imageItem.checked
             }
           : imageItem
       )
     );
   }
 
-  function setAllSelections(selected: boolean) {
-    if (selected && selectedImageCount === 0) {
-      const seedForm = activeImage?.draftForm ?? images[0]?.draftForm ?? sharedForm;
-      setSharedForm(cloneFormState(seedForm));
-    }
-
+  function setAllChecked(checked: boolean) {
     setImages((current) =>
       current.map((imageItem) => ({
         ...imageItem,
-        selected
+        checked
       }))
     );
-  }
-
-  function focusSelectedGroup() {
-    if (selectedImages[0]) {
-      setActiveImageId(selectedImages[0].id);
-    }
-  }
-
-  function moveSelectedPreview(direction: "previous" | "next") {
-    if (selectedImages.length === 0) {
-      return;
-    }
-
-    const currentIndex = selectedImages.findIndex(
-      (imageItem) => imageItem.id === activeImageId
-    );
-    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
-    const nextIndex =
-      direction === "next"
-        ? (safeIndex + 1) % selectedImages.length
-        : (safeIndex - 1 + selectedImages.length) % selectedImages.length;
-
-    setActiveImageId(selectedImages[nextIndex]?.id ?? null);
   }
 
   async function handleFiles(files: FileList | File[] | null) {
@@ -643,7 +630,8 @@ export function CoverStudio() {
           ...(await createUploadStateFromFile(file)),
           focusX: 0.5,
           focusY: 0.5,
-          selected: false,
+          checked: false,
+          groupId: null,
           draftForm: cloneFormState(seedForm)
         }))
       );
@@ -663,6 +651,43 @@ export function CoverStudio() {
   async function handleUrlImport() {
     const urls = parseUrlLines(urlInput);
     await importUrlValues(urls, cloneFormState(rawForm), true);
+  }
+
+  function createGroup() {
+    const groupIndex = groups.length + 1;
+    const seedForm = cloneFormState(activeImage?.draftForm ?? initialFormState);
+    const nextGroup: ImageGroup = {
+      id: createGroupId(groupIndex),
+      name: `Group ${groupIndex}`,
+      form: seedForm
+    };
+
+    setGroups((current) => [...current, nextGroup]);
+    setActiveGroupId(nextGroup.id);
+  }
+
+  function assignImageToGroup(imageId: string, groupId: string | null) {
+    setImages((current) =>
+      current.map((imageItem) =>
+        imageItem.id === imageId
+          ? {
+              ...imageItem,
+              groupId
+            }
+          : imageItem
+      )
+    );
+  }
+
+  function setActiveImage(imageId: string) {
+    setActiveImageId(imageId);
+    setActiveGroupId(null);
+  }
+
+  function setActiveGroup(groupId: string) {
+    const firstImage = images.find((imageItem) => imageItem.groupId === groupId) ?? null;
+    setActiveGroupId(groupId);
+    setActiveImageId(firstImage?.id ?? activeImageId);
   }
 
   async function handleDownload() {
@@ -688,17 +713,30 @@ export function CoverStudio() {
   }
 
   async function handleBatchDownload() {
-    if (selectedImages.length === 0) {
+    if (checkedImages.length === 0) {
       return;
     }
 
     setBusyAction("batch");
-    setBusyMessage(copy.exportBatchBusy(selectedImages.length));
+    setBusyMessage(copy.exportBatchBusy(checkedImages.length));
 
     try {
       const files: Array<{ fileName: string; blob: Blob }> = [];
 
-      for (const imageItem of selectedImages) {
+      for (const imageItem of checkedImages) {
+        const group = imageItem.groupId
+          ? groups.find((candidate) => candidate.id === imageItem.groupId) ?? null
+          : null;
+        const effectiveForm = group?.form ?? imageItem.draftForm;
+        const resolvedEffectiveForm = {
+          ...effectiveForm,
+          header: resolveFormTextValue(effectiveForm.header, copy.placeholders.header),
+          title: resolveFormTextValue(effectiveForm.title, copy.placeholders.title),
+          subtitle: resolveFormTextValue(effectiveForm.subtitle, copy.placeholders.subtitle),
+          date: resolveFormTextValue(effectiveForm.date, copy.placeholders.date),
+          footer: resolveFormTextValue(effectiveForm.footer, copy.placeholders.footer),
+          textColor: normalizeHexColor(effectiveForm.textColor, defaultTextColor)
+        };
         const renderResult = renderCoverSvg({
           image: {
             src: imageItem.dataUrl,
@@ -708,16 +746,16 @@ export function CoverStudio() {
             focusX: imageItem.focusX,
             focusY: imageItem.focusY
           },
-          header: resolvedSharedForm.header,
-          title: resolvedSharedForm.title,
-          date: resolvedSharedForm.date,
-          subtitle: resolvedSharedForm.subtitle,
-          footer: resolvedSharedForm.footer,
-          textColor: resolvedSharedForm.textColor,
-          template: resolvedSharedForm.template,
-          size: resolvedSharedForm.size,
-          shadow: resolvedSharedForm.shadow,
-          blur: resolvedSharedForm.blur
+          header: resolvedEffectiveForm.header,
+          title: resolvedEffectiveForm.title,
+          date: resolvedEffectiveForm.date,
+          subtitle: resolvedEffectiveForm.subtitle,
+          footer: resolvedEffectiveForm.footer,
+          textColor: resolvedEffectiveForm.textColor,
+          template: resolvedEffectiveForm.template,
+          size: resolvedEffectiveForm.size,
+          shadow: resolvedEffectiveForm.shadow,
+          blur: resolvedEffectiveForm.blur
         });
         const pngBlob = await svgToPngBlob(
           renderResult.svg,
@@ -726,17 +764,13 @@ export function CoverStudio() {
         );
 
         files.push({
-          fileName: createCoverFileName(imageItem, resolvedSharedForm),
+          fileName: createCoverFileName(imageItem, resolvedEffectiveForm),
           blob: pngBlob
         });
       }
 
       const zipBlob = await zipFilesToBlob(files);
-      const zipName = `${buildOutputFileName(
-        resolvedSharedForm.title,
-        resolvedSharedForm.date,
-        resolvedSharedForm.template
-      ).replace(/\.png$/, "")}-selected.zip`;
+      const zipName = `cover-generator-batch-${checkedImages.length}.zip`;
       downloadBlob(zipBlob, zipName);
     } catch (error) {
       setPreview((current) => ({
@@ -780,7 +814,6 @@ export function CoverStudio() {
         <aside className="space-y-3">
           <PreviewSection
             activeImage={activeImage}
-            activeSelectedIndex={activeSelectedIndex}
             busyAction={busyAction}
             busyMessage={busyMessage}
             copy={copy}
@@ -791,7 +824,6 @@ export function CoverStudio() {
             onDownloadSelected={() => {
               void handleBatchDownload();
             }}
-            onFocusSelectedGroup={focusSelectedGroup}
             onFocusXChange={(value) =>
               updateActiveImageFocus({
                 focusX: sliderValueToFocus(value)
@@ -802,7 +834,6 @@ export function CoverStudio() {
                 focusY: sliderValueToFocus(value)
               })
             }
-            onMoveSelectedPreview={moveSelectedPreview}
             onTextColorChange={(textColor) =>
               updateFormState((current) => ({
                 ...current,
@@ -828,7 +859,7 @@ export function CoverStudio() {
               })
             }
             preview={preview}
-            selectedImageCount={selectedImageCount}
+            selectedImageCount={checkedImageCount}
             totalImageCount={images.length}
           />
         </aside>
@@ -860,25 +891,29 @@ export function CoverStudio() {
 
         <section className="space-y-3">
           <ImagesSection
+            activeGroupId={activeGroupId}
             activeImageId={activeImageId}
-            activeSelectedIndex={activeSelectedIndex}
+            checkedImages={checkedImages}
             busyAction={busyAction}
             busyMessage={busyMessage}
             copy={copy}
+            groups={groups}
             images={images}
             inputId={inputId}
+            onAddGroup={createGroup}
+            onAssignImageToGroup={assignImageToGroup}
             onClearAll={clearImages}
-            onDeselectAll={() => setAllSelections(false)}
+            onDeselectAll={() => setAllChecked(false)}
             onFiles={handleFiles}
             onImportUrls={() => {
               void handleUrlImport();
             }}
-            onSelectAll={() => setAllSelections(true)}
-            onSetActiveImage={setActiveImageId}
+            onSelectAll={() => setAllChecked(true)}
+            onSetActiveGroup={setActiveGroup}
+            onSetActiveImage={setActiveImage}
             onSourceModeChange={setSourceMode}
-            onToggleImageSelection={toggleImageSelection}
+            onToggleImageSelection={toggleImageChecked}
             onUrlInputChange={setUrlInput}
-            selectedImages={selectedImages}
             sourceMode={sourceMode}
             urlInput={urlInput}
           />

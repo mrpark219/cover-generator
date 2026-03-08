@@ -24,10 +24,17 @@ export interface PreviewState {
 
 export interface UploadedImageItem extends UploadedImageState {
   id: string;
-  selected: boolean;
+  checked: boolean;
+  groupId: string | null;
   focusX: number;
   focusY: number;
   draftForm: FormState;
+}
+
+export interface ImageGroup {
+  id: string;
+  name: string;
+  form: FormState;
 }
 
 export type EditableField = keyof Pick<

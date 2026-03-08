@@ -4,7 +4,7 @@ export const koUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
   pageTitle: "커버 스튜디오",
   pageDescription: "",
-  steps: ["1 업로드", "2 편집", "3 묶기", "4 다운로드"],
+  steps: ["1 업로드", "2 편집", "3 그룹", "4 다운로드"],
   language: "언어",
   preview: "미리보기",
   noActiveImage: "활성 이미지 없음",
@@ -12,16 +12,14 @@ export const koUiText: StudioCopy = {
   noPreviewDescription: "이미지를 넣는 순간, 커버가 바로 보입니다.",
   selectedCount: (selected, total) =>
     total > 0 ? `${selected}/${total} 선택됨` : "업로드 없음",
-  selectedGroup: "선택 그룹",
+  selectedGroup: "선택 항목",
   selectedGroupHint: (activeIndex, count) =>
-    activeIndex >= 0
-      ? `묶인 이미지 ${count}장 중 ${activeIndex + 1}번째를 보고 있습니다.`
-      : `${count}장이 묶여 있습니다. 그룹 포커스로 차례대로 확인하세요.`,
-  shared: "공유",
+    activeIndex >= 0 ? `${count}장 중 ${activeIndex + 1}장을 보고 있습니다.` : `${count}장 선택됨`,
+  shared: "그룹",
   previous: "이전",
   next: "다음",
-  focusSelectedGroup: "그룹 포커스",
-  selectedGroupFocused: "그룹 포커스 중",
+  focusSelectedGroup: "선택 포커스",
+  selectedGroupFocused: "선택 포커스 중",
   downloadCurrentPng: "PNG 저장",
   downloadSelectedZip: (count) =>
     count > 0 ? `ZIP 저장 (${count})` : "ZIP 저장",
@@ -94,16 +92,22 @@ export const koUiText: StudioCopy = {
   selectAll: "전체 선택",
   deselectAll: "선택 해제",
   clearAll: "전체 제거",
+  addGroup: "그룹 추가",
+  ungrouped: "미분류",
+  groupDropHint: "이미지를 드래그해서 그룹으로 옮기세요.",
+  emptyGroup: "여기로 이미지를 드롭하면 이 그룹에 들어갑니다.",
+  editGroup: "그룹 편집",
+  editImage: "개별 편집",
   collection: "컬렉션",
-  collectionHint: "클릭은 확인, 더블클릭은 묶음.",
+  collectionHint: "클릭은 미리보기, 체크는 일괄 저장, 드래그는 그룹 이동.",
   uploadedCount: (count) => (count > 0 ? `${count}장 업로드` : "비어 있음"),
   selectedProgress: (activeIndex, count) =>
-    activeIndex >= 0 ? `그룹 ${count}장 중 ${activeIndex + 1}` : `${count}장 선택됨`,
+    activeIndex >= 0 ? `선택 ${count}장 중 ${activeIndex + 1}` : `${count}장 선택됨`,
   active: "활성",
   selected: "선택",
   draft: "개별",
   emptyCollection:
-    "이미지를 몇 장 올리면 여기서 한 번에 정리할 수 있습니다. 더블클릭하기 전까지는 각 카드가 자기 설정을 그대로 갖고 있습니다.",
+    "이미지를 몇 장 올리면 여기서 그룹으로 나누거나 개별로 바로 편집할 수 있습니다.",
   selectedIndex: (index) => `#${index}`,
   detailsSummary: "CLI 명령과 렌더링 팁",
   detailsHint: "패널 열기",
@@ -115,8 +119,8 @@ export const koUiText: StudioCopy = {
       "글자가 길면 먼저 줄바꿈하고, 그래도 길면 레이아웃에 자연스럽게 들어오도록 크기를 줄입니다.",
   renderingNoteThree:
     "블러는 배경을 부드럽게 만들고, 그림자는 밝은 사진에서 글자를 더 또렷하게 만듭니다.",
-  cardActiveHint: "묶음 안에서 지금 보고 있는 카드입니다.",
-  cardSelectedHint: "공유 묶음 설정 사용 중",
+  cardActiveHint: "현재 미리보고 있는 이미지입니다.",
+  cardSelectedHint: "일괄 저장 대상에 포함됨",
   cardDraftHint: "개별 설정 사용 중",
   urlEmptyError: "유효한 이미지 URL을 하나 이상 붙여넣으세요.",
   urlFetchError:

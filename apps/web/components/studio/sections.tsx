@@ -18,6 +18,7 @@ import type {
   EditableField,
   FieldAlignment,
   FormState,
+  ImageGroup,
   PreviewState,
   SourceMode,
   TemplateFieldLayoutItem,
@@ -321,12 +322,9 @@ export function PreviewSection({
   preview,
   selectedImageCount,
   totalImageCount,
-  activeSelectedIndex,
   onResetPosition,
   onFocusXChange,
   onFocusYChange,
-  onMoveSelectedPreview,
-  onFocusSelectedGroup,
   onTextColorChange,
   onShadowChange,
   onBlurChange,
@@ -341,12 +339,9 @@ export function PreviewSection({
   preview: PreviewState;
   selectedImageCount: number;
   totalImageCount: number;
-  activeSelectedIndex: number;
   onResetPosition: () => void;
   onFocusXChange: (value: number) => void;
   onFocusYChange: (value: number) => void;
-  onMoveSelectedPreview: (direction: "previous" | "next") => void;
-  onFocusSelectedGroup: () => void;
   onTextColorChange: (value: string) => void;
   onShadowChange: (value: boolean) => void;
   onBlurChange: (value: boolean) => void;
@@ -450,52 +445,17 @@ export function PreviewSection({
         </div>
       </div>
 
-      {selectedImageCount > 0 ? (
-        <div className="mt-2 rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[13px] font-semibold text-[#111111]">
-                {copy.selectedGroup}
-              </p>
-              <p className="mt-0.5 break-keep text-[11px] leading-4 text-black/55">
-                {copy.selectedGroupHint(activeSelectedIndex, selectedImageCount)}
-              </p>
-            </div>
-            <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
-              {copy.shared}
-            </span>
-          </div>
-
-          <div className="mt-2.5 grid gap-2 sm:grid-cols-[auto_auto_minmax(0,1fr)] md:grid-cols-1 xl:grid-cols-[auto_auto_minmax(0,1fr)]">
-            <button
-              className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
-              disabled={selectedImageCount < 2}
-              onClick={() => onMoveSelectedPreview("previous")}
-              type="button"
-            >
-              {copy.previous}
-            </button>
-            <button
-              className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
-              disabled={selectedImageCount < 2}
-              onClick={() => onMoveSelectedPreview("next")}
-              type="button"
-            >
-              {copy.next}
-            </button>
-            <button
-              className="rounded-xl border-2 border-[#027fff] bg-[#f7fbff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#027fff] transition hover:border-[#0167d0] hover:text-[#0167d0] disabled:cursor-not-allowed disabled:border-[#d6e9ff] disabled:text-[#8abfff]"
-              disabled={activeSelectedIndex >= 0}
-              onClick={onFocusSelectedGroup}
-              type="button"
-            >
-              {activeSelectedIndex >= 0
-                ? copy.selectedGroupFocused
-                : copy.focusSelectedGroup}
-            </button>
-          </div>
+      <div className="mt-2 rounded-xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[13px] font-semibold text-[#111111]">{copy.selectedGroup}</p>
+          <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+            {copy.selectedCount(selectedImageCount, totalImageCount)}
+          </span>
         </div>
-      ) : null}
+        <p className="mt-1 break-keep text-[11px] leading-4 text-black/55">
+          {copy.selectedGroupHint(-1, selectedImageCount)}
+        </p>
+      </div>
 
       <div className="mt-2 rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
         <div className="flex items-center justify-between gap-3">
@@ -737,8 +697,9 @@ export function ImagesSection({
   busyMessage,
   images,
   activeImageId,
-  selectedImages,
-  activeSelectedIndex,
+  activeGroupId,
+  checkedImages,
+  groups,
   onSourceModeChange,
   onFiles,
   onUrlInputChange,
@@ -746,6 +707,9 @@ export function ImagesSection({
   onSelectAll,
   onDeselectAll,
   onClearAll,
+  onAddGroup,
+  onAssignImageToGroup,
+  onSetActiveGroup,
   onSetActiveImage,
   onToggleImageSelection
 }: {
@@ -757,8 +721,9 @@ export function ImagesSection({
   busyMessage: string | null;
   images: UploadedImageItem[];
   activeImageId: string | null;
-  selectedImages: UploadedImageItem[];
-  activeSelectedIndex: number;
+  activeGroupId: string | null;
+  checkedImages: UploadedImageItem[];
+  groups: ImageGroup[];
   onSourceModeChange: (value: SourceMode) => void;
   onFiles: (files: FileList | File[] | null) => void | Promise<void>;
   onUrlInputChange: (value: string) => void;
@@ -766,11 +731,15 @@ export function ImagesSection({
   onSelectAll: () => void;
   onDeselectAll: () => void;
   onClearAll: () => void;
+  onAddGroup: () => void;
+  onAssignImageToGroup: (imageId: string, groupId: string | null) => void;
+  onSetActiveGroup: (groupId: string) => void;
   onSetActiveImage: (imageId: string) => void;
   onToggleImageSelection: (imageId: string) => void;
 }) {
-  const selectedImageCount = selectedImages.length;
+  const selectedImageCount = checkedImages.length;
   const totalImageCount = images.length;
+  const ungroupedImages = images.filter((imageItem) => imageItem.groupId === null);
 
   return (
     <section className="space-y-3">
@@ -897,9 +866,16 @@ export function ImagesSection({
                 </span>
                 {selectedImageCount > 0 ? (
                   <span className="rounded-xl border-2 border-[#111111] bg-[#111111] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
-                    {copy.selectedProgress(activeSelectedIndex, selectedImageCount)}
+                    {copy.selectedProgress(-1, selectedImageCount)}
                   </span>
                 ) : null}
+                <button
+                  className="rounded-xl border-2 border-[#027fff] bg-[#f7fbff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#027fff] transition hover:border-[#0167d0] hover:text-[#0167d0]"
+                  onClick={onAddGroup}
+                  type="button"
+                >
+                  {copy.addGroup}
+                </button>
                 <button
                   className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
                   disabled={images.length === 0}
@@ -927,83 +903,191 @@ export function ImagesSection({
               </div>
             </div>
 
-            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              {images.length > 0 ? (
-                images.map((imageItem) => {
-                  const isActive = imageItem.id === activeImageId;
-                  const selectionIndex = selectedImages.findIndex(
-                    (candidate) => candidate.id === imageItem.id
-                  );
+            <div className="mt-3 space-y-3">
+              <div
+                className="rounded-2xl border-2 border-dashed border-[#d8d8de] bg-white p-3"
+                onDragOver={(event) => {
+                  event.preventDefault();
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  const imageId = event.dataTransfer.getData("text/plain");
+                  if (imageId) {
+                    onAssignImageToGroup(imageId, null);
+                  }
+                }}
+              >
+                <div className="mb-2">
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                    {copy.ungrouped}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-black/52">
+                    {copy.groupDropHint}
+                  </p>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                  {ungroupedImages.length > 0 ? (
+                    ungroupedImages.map((imageItem) => {
+                      const isActive = imageItem.id === activeImageId && activeGroupId === null;
 
-                  return (
-                    <div
-                      className={[
-                        "overflow-hidden rounded-2xl border-2 bg-[#fafafc] transition",
-                        imageItem.selected
-                          ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
-                          : isActive
-                            ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
-                            : "border-[#e6e6e6]"
-                      ].join(" ")}
-                      key={imageItem.id}
-                    >
-                      <button
-                        className="block w-full"
-                        onClick={() => onSetActiveImage(imageItem.id)}
-                        onDoubleClick={() => {
-                          onSetActiveImage(imageItem.id);
-                          onToggleImageSelection(imageItem.id);
-                        }}
-                        type="button"
-                      >
-                        <img
-                          alt={imageItem.fileName}
-                          className="h-20 w-full object-cover"
-                          src={imageItem.dataUrl}
-                        />
-                      </button>
-                      <div className="p-2.5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          {isActive ? (
-                            <span className="rounded-lg bg-[#ebf5ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#027fff]">
-                              {copy.active}
-                            </span>
-                          ) : null}
-                          <span
-                            className={[
-                              "rounded-lg px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                              imageItem.selected
-                                ? "bg-[#111111] text-white"
-                                : "bg-white text-black/46"
-                            ].join(" ")}
+                      return (
+                        <div
+                          className={[
+                            "overflow-hidden rounded-2xl border-2 bg-[#fafafc] transition",
+                            isActive
+                              ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
+                              : imageItem.checked
+                                ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
+                                : "border-[#e6e6e6]"
+                          ].join(" ")}
+                          key={imageItem.id}
+                        >
+                          <button
+                            className="block w-full"
+                            draggable
+                            onClick={() => onSetActiveImage(imageItem.id)}
+                            onDragStart={(event) => {
+                              event.dataTransfer.setData("text/plain", imageItem.id);
+                            }}
+                            type="button"
                           >
-                            {imageItem.selected ? copy.selected : copy.draft}
-                          </span>
-                          {selectionIndex >= 0 ? (
-                            <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
-                              {copy.selectedIndex(selectionIndex + 1)}
-                            </span>
-                          ) : null}
+                            <img
+                              alt={imageItem.fileName}
+                              className="h-20 w-full object-cover"
+                              src={imageItem.dataUrl}
+                            />
+                          </button>
+                          <div className="p-2.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                <input
+                                  checked={imageItem.checked}
+                                  className="h-4 w-4 rounded border-[#d4d4d8] text-[#027fff] focus:ring-[#027fff]"
+                                  onChange={() => onToggleImageSelection(imageItem.id)}
+                                  type="checkbox"
+                                />
+                                {copy.selected}
+                              </label>
+                              <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                {copy.editImage}
+                              </span>
+                            </div>
+                            <p className="mt-1.5 truncate text-[13px] font-semibold text-[#111111]">
+                              {imageItem.fileName}
+                            </p>
+                          </div>
                         </div>
-                        <p className="mt-1.5 truncate text-[13px] font-semibold text-[#111111]">
-                          {imageItem.fileName}
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-2xl border-2 border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-5 text-[13px] leading-5 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
+                      {copy.emptyCollection}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {groups.map((group) => {
+                const groupImages = images.filter((imageItem) => imageItem.groupId === group.id);
+
+                return (
+                  <div
+                    className={[
+                      "rounded-2xl border-2 bg-white p-3 transition",
+                      activeGroupId === group.id ? "border-[#027fff]" : "border-[#e6e6e6]"
+                    ].join(" ")}
+                    key={group.id}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const imageId = event.dataTransfer.getData("text/plain");
+                      if (imageId) {
+                        onAssignImageToGroup(imageId, group.id);
+                      }
+                    }}
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                          {group.name}
                         </p>
-                        <p className="mt-0.5 break-keep text-[11px] leading-4 text-black/46">
-                          {imageItem.selected
-                            ? isActive
-                              ? copy.cardActiveHint
-                              : copy.cardSelectedHint
-                            : copy.cardDraftHint}
+                        <p className="mt-0.5 text-[11px] leading-4 text-black/52">
+                          {copy.groupDropHint}
                         </p>
                       </div>
+                      <button
+                        className="rounded-xl border-2 border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df]"
+                        onClick={() => onSetActiveGroup(group.id)}
+                        type="button"
+                      >
+                        {copy.editGroup}
+                      </button>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="rounded-2xl border-2 border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-5 text-[13px] leading-5 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
-                  {copy.emptyCollection}
-                </div>
-              )}
+                    <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                      {groupImages.length > 0 ? (
+                        groupImages.map((imageItem) => {
+                          const isActive = imageItem.id === activeImageId && activeGroupId === group.id;
+
+                          return (
+                            <div
+                              className={[
+                                "overflow-hidden rounded-2xl border-2 bg-[#fafafc] transition",
+                                isActive
+                                  ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
+                                  : imageItem.checked
+                                    ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
+                                    : "border-[#e6e6e6]"
+                              ].join(" ")}
+                              key={imageItem.id}
+                            >
+                              <button
+                                className="block w-full"
+                                draggable
+                                onClick={() => onSetActiveImage(imageItem.id)}
+                                onDragStart={(event) => {
+                                  event.dataTransfer.setData("text/plain", imageItem.id);
+                                }}
+                                type="button"
+                              >
+                                <img
+                                  alt={imageItem.fileName}
+                                  className="h-20 w-full object-cover"
+                                  src={imageItem.dataUrl}
+                                />
+                              </button>
+                              <div className="p-2.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <label className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                    <input
+                                      checked={imageItem.checked}
+                                      className="h-4 w-4 rounded border-[#d4d4d8] text-[#027fff] focus:ring-[#027fff]"
+                                      onChange={() => onToggleImageSelection(imageItem.id)}
+                                      type="checkbox"
+                                    />
+                                    {copy.selected}
+                                  </label>
+                                  <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                    {copy.editGroup}
+                                  </span>
+                                </div>
+                                <p className="mt-1.5 truncate text-[13px] font-semibold text-[#111111]">
+                                  {imageItem.fileName}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="rounded-2xl border-2 border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-5 text-[13px] leading-5 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
+                          {copy.emptyGroup}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

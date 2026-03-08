@@ -4,7 +4,7 @@ export const enUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
   pageTitle: "Cover Studio",
   pageDescription: "",
-  steps: ["1 Upload", "2 Edit", "3 Batch", "4 Download"],
+  steps: ["1 Upload", "2 Edit", "3 Group", "4 Download"],
   language: "Language",
   preview: "Preview",
   noActiveImage: "No active image",
@@ -12,16 +12,14 @@ export const enUiText: StudioCopy = {
   noPreviewDescription: "Add an image and the cover preview appears right away.",
   selectedCount: (selected, total) =>
     total > 0 ? `${selected}/${total} selected` : "No upload",
-  selectedGroup: "Selected Group",
+  selectedGroup: "Selection",
   selectedGroupHint: (activeIndex, count) =>
-    activeIndex >= 0
-      ? `Viewing ${activeIndex + 1} of ${count} in the batch.`
-      : `${count} images are grouped. Focus the batch to review them in order.`,
-  shared: "Shared",
+    activeIndex >= 0 ? `Viewing ${activeIndex + 1} of ${count}.` : `${count} images selected.`,
+  shared: "Group",
   previous: "Previous",
   next: "Next",
-  focusSelectedGroup: "Focus Group",
-  selectedGroupFocused: "Group Focused",
+  focusSelectedGroup: "Focus Selection",
+  selectedGroupFocused: "Selection Focused",
   downloadCurrentPng: "Save PNG",
   downloadSelectedZip: (count) =>
     count > 0 ? `Save ZIP (${count})` : "Save ZIP",
@@ -94,16 +92,22 @@ export const enUiText: StudioCopy = {
   selectAll: "Select All",
   deselectAll: "Deselect All",
   clearAll: "Clear All",
+  addGroup: "Add Group",
+  ungrouped: "Ungrouped",
+  groupDropHint: "Drag images into a group to organize them.",
+  emptyGroup: "Drop images here to add them to this group.",
+  editGroup: "Edit Group",
+  editImage: "Edit Image",
   collection: "Collection",
-  collectionHint: "Click to preview, double-click to batch.",
+  collectionHint: "Click to preview, check for batch export, drag to group.",
   uploadedCount: (count) => (count > 0 ? `${count} uploaded` : "Empty"),
   selectedProgress: (activeIndex, count) =>
-    activeIndex >= 0 ? `${activeIndex + 1}/${count} in group` : `${count} selected`,
+    activeIndex >= 0 ? `${activeIndex + 1}/${count} selected` : `${count} selected`,
   active: "Active",
   selected: "Selected",
   draft: "Draft",
   emptyCollection:
-    "Add a few images to get started. Each card keeps its own settings until you double-click it into the shared batch.",
+    "Add a few images to start. You can edit them one by one or sort them into groups with drag and drop.",
   selectedIndex: (index) => `#${index}`,
   detailsSummary: "CLI command and rendering tips",
   detailsHint: "Open panel",
@@ -115,8 +119,8 @@ export const enUiText: StudioCopy = {
       "Long text wraps first, then scales down so it still fits the layout cleanly.",
   renderingNoteThree:
     "Blur softens the photo treatment. Shadow helps text stand out on brighter images.",
-  cardActiveHint: "Currently in focus inside the batch.",
-  cardSelectedHint: "Uses the shared batch settings",
+  cardActiveHint: "Currently in preview.",
+  cardSelectedHint: "Included in batch export",
   cardDraftHint: "Keeps its own settings",
   urlEmptyError: "Paste at least one valid image URL.",
   urlFetchError:
