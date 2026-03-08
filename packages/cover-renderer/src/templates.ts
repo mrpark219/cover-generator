@@ -345,6 +345,7 @@ function renderNormalTemplate(context: TemplateContext) {
   const headerInset = scaleDesign(context, 20);
   const headerBaseline = scaleDesign(context, 50);
   const titleBaseline = scaleDesign(context, 310);
+  const subtitleBaseline = scaleDesign(context, 370);
   const footerBaseline = scaleDesign(context, 500);
   const headerBlock = fitSingleLineBlock({
     text: context.input.header,
@@ -376,7 +377,10 @@ function renderNormalTemplate(context: TemplateContext) {
       })
     : null;
   const subtitleTop = subtitleBlock
-    ? titleTop + titleBlock.height + scaleDesign(context, 40)
+    ? Math.max(
+        titleTop + titleBlock.height + scaleDesign(context, 10),
+        subtitleBaseline - subtitleBlock.fontSize
+      )
     : 0;
   const footerBlock = context.input.footer
     ? fitSingleLineBlock({
@@ -390,8 +394,8 @@ function renderNormalTemplate(context: TemplateContext) {
     ? fitSingleLineBlock({
         text: context.input.date,
         maxWidth: size * 0.6,
-        maxFontSize: scaleDesign(context, 26),
-        minFontSize: scaleDesign(context, 14)
+        maxFontSize: scaleDesign(context, 20),
+        minFontSize: scaleDesign(context, 12)
       })
     : null;
   const dateBaseline = footerBlock ? scaleDesign(context, 548) : footerBaseline;
@@ -455,7 +459,7 @@ function renderNormalTemplate(context: TemplateContext) {
             block: dateBlock,
             x: size / 2,
             baselineY: dateBaseline,
-            fill: "rgba(255,255,255,0.42)",
+            fill: "rgba(255,255,255,0.34)",
             anchor: "middle",
             fontWeight: 500,
             fontFamily: textFont,
@@ -506,7 +510,7 @@ function renderClassicTemplate(context: TemplateContext) {
     : null;
   const subtitleTop = subtitleBlock
     ? Math.max(
-        titleTop + titleBlock.height + scaleDesign(context, 18),
+        titleTop + titleBlock.height + scaleDesign(context, 10),
         subtitleBaseline - subtitleBlock.fontSize
       )
     : 0;
@@ -521,9 +525,9 @@ function renderClassicTemplate(context: TemplateContext) {
   const dateBlock = context.input.date
     ? fitSingleLineBlock({
         text: context.input.date,
-        maxWidth: size * 0.38,
+        maxWidth: size * 0.3,
         maxFontSize: scaleDesign(context, 35),
-        minFontSize: scaleDesign(context, 16)
+        minFontSize: scaleDesign(context, 18)
       })
     : null;
 

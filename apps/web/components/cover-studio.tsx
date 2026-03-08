@@ -42,6 +42,11 @@ interface PreviewState {
   error: string | null;
 }
 
+type EditableField = keyof Pick<
+  FormState,
+  "header" | "title" | "subtitle" | "date" | "footer"
+>;
+
 const initialFormState: FormState = {
   header: "APPLE MUSIC",
   title: "Han River",
@@ -93,7 +98,7 @@ const templatePreviewImages = Object.fromEntries(
         image: { src: templatePreviewBackground, mimeType: "image/svg+xml" },
         header: template.id === "classic" ? "@slowlydev" : "APPLE MUSIC",
         title: templatePreviewTitles[template.id],
-        date: "2026-03-01",
+        date: template.id === "classic" ? "Classical" : "",
         subtitle: "Seoul",
         footer: template.id === "normal" ? "Playlist" : "SELF UPLOAD",
         template: template.id,
@@ -103,6 +108,37 @@ const templatePreviewImages = Object.fromEntries(
     )}`
   ])
 ) as Record<CoverTemplate, string>;
+
+const quickSymbols: Array<{
+  label: string;
+  value: string;
+  title: string;
+}> = [
+  { label: "", value: "", title: "Apple" },
+  { label: "⌘", value: "⌘", title: "Command" },
+  { label: "⌥", value: "⌥", title: "Option" },
+  { label: "⌃", value: "⌃", title: "Control" },
+  { label: "⇧", value: "⇧", title: "Shift" },
+  { label: "⊞", value: "⊞", title: "Windows key" },
+  { label: "🪟", value: "🪟", title: "Window" },
+  { label: "↩", value: "↩", title: "Return" },
+  { label: "⇥", value: "⇥", title: "Tab" },
+  { label: "⌫", value: "⌫", title: "Delete" },
+  { label: "♪", value: "♪", title: "Note" },
+  { label: "♫", value: "♫", title: "Music" },
+  { label: "♥", value: "♥", title: "Heart" },
+  { label: "♡", value: "♡", title: "Outline heart" },
+  { label: "★", value: "★", title: "Star" },
+  { label: "✦", value: "✦", title: "Sparkle" }
+];
+
+const fieldLabels: Record<EditableField, string> = {
+  header: "Header",
+  title: "Main Title",
+  subtitle: "Subtitle",
+  date: "Date Or Meta",
+  footer: "Footer"
+};
 
 function FieldLabel({
   htmlFor,
@@ -213,6 +249,7 @@ function quoteCliValue(value: string) {
 export function CoverStudio() {
   const inputId = useId();
   const [form, setForm] = useState<FormState>(initialFormState);
+  const [activeField, setActiveField] = useState<EditableField>("title");
   const deferredForm = useDeferredValue(form);
   const [image, setImage] = useState<UploadedImageState | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
@@ -224,6 +261,15 @@ export function CoverStudio() {
   });
   const [busyMessage, setBusyMessage] = useState<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const fieldRefs = useRef<
+    Record<EditableField, HTMLInputElement | HTMLTextAreaElement | null>
+  >({
+    header: null,
+    title: null,
+    subtitle: null,
+    date: null,
+    footer: null
+  });
 
   useEffect(() => {
     if (!image) {
@@ -286,6 +332,44 @@ export function CoverStudio() {
       }
     };
   }, []);
+
+  function setTextField(field: EditableField, value: string) {
+    setForm((current) => ({
+      ...current,
+      [field]: value
+    }));
+  }
+
+  function setFieldRef(field: EditableField) {
+    return (node: HTMLInputElement | HTMLTextAreaElement | null) => {
+      fieldRefs.current[field] = node;
+    };
+  }
+
+  function insertSymbol(value: string) {
+    const field = activeField;
+    const element = fieldRefs.current[field];
+    const currentValue = form[field];
+    const selectionStart = element?.selectionStart ?? currentValue.length;
+    const selectionEnd = element?.selectionEnd ?? currentValue.length;
+    const nextValue =
+      currentValue.slice(0, selectionStart) +
+      value +
+      currentValue.slice(selectionEnd);
+
+    setTextField(field, nextValue);
+
+    requestAnimationFrame(() => {
+      const nextElement = fieldRefs.current[field];
+      if (!nextElement) {
+        return;
+      }
+
+      const caret = selectionStart + value.length;
+      nextElement.focus();
+      nextElement.setSelectionRange(caret, caret);
+    });
+  }
 
   async function handleFile(file: File | null) {
     if (!file) {
@@ -438,13 +522,10 @@ export function CoverStudio() {
                   className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="header"
                   maxLength={48}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      header: event.target.value
-                    }))
-                  }
+                  onChange={(event) => setTextField("header", event.target.value)}
+                  onFocus={() => setActiveField("header")}
                   placeholder="APPLE MUSIC"
+                  ref={setFieldRef("header")}
                   type="text"
                   value={form.header}
                 />
@@ -456,13 +537,10 @@ export function CoverStudio() {
                   className="min-h-[92px] w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-lg font-semibold text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="title"
                   maxLength={120}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      title: event.target.value
-                    }))
-                  }
+                  onChange={(event) => setTextField("title", event.target.value)}
+                  onFocus={() => setActiveField("title")}
                   placeholder="Han River"
+                  ref={setFieldRef("title")}
                   value={form.title}
                 />
               </div>
@@ -473,13 +551,10 @@ export function CoverStudio() {
                   className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="subtitle"
                   maxLength={80}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      subtitle: event.target.value
-                    }))
-                  }
+                  onChange={(event) => setTextField("subtitle", event.target.value)}
+                  onFocus={() => setActiveField("subtitle")}
                   placeholder="Seoul"
+                  ref={setFieldRef("subtitle")}
                   type="text"
                   value={form.subtitle}
                 />
@@ -491,13 +566,10 @@ export function CoverStudio() {
                   className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="date"
                   maxLength={80}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      date: event.target.value
-                    }))
-                  }
+                  onChange={(event) => setTextField("date", event.target.value)}
+                  onFocus={() => setActiveField("date")}
                   placeholder="2026-03-01 or Vol. 01"
+                  ref={setFieldRef("date")}
                   type="text"
                   value={form.date}
                 />
@@ -509,16 +581,45 @@ export function CoverStudio() {
                   className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
                   id="footer"
                   maxLength={48}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      footer: event.target.value
-                    }))
-                  }
+                  onChange={(event) => setTextField("footer", event.target.value)}
+                  onFocus={() => setActiveField("footer")}
                   placeholder="SELF UPLOAD"
+                  ref={setFieldRef("footer")}
                   type="text"
                   value={form.footer}
                 />
+              </div>
+
+              <div className="rounded-2xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#111111]">
+                      Quick Symbols
+                    </p>
+                    <p className="mt-1 text-xs text-black/52">
+                      Inserts into {fieldLabels[activeField]}
+                    </p>
+                  </div>
+                  <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/42">
+                    Palette
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
+                  {quickSymbols.map((symbol) => (
+                    <button
+                      className="inline-flex h-11 items-center justify-center rounded-xl border-[3px] border-[#e6e6e6] bg-white text-lg font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+                      key={`${symbol.title}-${symbol.value}`}
+                      onClick={() => insertSymbol(symbol.value)}
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+                      }}
+                      title={symbol.title}
+                      type="button"
+                    >
+                      {symbol.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-3">
