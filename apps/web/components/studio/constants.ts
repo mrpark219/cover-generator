@@ -6,7 +6,6 @@ import {
   defaultTemplate,
   type CoverTemplate
 } from "@cover-generator/shared";
-import type { UploadedImageState } from "../../lib/browser-image";
 import type { FormState, TemplateFieldLayoutItem } from "./types";
 
 export const initialFormState: FormState = {
@@ -72,41 +71,6 @@ export const templatePreviewImages = Object.fromEntries(
     )}`
   ])
 ) as Record<CoverTemplate, string>;
-
-const defaultSampleImage = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1600">
-    <defs>
-      <linearGradient id="sky" x1="0%" y1="5%" x2="100%" y2="95%">
-        <stop offset="0%" stop-color="#8aa4c3" />
-        <stop offset="45%" stop-color="#f1b080" />
-        <stop offset="100%" stop-color="#101a2a" />
-      </linearGradient>
-      <radialGradient id="sun" cx="72%" cy="32%" r="38%">
-        <stop offset="0%" stop-color="#ffe6b0" stop-opacity="0.98" />
-        <stop offset="100%" stop-color="#ffe6b0" stop-opacity="0" />
-      </radialGradient>
-      <linearGradient id="sea" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#2f4058" />
-        <stop offset="50%" stop-color="#49607f" />
-        <stop offset="100%" stop-color="#1f2b3d" />
-      </linearGradient>
-    </defs>
-    <rect width="1600" height="1600" fill="url(#sky)" />
-    <rect width="1600" height="1600" fill="url(#sun)" />
-    <rect y="930" width="1600" height="670" fill="url(#sea)" />
-    <ellipse cx="820" cy="1120" rx="700" ry="280" fill="#182232" />
-    <ellipse cx="1180" cy="980" rx="260" ry="70" fill="#d8e2ef" fill-opacity="0.25" />
-    <path d="M120 1100C340 1020 520 1040 740 1160C940 1270 1170 1260 1480 1080V1600H120Z" fill="#111827" fill-opacity="0.5" />
-  </svg>
-`)}`;
-
-export const defaultStudioImage: UploadedImageState = {
-  dataUrl: defaultSampleImage,
-  fileName: "sample-korea-sunset.svg",
-  mimeType: "image/svg+xml",
-  width: 1600,
-  height: 1600
-};
 
 export const quickSymbols: Array<{
   label: string;

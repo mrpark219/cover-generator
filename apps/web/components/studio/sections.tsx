@@ -150,22 +150,24 @@ function TemplateCard({
   onSelect: (template: CoverTemplate) => void;
 }) {
   return (
-    <label
+    <div
+      aria-checked={active}
       className={[
-        "block cursor-pointer rounded-[18px] border-2 p-1.5 text-left transition",
+        "cursor-pointer rounded-[18px] border-2 p-1.5 text-left transition",
         active
           ? "border-[#027fff] bg-[#f7fbff]"
           : "border-[#e6e6e6] bg-white hover:border-[#d3d3d7]"
       ].join(" ")}
+      onClick={() => onSelect(template)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(template);
+        }
+      }}
+      role="radio"
+      tabIndex={0}
     >
-      <input
-        checked={active}
-        className="sr-only"
-        name="cover-template"
-        onChange={() => onSelect(template)}
-        type="radio"
-        value={template}
-      />
       <div className="overflow-hidden rounded-xl bg-[#eceef2]">
         <img
           alt={previewAlt}
@@ -176,7 +178,7 @@ function TemplateCard({
       <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[#111111]">
         {label}
       </p>
-    </label>
+    </div>
   );
 }
 

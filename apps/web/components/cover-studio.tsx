@@ -30,7 +30,6 @@ import {
 } from "../lib/browser-image";
 import { languageStorageKey, uiText, type Language } from "../lib/i18n";
 import {
-  defaultStudioImage,
   initialFormState,
   templateFieldLayout
 } from "./studio/constants";
@@ -84,18 +83,6 @@ function resolveFormTextValue(value: string, fallback: string) {
 function cloneFormState(value: FormState): FormState {
   return {
     ...value
-  };
-}
-
-function createInitialSampleItem(): UploadedImageItem {
-  return {
-    id: "sample-image",
-    ...defaultStudioImage,
-    focusX: 0.5,
-    focusY: 0.5,
-    checked: false,
-    groupId: null,
-    draftForm: cloneFormState(initialFormState)
   };
 }
 
@@ -188,8 +175,8 @@ export function CoverStudio() {
   const [urlInput, setUrlInput] = useState("");
   const [activeField, setActiveField] = useState<EditableField>("title");
   const [groups, setGroups] = useState<ImageGroup[]>([]);
-  const [images, setImages] = useState<UploadedImageItem[]>(() => [createInitialSampleItem()]);
-  const [activeImageId, setActiveImageId] = useState<string | null>("sample-image");
+  const [images, setImages] = useState<UploadedImageItem[]>([]);
+  const [activeImageId, setActiveImageId] = useState<string | null>(null);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState>({
     url: null,
@@ -567,10 +554,9 @@ export function CoverStudio() {
   }
 
   function clearImages() {
-    const sample = createInitialSampleItem();
-    setImages([sample]);
+    setImages([]);
     setGroups([]);
-    setActiveImageId(sample.id);
+    setActiveImageId(null);
     setActiveGroupId(null);
     setPreview({
       url: null,
