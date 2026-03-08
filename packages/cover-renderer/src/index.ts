@@ -1,3 +1,1 @@
-export function renderCoverSvg() {
-  return "<svg />";
-}
+export { renderCoverSvg } from "./templates";

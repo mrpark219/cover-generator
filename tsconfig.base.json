@@ -13,7 +13,10 @@
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@cover-generator/shared": ["packages/shared/src/index.ts"],
+      "@cover-generator/cover-renderer": ["packages/cover-renderer/src/index.ts"]
+    }
   }
 }
-
