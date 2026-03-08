@@ -1,18 +1,22 @@
 import {
   defaultCoverSize,
   escapeXml,
-  formatDateVariants,
   hashString,
   resolveTemplate,
   sanitizeText
 } from "@cover-generator/shared";
 import type { CoverRenderInput, CoverRenderResult } from "@cover-generator/shared";
-import { fitTextBlock } from "./text-layout";
-import { renderLabel, renderMultilineText } from "./svg";
+import { fitTextBlock, type FittedTextBlock } from "./text-layout";
+import { renderMultilineText } from "./svg";
 
 const displayFont =
-  "'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const serifFont = "Georgia, 'Times New Roman', serif";
+  "'SFUIDisplay', 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const textFont =
+  "'SFUIText', 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const serifFont =
+  "'NewYorkMedium', 'New York', Georgia, 'Times New Roman', serif";
+const serifSmallFont =
+  "'NewYorkSmall', 'New York', Georgia, 'Times New Roman', serif";
 
 interface TemplateContext {
   input: Required<Pick<CoverRenderInput, "header" | "title" | "subtitle" | "footer">> &
@@ -23,7 +27,6 @@ interface TemplateContext {
       shadow: boolean;
       blur: boolean;
     };
-  date: ReturnType<typeof formatDateVariants> | null;
   ids: {
     blurFilter: string;
     textShadowFilter: string;
@@ -43,7 +46,6 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
   const subtitle = sanitizeText(rawInput.subtitle, "");
   const footer = sanitizeText(rawInput.footer ?? "", "");
   const rawDate = sanitizeText(rawInput.date, "");
-  const date = rawDate ? formatDateVariants(rawDate) : null;
   const seed = hashString(
     `${template}-${header}-${title}-${subtitle}-${footer}-${rawDate}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
   );
@@ -61,7 +63,6 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
       shadow: Boolean(rawInput.shadow),
       blur: Boolean(rawInput.blur)
     },
-    date,
     ids: {
       blurFilter: `blur-${seed}`,
       textShadowFilter: `text-shadow-${seed}`,
@@ -75,13 +76,16 @@ function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
 }
 
 function createBaseDefs(context: TemplateContext) {
+  const blurStdDeviation = scaleDesign(context, 10);
+  const shadowBlur = scaleDesign(context, 18);
+
   return `
     <defs>
       <filter id="${context.ids.blurFilter}" x="-12%" y="-12%" width="124%" height="124%">
-        <feGaussianBlur stdDeviation="36" />
+        <feGaussianBlur stdDeviation="${blurStdDeviation}" />
       </filter>
       <filter id="${context.ids.textShadowFilter}" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="rgba(0,0,0,0.44)" />
+        <feDropShadow dx="0" dy="0" stdDeviation="${shadowBlur}" flood-color="rgba(0,0,0,0.75)" />
       </filter>
       <linearGradient id="${context.ids.topFade}" x1="50%" y1="0%" x2="50%" y2="100%">
         <stop offset="0%" stop-color="rgba(0,0,0,0.18)" />
@@ -137,156 +141,199 @@ function renderPhotoLayers(context: TemplateContext, foregroundOpacity = 1) {
   return `
     <image
       href="${escapeXml(image.src)}"
-      x="-72"
-      y="-72"
-      width="${size + 144}"
-      height="${size + 144}"
-      preserveAspectRatio="xMidYMid slice"
-      filter="url(#${context.ids.blurFilter})"
-      opacity="0.9"
-    />
-    <image
-      href="${escapeXml(image.src)}"
       x="0"
       y="0"
       width="${size}"
       height="${size}"
       preserveAspectRatio="xMidYMid slice"
-      opacity="0.72"
+      filter="url(#${context.ids.blurFilter})"
+      opacity="${foregroundOpacity}"
     />
   `;
 }
 
-function renderMetaLine({
-  context,
-  x,
-  y,
-  anchor = "start",
-  fill = "rgba(255,255,255,0.82)"
+function scaleDesign(context: TemplateContext, value: number) {
+  return (context.input.size / 600) * value;
+}
+
+function fitSingleLineBlock({
+  text,
+  maxWidth,
+  maxFontSize,
+  minFontSize
 }: {
-  context: TemplateContext;
-  x: number;
-  y: number;
-  anchor?: "start" | "middle" | "end";
-  fill?: string;
+  text: string;
+  maxWidth: number;
+  maxFontSize: number;
+  minFontSize: number;
 }) {
-  const parts = [context.input.subtitle, context.input.date].filter(Boolean);
+  return fitTextBlock({
+    text,
+    maxWidth,
+    maxHeight: maxFontSize * 1.2,
+    maxLines: 1,
+    maxFontSize,
+    minFontSize,
+    lineHeight: 1,
+    letterSpacing: 0
+  });
+}
 
-  if (parts.length === 0) {
-    return "";
-  }
-
-  return renderLabel({
-    text: parts.join("  ·  "),
+function renderFittedBlock({
+  block,
+  x,
+  baselineY,
+  fill,
+  anchor = "start",
+  fontWeight = 600,
+  fontFamily = displayFont,
+  opacity = 1,
+  context
+}: {
+  block: FittedTextBlock;
+  x: number;
+  baselineY: number;
+  fill: string;
+  anchor?: "start" | "middle" | "end";
+  fontWeight?: number;
+  fontFamily?: string;
+  opacity?: number;
+  context: TemplateContext;
+}) {
+  return renderMultilineText({
+    block,
     x,
-    y,
+    y: baselineY - block.fontSize,
     fill,
+    opacity,
     anchor,
-    fontSize: 29,
-    fontWeight: 500,
-    letterSpacing: 0.4,
-    filter: textFilter(context)
-  });
-}
-
-function renderHeader(context: TemplateContext, x: number, y: number, anchor: "start" | "middle" | "end" = "start") {
-  if (!context.input.header) {
-    return "";
-  }
-
-  return renderLabel({
-    text: context.input.header,
-    x,
-    y,
-    fill: "rgba(255,255,255,0.9)",
-    anchor,
-    fontSize: 24,
-    fontWeight: 600,
-    letterSpacing: 2.2,
-    filter: textFilter(context)
-  });
-}
-
-function renderFooter(context: TemplateContext, x: number, y: number, anchor: "start" | "middle" | "end" = "start") {
-  if (!context.input.footer) {
-    return "";
-  }
-
-  return renderLabel({
-    text: context.input.footer,
-    x,
-    y,
-    fill: "rgba(255,255,255,0.88)",
-    anchor,
-    fontSize: 22,
-    fontWeight: 600,
-    letterSpacing: 2.6,
+    fontWeight,
+    fontFamily,
+    letterSpacing: 0,
     filter: textFilter(context)
   });
 }
 
 function renderModernTemplate(context: TemplateContext) {
   const { size, title, subtitle } = context.input;
+  const margin = scaleDesign(context, 60);
+  const headerBaseline = scaleDesign(context, 91);
+  const titleBaseline = scaleDesign(context, 207);
+  const subtitleBaseline = scaleDesign(context, 290);
+  const footerBaseline = scaleDesign(context, 530);
+  const contentWidth = size - margin * 2;
+  const headerBlock = fitSingleLineBlock({
+    text: context.input.header,
+    maxWidth: contentWidth,
+    maxFontSize: scaleDesign(context, 40),
+    minFontSize: scaleDesign(context, 20)
+  });
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: size - 132,
-    maxHeight: 420,
+    maxWidth: contentWidth,
+    maxHeight: size * 0.4,
     maxLines: 3,
-    maxFontSize: 136,
-    minFontSize: 70,
-    lineHeight: 0.9,
-    letterSpacing: -1.8
+    maxFontSize: scaleDesign(context, 90),
+    minFontSize: scaleDesign(context, 38),
+    lineHeight: 0.88,
+    letterSpacing: 0
   });
-  const titleTop = 132;
-  const subtitleY = titleTop + titleBlock.height + 56;
-  const footerY = size - 66;
-  const dateText = context.input.date;
+  const titleTop = titleBaseline - titleBlock.fontSize;
+  const subtitleBlock = subtitle
+    ? fitTextBlock({
+        text: subtitle,
+        maxWidth: contentWidth,
+        maxHeight: size * 0.24,
+        maxLines: 2,
+        maxFontSize: scaleDesign(context, 90),
+        minFontSize: scaleDesign(context, 28),
+        lineHeight: 0.86,
+        letterSpacing: 0
+      })
+    : null;
+  const subtitleTop = subtitleBlock
+    ? Math.max(
+        titleTop + titleBlock.height,
+        subtitleBaseline - subtitleBlock.fontSize
+      )
+    : 0;
+  const footerBlock = context.input.footer
+    ? fitSingleLineBlock({
+        text: context.input.footer,
+        maxWidth: size * 0.5,
+        maxFontSize: scaleDesign(context, 30),
+        minFontSize: scaleDesign(context, 16)
+      })
+    : null;
+  const dateBlock = context.input.date
+    ? fitSingleLineBlock({
+        text: context.input.date,
+        maxWidth: size * 0.42,
+        maxFontSize: scaleDesign(context, 24),
+        minFontSize: scaleDesign(context, 14)
+      })
+    : null;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#0D0D0F" />
     ${renderPhotoLayers(context)}
-    <rect x="0" y="0" width="${size}" height="${size}" fill="rgba(0,0,0,0.03)" />
-    <rect x="0" y="0" width="${size}" height="320" fill="url(#${context.ids.topFade})" />
-    ${renderHeader(context, 48, 64)}
+    ${renderFittedBlock({
+      block: headerBlock,
+      x: margin,
+      baselineY: headerBaseline,
+      fill: "#FFFFFF",
+      fontWeight: 600,
+      fontFamily: textFont,
+      context
+    })}
     ${renderMultilineText({
       block: titleBlock,
-      x: 48,
+      x: margin,
       y: titleTop,
       fill: "#FFFFFF",
       fontWeight: 700,
-      letterSpacing: -1.8,
+      letterSpacing: 0,
       fontFamily: displayFont,
       filter: textFilter(context)
     })}
     ${
-      subtitle
-        ? renderLabel({
-            text: subtitle,
-            x: 48,
-            y: subtitleY,
-            fill: "rgba(255,255,255,0.92)",
-            fontSize: 58,
-            fontWeight: 400,
-            letterSpacing: -0.2,
+      subtitleBlock
+        ? renderMultilineText({
+            block: subtitleBlock,
+            x: margin,
+            y: subtitleTop,
+            fill: "#FFFFFF",
+            fontWeight: 200,
+            letterSpacing: 0,
             fontFamily: displayFont,
             filter: textFilter(context)
           })
         : ""
     }
-    ${renderFooter(context, 48, footerY)}
     ${
-      dateText
-        ? renderLabel({
-            text: dateText,
-            x: size - 48,
-            y: footerY,
-            fill: "rgba(255,255,255,0.72)",
+      footerBlock
+        ? renderFittedBlock({
+            block: footerBlock,
+            x: margin,
+            baselineY: footerBaseline,
+            fill: "rgba(255,255,255,0.49)",
+            fontWeight: 600,
+            fontFamily: textFont,
+            context
+          })
+        : ""
+    }
+    ${
+      dateBlock
+        ? renderFittedBlock({
+            block: dateBlock,
+            x: size - margin,
+            baselineY: footerBaseline,
+            fill: "rgba(255,255,255,0.42)",
             anchor: "end",
-            fontSize: 20,
             fontWeight: 500,
-            letterSpacing: 0.4,
-            fontFamily: displayFont,
-            filter: textFilter(context)
+            fontFamily: textFont,
+            context
           })
         : ""
     }
@@ -295,123 +342,252 @@ function renderModernTemplate(context: TemplateContext) {
 
 function renderNormalTemplate(context: TemplateContext) {
   const { size, title } = context.input;
+  const headerInset = scaleDesign(context, 20);
+  const headerBaseline = scaleDesign(context, 50);
+  const titleBaseline = scaleDesign(context, 310);
+  const footerBaseline = scaleDesign(context, 500);
+  const headerBlock = fitSingleLineBlock({
+    text: context.input.header,
+    maxWidth: size * 0.45,
+    maxFontSize: scaleDesign(context, 35),
+    minFontSize: scaleDesign(context, 18)
+  });
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: size - 220,
-    maxHeight: 320,
+    maxWidth: size - scaleDesign(context, 72),
+    maxHeight: size * 0.34,
     maxLines: 3,
-    maxFontSize: 136,
-    minFontSize: 64,
-    lineHeight: 0.95,
-    letterSpacing: -1.2
+    maxFontSize: scaleDesign(context, 120),
+    minFontSize: scaleDesign(context, 44),
+    lineHeight: 0.88,
+    letterSpacing: 0
   });
-  const titleTop = size * 0.44 - titleBlock.height / 2;
-  const subtitleY = titleTop + titleBlock.height + 60;
-  const dateY = subtitleY + 48;
+  const titleTop = titleBaseline - titleBlock.fontSize;
+  const subtitleBlock = context.input.subtitle
+    ? fitTextBlock({
+        text: context.input.subtitle,
+        maxWidth: size - scaleDesign(context, 96),
+        maxHeight: size * 0.2,
+        maxLines: 2,
+        maxFontSize: scaleDesign(context, 35),
+        minFontSize: scaleDesign(context, 18),
+        lineHeight: 0.9,
+        letterSpacing: 0
+      })
+    : null;
+  const subtitleTop = subtitleBlock
+    ? titleTop + titleBlock.height + scaleDesign(context, 40)
+    : 0;
+  const footerBlock = context.input.footer
+    ? fitSingleLineBlock({
+        text: context.input.footer,
+        maxWidth: size * 0.6,
+        maxFontSize: scaleDesign(context, 35),
+        minFontSize: scaleDesign(context, 18)
+      })
+    : null;
+  const dateBlock = context.input.date
+    ? fitSingleLineBlock({
+        text: context.input.date,
+        maxWidth: size * 0.6,
+        maxFontSize: scaleDesign(context, 26),
+        minFontSize: scaleDesign(context, 14)
+      })
+    : null;
+  const dateBaseline = footerBlock ? scaleDesign(context, 548) : footerBaseline;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#111214" />
-    ${renderPhotoLayers(context, 0.94)}
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.centerShade})" />
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.topFade})" />
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomHeavyFade})" />
-    ${renderHeader(context, size / 2, 92, "middle")}
+    ${renderPhotoLayers(context)}
+    ${renderFittedBlock({
+      block: headerBlock,
+      x: size - headerInset,
+      baselineY: headerBaseline,
+      fill: "#FFFFFF",
+      anchor: "end",
+      fontWeight: 500,
+      fontFamily: textFont,
+      context
+    })}
     ${renderMultilineText({
       block: titleBlock,
       x: size / 2,
       y: titleTop,
       fill: "#FFFFFF",
       anchor: "middle",
-      fontWeight: 700,
-      letterSpacing: -1.2,
-      fontFamily: serifFont,
+      fontWeight: 600,
+      letterSpacing: 0,
+      fontFamily: displayFont,
       filter: textFilter(context)
     })}
     ${
-      context.input.subtitle
-        ? renderLabel({
-            text: context.input.subtitle,
+      subtitleBlock
+        ? renderMultilineText({
+            block: subtitleBlock,
             x: size / 2,
-            y: subtitleY,
-            fill: "rgba(255,255,255,0.86)",
+            y: subtitleTop,
+            fill: "#FFFFFF",
             anchor: "middle",
-            fontSize: 31,
-            fontWeight: 500,
-            letterSpacing: 0.6,
+            fontWeight: 600,
+            letterSpacing: 0,
+            fontFamily: displayFont,
             filter: textFilter(context)
           })
         : ""
     }
     ${
-      context.input.date
-        ? renderLabel({
-            text: context.input.date,
+      footerBlock
+        ? renderFittedBlock({
+            block: footerBlock,
             x: size / 2,
-            y: context.input.subtitle ? dateY : subtitleY,
-            fill: "rgba(255,255,255,0.72)",
+            baselineY: footerBaseline,
+            fill: "rgba(255,255,255,0.49)",
             anchor: "middle",
-            fontSize: 25,
             fontWeight: 500,
-            letterSpacing: 0.4,
-            filter: textFilter(context)
+            fontFamily: displayFont,
+            context
           })
         : ""
     }
-    ${renderFooter(context, size / 2, size - 76, "middle")}
+    ${
+      dateBlock
+        ? renderFittedBlock({
+            block: dateBlock,
+            x: size / 2,
+            baselineY: dateBaseline,
+            fill: "rgba(255,255,255,0.42)",
+            anchor: "middle",
+            fontWeight: 500,
+            fontFamily: textFont,
+            context
+          })
+        : ""
+    }
   `;
 }
 
 function renderClassicTemplate(context: TemplateContext) {
   const { size, title } = context.input;
+  const leftInset = scaleDesign(context, 55);
+  const rightInset = scaleDesign(context, 20);
+  const headerBaseline = scaleDesign(context, 50);
+  const metaBaseline = scaleDesign(context, 90);
+  const titleBaseline = scaleDesign(context, 380);
+  const subtitleBaseline = scaleDesign(context, 450);
+  const footerBaseline = scaleDesign(context, 550);
+  const headerBlock = fitSingleLineBlock({
+    text: context.input.header,
+    maxWidth: size * 0.42,
+    maxFontSize: scaleDesign(context, 35),
+    minFontSize: scaleDesign(context, 18)
+  });
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: 980,
-    maxHeight: 320,
+    maxWidth: size - leftInset * 2,
+    maxHeight: size * 0.28,
     maxLines: 3,
-    maxFontSize: 142,
-    minFontSize: 68,
-    lineHeight: 0.93,
-    letterSpacing: -1.8
+    maxFontSize: scaleDesign(context, 70),
+    minFontSize: scaleDesign(context, 32),
+    lineHeight: 0.92,
+    letterSpacing: 0
   });
-  const titleTop = size - 368 - titleBlock.height;
-  const metaY = titleTop + titleBlock.height + 52;
-  const dateLabel = context.input.date;
+  const titleTop = titleBaseline - titleBlock.fontSize;
+  const subtitleBlock = context.input.subtitle
+    ? fitTextBlock({
+        text: context.input.subtitle,
+        maxWidth: size - leftInset * 2,
+        maxHeight: size * 0.24,
+        maxLines: 2,
+        maxFontSize: scaleDesign(context, 70),
+        minFontSize: scaleDesign(context, 26),
+        lineHeight: 0.92,
+        letterSpacing: 0
+      })
+    : null;
+  const subtitleTop = subtitleBlock
+    ? Math.max(
+        titleTop + titleBlock.height + scaleDesign(context, 18),
+        subtitleBaseline - subtitleBlock.fontSize
+      )
+    : 0;
+  const footerBlock = context.input.footer
+    ? fitSingleLineBlock({
+        text: context.input.footer,
+        maxWidth: size * 0.55,
+        maxFontSize: scaleDesign(context, 35),
+        minFontSize: scaleDesign(context, 18)
+      })
+    : null;
+  const dateBlock = context.input.date
+    ? fitSingleLineBlock({
+        text: context.input.date,
+        maxWidth: size * 0.38,
+        maxFontSize: scaleDesign(context, 35),
+        minFontSize: scaleDesign(context, 16)
+      })
+    : null;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#0B0B0D" />
     ${renderPhotoLayers(context)}
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.sideShade})" />
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomHeavyFade})" />
-    ${renderHeader(context, 72, 84)}
-    ${renderFooter(context, size - 72, 84, "end")}
-    <line x1="72" y1="${size - 430}" x2="${size - 72}" y2="${size - 430}" stroke="rgba(255,255,255,0.18)" stroke-width="2" />
-    ${renderMultilineText({
-      block: titleBlock,
-      x: 72,
-      y: titleTop,
+    ${renderFittedBlock({
+      block: headerBlock,
+      x: size - rightInset,
+      baselineY: headerBaseline,
       fill: "#FFFFFF",
-      fontWeight: 700,
-      letterSpacing: -1.8,
-      fontFamily: displayFont,
-      filter: textFilter(context)
-    })}
-    ${renderMetaLine({
-      context,
-      x: 72,
-      y: metaY
+      anchor: "end",
+      fontWeight: 500,
+      fontFamily: textFont,
+      context
     })}
     ${
-      dateLabel
-        ? renderLabel({
-            text: dateLabel,
-            x: size - 72,
-            y: size - 72,
-            fill: "rgba(255,255,255,0.84)",
+      dateBlock
+        ? renderFittedBlock({
+            block: dateBlock,
+            x: size - scaleDesign(context, 30),
+            baselineY: metaBaseline,
+            fill: "#FFFFFF",
             anchor: "end",
-            fontSize: 22,
             fontWeight: 500,
-            letterSpacing: 0.6,
+            fontFamily: textFont,
+            context
+          })
+        : ""
+    }
+    ${renderMultilineText({
+      block: titleBlock,
+      x: leftInset,
+      y: titleTop,
+      fill: "#FFFFFF",
+      fontWeight: 400,
+      letterSpacing: 0,
+      fontFamily: serifFont,
+      filter: textFilter(context)
+    })}
+    ${
+      subtitleBlock
+        ? renderMultilineText({
+            block: subtitleBlock,
+            x: leftInset,
+            y: subtitleTop,
+            fill: "#FFFFFF",
+            fontWeight: 400,
+            letterSpacing: 0,
+            fontFamily: serifFont,
             filter: textFilter(context)
+          })
+        : ""
+    }
+    ${
+      footerBlock
+        ? renderFittedBlock({
+            block: footerBlock,
+            x: leftInset,
+            baselineY: footerBaseline,
+            fill: "rgba(255,255,255,0.49)",
+            fontWeight: 500,
+            fontFamily: serifSmallFont,
+            context
           })
         : ""
     }
