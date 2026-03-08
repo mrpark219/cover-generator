@@ -14,9 +14,9 @@ import {
 } from "@cover-generator/shared";
 import {
   useCallback,
-  useDeferredValue,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState
 } from "react";
@@ -207,16 +207,18 @@ export function CoverStudio() {
   const activeGroup = groups.find((candidate) => candidate.id === activeGroupId) ?? null;
   const copy = uiText[language];
   const rawForm = activeGroup?.form ?? activeImage?.draftForm ?? baseForm;
-  const resolvedForm = {
-    ...rawForm,
-    header: resolveFormTextValue(rawForm.header, copy.placeholders.header),
-    title: resolveFormTextValue(rawForm.title, copy.placeholders.title),
-    subtitle: resolveFormTextValue(rawForm.subtitle, copy.placeholders.subtitle),
-    date: resolveFormTextValue(rawForm.date, copy.placeholders.date),
-    footer: resolveFormTextValue(rawForm.footer, copy.placeholders.footer),
-    textColor: normalizeHexColor(rawForm.textColor, defaultTextColor)
-  };
-  const deferredForm = useDeferredValue(resolvedForm);
+  const resolvedForm = useMemo(
+    () => ({
+      ...rawForm,
+      header: resolveFormTextValue(rawForm.header, copy.placeholders.header),
+      title: resolveFormTextValue(rawForm.title, copy.placeholders.title),
+      subtitle: resolveFormTextValue(rawForm.subtitle, copy.placeholders.subtitle),
+      date: resolveFormTextValue(rawForm.date, copy.placeholders.date),
+      footer: resolveFormTextValue(rawForm.footer, copy.placeholders.footer),
+      textColor: normalizeHexColor(rawForm.textColor, defaultTextColor)
+    }),
+    [rawForm, copy.placeholders]
+  );
   const importingUrlsLabel = copy.importingUrls;
   const urlEmptyError = copy.urlEmptyError;
   const urlFetchError = copy.urlFetchError;
@@ -415,16 +417,16 @@ export function CoverStudio() {
           focusX: activeImage.focusX,
           focusY: activeImage.focusY
         },
-        header: deferredForm.header,
-        title: deferredForm.title,
-        date: deferredForm.date,
-        subtitle: deferredForm.subtitle,
-        footer: deferredForm.footer,
-        textColor: deferredForm.textColor,
-        template: deferredForm.template,
-        size: deferredForm.size,
-        shadow: deferredForm.shadow,
-        blur: deferredForm.blur
+        header: resolvedForm.header,
+        title: resolvedForm.title,
+        date: resolvedForm.date,
+        subtitle: resolvedForm.subtitle,
+        footer: resolvedForm.footer,
+        textColor: resolvedForm.textColor,
+        template: resolvedForm.template,
+        size: resolvedForm.size,
+        shadow: resolvedForm.shadow,
+        blur: resolvedForm.blur
       });
 
       const nextUrl = URL.createObjectURL(
@@ -449,7 +451,7 @@ export function CoverStudio() {
         error: error instanceof Error ? error.message : copy.previewError
       }));
     }
-  }, [activeImage, copy.previewError, deferredForm]);
+  }, [activeImage, copy.previewError, resolvedForm]);
 
   useEffect(() => {
     return () => {
