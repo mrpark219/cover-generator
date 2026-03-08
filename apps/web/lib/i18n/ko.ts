@@ -84,7 +84,7 @@ export const koUiText: StudioCopy = {
   uploadDropHint: "파일을 끌어놓거나 직접 고르세요.",
   urlTitle: "이미지 주소를 한 줄에 하나씩 붙여넣으세요",
   urlDescription:
-    "브라우저가 바로 불러올 수 있는 주소만 가져올 수 있습니다.",
+    "대부분의 공개 이미지 주소를 가져올 수 있지만, 일부 호스트는 원격 가져오기를 막을 수 있습니다.",
   urlPlaceholder:
     "https://images.example.com/cover.jpg\nhttps://cdn.example.com/another.webp",
   addUrls: "URL 추가",
@@ -114,7 +114,7 @@ export const koUiText: StudioCopy = {
   cardDraftHint: "개별 설정 사용 중",
   urlEmptyError: "유효한 이미지 URL을 하나 이상 붙여넣으세요.",
   urlFetchError:
-    "하나 이상의 URL을 가져올 수 없습니다. 해당 호스트가 브라우저 직접 접근을 막고 있을 수 있습니다.",
+    "하나 이상의 URL을 가져올 수 없습니다. 해당 호스트가 원격 가져오기를 막고 있거나 이미지 주소가 아닐 수 있습니다.",
   uploadError: "JPG, PNG, WebP, AVIF 이미지를 업로드하세요.",
   readError: "파일을 읽을 수 없습니다.",
   previewError: "미리보기 렌더링에 실패했습니다.",

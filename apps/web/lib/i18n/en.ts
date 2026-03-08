@@ -84,7 +84,7 @@ export const enUiText: StudioCopy = {
   uploadDropHint: "Drop image files here or pick them from disk.",
   urlTitle: "Paste image links, one per line",
   urlDescription:
-    "The browser can import only links that allow direct image access.",
+    "Most public image links work. Some hosts may still block remote fetches.",
   urlPlaceholder:
     "https://images.example.com/cover.jpg\nhttps://cdn.example.com/another.webp",
   addUrls: "Add URLs",
@@ -114,7 +114,7 @@ export const enUiText: StudioCopy = {
   cardDraftHint: "Keeps its own settings",
   urlEmptyError: "Paste at least one valid image URL.",
   urlFetchError:
-    "One or more URLs could not be imported. The host may block direct browser access.",
+    "One or more URLs could not be imported. The host may block remote fetches or the URL may not be an image.",
   uploadError: "Upload JPG, PNG, WebP, or AVIF images.",
   readError: "The file could not be read.",
   previewError: "Preview rendering failed.",

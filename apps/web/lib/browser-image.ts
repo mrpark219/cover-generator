@@ -77,10 +77,24 @@ function inferRemoteFileName(url: string, mimeType: string) {
 }
 
 export async function fetchImageUrlAsUpload(url: string): Promise<UploadedImageState> {
-  const response = await fetch(url);
+  const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  const response = await fetch(proxyUrl, {
+    cache: "no-store"
+  });
 
   if (!response.ok) {
-    throw new Error(`The image request failed with status ${response.status}.`);
+    let message = `The image request failed with status ${response.status}.`;
+
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (typeof payload.error === "string" && payload.error.trim().length > 0) {
+        message = payload.error;
+      }
+    } catch {
+      // Ignore invalid JSON and keep the generic message.
+    }
+
+    throw new Error(message);
   }
 
   const blob = await response.blob();
