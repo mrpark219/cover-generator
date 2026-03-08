@@ -2,8 +2,8 @@ import type { StudioCopy } from "./types";
 
 export const enUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "One photo. Instant cover.",
-  pageDescription: "Tune the text, nudge the crop, and save it locally.",
+  pageTitle: "Cover Studio",
+  pageDescription: "",
   steps: ["1 Upload", "2 Edit", "3 Batch", "4 Download"],
   language: "Language",
   preview: "Preview",

@@ -756,14 +756,14 @@ export function CoverStudio() {
 
   return (
     <main
-      className="mx-auto flex max-w-[1380px] flex-col px-3 py-3 sm:px-4 lg:px-5 xl:pb-5"
+      className="mx-auto flex max-w-[1600px] flex-col px-3 py-3 sm:px-4 lg:px-5 xl:pb-5"
       data-language={language}
       lang={language}
     >
       <HeaderSection copy={copy} language={language} onLanguageChange={setLanguage} />
 
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:items-start">
-        <aside className="grid gap-3 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] xl:block xl:self-start xl:space-y-3">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,19rem)_minmax(0,24rem)_minmax(0,1fr)] xl:items-start">
+        <aside className="space-y-3">
           <PreviewSection
             activeImage={activeImage}
             activeSelectedIndex={activeSelectedIndex}
@@ -799,7 +799,9 @@ export function CoverStudio() {
             selectedImageCount={selectedImageCount}
             totalImageCount={images.length}
           />
+        </aside>
 
+        <aside className="space-y-3">
           <SettingsSection
             activeField={activeField}
             copy={copy}
@@ -840,9 +842,11 @@ export function CoverStudio() {
             rawForm={rawForm}
             setFieldRef={setFieldRef}
           />
+
+          <DetailsSection cliCommand={cliCommand} copy={copy} />
         </aside>
 
-        <div className="space-y-3">
+        <section className="space-y-3">
           <ImagesSection
             activeImageId={activeImageId}
             activeSelectedIndex={activeSelectedIndex}
@@ -866,9 +870,7 @@ export function CoverStudio() {
             sourceMode={sourceMode}
             urlInput={urlInput}
           />
-
-          <DetailsSection cliCommand={cliCommand} copy={copy} />
-        </div>
+        </section>
       </div>
     </main>
   );

@@ -2,8 +2,8 @@ import type { StudioCopy } from "./types";
 
 export const koUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "사진은 한 장, 인상은 오래.",
-  pageDescription: "텍스트와 크롭만 다듬으면, 바로 저장할 수 있는 커버가 됩니다.",
+  pageTitle: "커버 스튜디오",
+  pageDescription: "",
   steps: ["1 업로드", "2 편집", "3 묶기", "4 다운로드"],
   language: "언어",
   preview: "미리보기",

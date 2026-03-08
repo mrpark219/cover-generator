@@ -263,32 +263,29 @@ export function HeaderSection({
   onLanguageChange: (value: Language) => void;
 }) {
   return (
-    <header className={`${panelClass} mb-3 shrink-0 p-3 sm:p-4`}>
-      <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex items-start gap-3">
+    <header className={`${panelClass} mb-3 shrink-0 px-3 py-2.5 sm:px-4 sm:py-3`}>
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
           <BrandLogo />
-          <div>
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
               {copy.pageEyebrow}
             </p>
-            <h1 className="mt-1 break-keep text-[1.32rem] font-semibold tracking-[-0.055em] text-[#111111] sm:text-[1.7rem]">
+            <p className="mt-0.5 text-[13px] font-semibold tracking-[-0.03em] text-[#111111]">
               {copy.pageTitle}
-            </h1>
-            <p className="mt-1 max-w-2xl break-keep text-[13px] leading-5 text-black/58 sm:text-sm">
-              {copy.pageDescription}
             </p>
           </div>
         </div>
 
-        <div className="w-full max-w-[10rem]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
+        <div className="w-full sm:w-auto sm:min-w-[9.5rem]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">
             {copy.language}
           </p>
           <div className="mt-1.5 grid grid-cols-2 gap-2">
             {languageOptions.map((option) => (
               <button
                 className={[
-                  "rounded-xl border-2 px-3 py-1.5 text-[13px] font-semibold transition",
+                  "rounded-xl border-2 px-3 py-1.5 text-[12px] font-semibold transition",
                   language === option.value
                     ? "border-[#027fff] bg-[#f7fbff] text-[#027fff]"
                     : "border-[#e6e6e6] bg-white text-[#111111] hover:border-[#d3d3d7]"
@@ -766,9 +763,9 @@ export function ImagesSection({
   const totalImageCount = images.length;
 
   return (
-    <section className="space-y-3 xl:flex xl:min-h-0 xl:flex-col">
+    <section className="space-y-3">
       <section
-        className={`${panelClass} p-3 sm:p-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden`}
+        className={`${panelClass} p-3 sm:p-4`}
         onDragOver={(event) => {
           event.preventDefault();
         }}
@@ -874,7 +871,7 @@ export function ImagesSection({
             type="file"
           />
 
-          <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-3 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
+          <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-3">
             <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
@@ -920,7 +917,7 @@ export function ImagesSection({
               </div>
             </div>
 
-            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:max-h-full xl:grid-cols-3 xl:overflow-y-auto xl:pr-1 2xl:grid-cols-4">
+            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {images.length > 0 ? (
                 images.map((imageItem) => {
                   const isActive = imageItem.id === activeImageId;
