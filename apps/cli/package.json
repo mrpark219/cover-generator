@@ -6,7 +6,7 @@
     "cover-generator": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts --clean --shims",
+    "build": "tsup --config tsup.config.ts",
     "dev": "tsx src/index.ts",
     "lint": "tsc --noEmit"
   },
