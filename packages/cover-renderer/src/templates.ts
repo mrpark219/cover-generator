@@ -84,30 +84,30 @@ function createBaseDefs(context: TemplateContext) {
         <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="rgba(0,0,0,0.44)" />
       </filter>
       <linearGradient id="${context.ids.topFade}" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stop-color="rgba(0,0,0,0.34)" />
-        <stop offset="36%" stop-color="rgba(0,0,0,0.1)" />
+        <stop offset="0%" stop-color="rgba(0,0,0,0.18)" />
+        <stop offset="34%" stop-color="rgba(0,0,0,0.04)" />
         <stop offset="100%" stop-color="rgba(0,0,0,0)" />
       </linearGradient>
       <linearGradient id="${context.ids.bottomFade}" x1="50%" y1="0%" x2="50%" y2="100%">
         <stop offset="0%" stop-color="rgba(0,0,0,0)" />
-        <stop offset="58%" stop-color="rgba(0,0,0,0.1)" />
-        <stop offset="100%" stop-color="rgba(0,0,0,0.78)" />
+        <stop offset="66%" stop-color="rgba(0,0,0,0.04)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.28)" />
       </linearGradient>
       <linearGradient id="${context.ids.bottomHeavyFade}" x1="50%" y1="0%" x2="50%" y2="100%">
         <stop offset="0%" stop-color="rgba(0,0,0,0)" />
-        <stop offset="46%" stop-color="rgba(0,0,0,0.24)" />
-        <stop offset="100%" stop-color="rgba(0,0,0,0.88)" />
+        <stop offset="54%" stop-color="rgba(0,0,0,0.08)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.42)" />
       </linearGradient>
       <radialGradient id="${context.ids.centerShade}" cx="50%" cy="62%" r="72%">
         <stop offset="0%" stop-color="rgba(0,0,0,0)" />
-        <stop offset="62%" stop-color="rgba(0,0,0,0.08)" />
-        <stop offset="100%" stop-color="rgba(0,0,0,0.28)" />
+        <stop offset="72%" stop-color="rgba(0,0,0,0.04)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.12)" />
       </radialGradient>
       <linearGradient id="${context.ids.sideShade}" x1="0%" y1="50%" x2="100%" y2="50%">
-        <stop offset="0%" stop-color="rgba(0,0,0,0.26)" />
-        <stop offset="22%" stop-color="rgba(0,0,0,0.08)" />
-        <stop offset="78%" stop-color="rgba(0,0,0,0.08)" />
-        <stop offset="100%" stop-color="rgba(0,0,0,0.22)" />
+        <stop offset="0%" stop-color="rgba(0,0,0,0.12)" />
+        <stop offset="24%" stop-color="rgba(0,0,0,0.02)" />
+        <stop offset="76%" stop-color="rgba(0,0,0,0.02)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.1)" />
       </linearGradient>
     </defs>
   `;
@@ -143,7 +143,7 @@ function renderPhotoLayers(context: TemplateContext, foregroundOpacity = 1) {
       height="${size + 144}"
       preserveAspectRatio="xMidYMid slice"
       filter="url(#${context.ids.blurFilter})"
-      opacity="0.96"
+      opacity="0.9"
     />
     <image
       href="${escapeXml(image.src)}"
@@ -152,7 +152,7 @@ function renderPhotoLayers(context: TemplateContext, foregroundOpacity = 1) {
       width="${size}"
       height="${size}"
       preserveAspectRatio="xMidYMid slice"
-      opacity="0.36"
+      opacity="0.72"
     />
   `;
 }
@@ -226,43 +226,70 @@ function renderFooter(context: TemplateContext, x: number, y: number, anchor: "s
 }
 
 function renderModernTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, title, subtitle } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
-    maxWidth: size - 144,
-    maxHeight: 340,
+    maxWidth: size - 132,
+    maxHeight: 420,
     maxLines: 3,
-    maxFontSize: 150,
+    maxFontSize: 136,
     minFontSize: 70,
-    lineHeight: 0.92,
-    letterSpacing: -2.2
+    lineHeight: 0.9,
+    letterSpacing: -1.8
   });
-  const titleTop = size - 304 - titleBlock.height;
-  const metaY = titleTop + titleBlock.height + 56;
+  const titleTop = 132;
+  const subtitleY = titleTop + titleBlock.height + 56;
+  const footerY = size - 66;
+  const dateText = context.date?.compact ?? context.input.date;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#0D0D0F" />
     ${renderPhotoLayers(context)}
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.centerShade})" />
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.topFade})" />
-    <rect x="0" y="0" width="${size}" height="${size}" fill="url(#${context.ids.bottomFade})" />
-    ${renderHeader(context, 72, 84)}
+    <rect x="0" y="0" width="${size}" height="${size}" fill="rgba(0,0,0,0.03)" />
+    <rect x="0" y="0" width="${size}" height="320" fill="url(#${context.ids.topFade})" />
+    ${renderHeader(context, 48, 64)}
     ${renderMultilineText({
       block: titleBlock,
-      x: 72,
+      x: 48,
       y: titleTop,
       fill: "#FFFFFF",
       fontWeight: 700,
-      letterSpacing: -2.2,
+      letterSpacing: -1.8,
       fontFamily: displayFont,
       filter: textFilter(context)
     })}
-    ${renderMetaLine({
-      context,
-      x: 72,
-      y: metaY
-    })}
-    ${renderFooter(context, size - 72, size - 72, "end")}
+    ${
+      subtitle
+        ? renderLabel({
+            text: subtitle,
+            x: 48,
+            y: subtitleY,
+            fill: "rgba(255,255,255,0.92)",
+            fontSize: 58,
+            fontWeight: 400,
+            letterSpacing: -0.2,
+            fontFamily: displayFont,
+            filter: textFilter(context)
+          })
+        : ""
+    }
+    ${renderFooter(context, 48, footerY)}
+    ${
+      dateText
+        ? renderLabel({
+            text: dateText,
+            x: size - 48,
+            y: footerY,
+            fill: "rgba(255,255,255,0.72)",
+            anchor: "end",
+            fontSize: 20,
+            fontWeight: 500,
+            letterSpacing: 0.4,
+            fontFamily: displayFont,
+            filter: textFilter(context)
+          })
+        : ""
+    }
   `;
 }
 

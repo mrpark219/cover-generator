@@ -49,7 +49,7 @@ const initialFormState: FormState = {
   subtitle: "Seoul",
   footer: "SELF UPLOAD",
   template: defaultTemplate,
-  shadow: true,
+  shadow: false,
   blur: false
 };
 
@@ -97,7 +97,7 @@ const templatePreviewImages = Object.fromEntries(
         subtitle: "Seoul",
         footer: template.id === "normal" ? "Playlist" : "SELF UPLOAD",
         template: template.id,
-        shadow: true,
+        shadow: false,
         blur: false
       }).svg
     )}`
