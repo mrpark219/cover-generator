@@ -52,6 +52,9 @@ export function formatDateVariants(dateInput: string): DateDisplayVariants {
       compact: raw.toUpperCase(),
       numeric: raw.toUpperCase(),
       monthYear: raw.toUpperCase(),
+      monthShort: raw.toUpperCase(),
+      day: "00",
+      year: "0000",
       raw
     };
   }
@@ -73,6 +76,9 @@ export function formatDateVariants(dateInput: string): DateDisplayVariants {
       " · "
     ),
     monthYear: formatter({ month: "long", year: "numeric" }),
+    monthShort: formatter({ month: "short" }),
+    day: formatter({ day: "2-digit" }),
+    year: formatter({ year: "numeric" }),
     raw
   };
 }
@@ -108,4 +114,3 @@ export function hashString(value: string) {
 
   return hash.toString(36);
 }
-

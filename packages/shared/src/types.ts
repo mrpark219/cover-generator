@@ -1,4 +1,4 @@
-export type CoverTemplate = "classic" | "minimal" | "dark";
+export type CoverTemplate = "modern" | "normal" | "classic";
 
 export interface CoverTemplateOption {
   id: CoverTemplate;
@@ -20,6 +20,8 @@ export interface CoverRenderInput {
   date: string;
   subtitle: string;
   template?: CoverTemplate;
+  shadow?: boolean;
+  blur?: boolean;
   size?: number;
 }
 
@@ -36,6 +38,8 @@ export interface DateDisplayVariants {
   compact: string;
   numeric: string;
   monthYear: string;
+  monthShort: string;
+  day: string;
+  year: string;
   raw: string;
 }
-

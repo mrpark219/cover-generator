@@ -10,7 +10,8 @@ export function renderMultilineText({
   fontWeight = 600,
   letterSpacing = 0,
   anchor = "start",
-  fontFamily = "'SF Pro Display', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif"
+  fontFamily = "'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  filter
 }: {
   block: FittedTextBlock;
   x: number;
@@ -21,6 +22,7 @@ export function renderMultilineText({
   letterSpacing?: number;
   anchor?: "start" | "middle" | "end";
   fontFamily?: string;
+  filter?: string;
 }) {
   const baseline = y + block.fontSize;
 
@@ -35,6 +37,7 @@ export function renderMultilineText({
       font-weight="${fontWeight}"
       letter-spacing="${letterSpacing}"
       text-anchor="${anchor}"
+      ${filter ? `filter="${filter}"` : ""}
     >
       ${block.lines
         .map(
@@ -57,7 +60,9 @@ export function renderLabel({
   letterSpacing = 10,
   opacity = 1,
   anchor = "start",
-  fontWeight = 600
+  fontWeight = 600,
+  filter,
+  fontFamily = "'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 }: {
   text: string;
   x: number;
@@ -68,6 +73,8 @@ export function renderLabel({
   opacity?: number;
   anchor?: "start" | "middle" | "end";
   fontWeight?: number;
+  filter?: string;
+  fontFamily?: string;
 }) {
   return `
     <text
@@ -75,12 +82,12 @@ export function renderLabel({
       y="${y}"
       fill="${fill}"
       opacity="${opacity}"
-      font-family="'SF Pro Display', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif"
+      font-family="${fontFamily}"
       font-size="${fontSize}"
       font-weight="${fontWeight}"
       letter-spacing="${letterSpacing}"
       text-anchor="${anchor}"
+      ${filter ? `filter="${filter}"` : ""}
     >${escapeXml(text)}</text>
   `;
 }
-

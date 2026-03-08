@@ -35,6 +35,8 @@ program
     parseTemplate,
     defaultTemplate
   )
+  .option("--shadow", "Add text shadow for stronger contrast")
+  .option("--blur", "Blur the cover background for a softer look")
   .option("-o, --output <output>", "Output PNG file path or target directory")
   .action(async (input, options) => {
     await generateCover({
@@ -43,6 +45,8 @@ program
       date: options.date,
       subtitle: options.subtitle,
       template: options.template,
+      shadow: Boolean(options.shadow),
+      blur: Boolean(options.blur),
       output: options.output
     });
   });
@@ -68,6 +72,8 @@ async function generateCover({
   date,
   subtitle,
   template,
+  shadow,
+  blur,
   output
 }: {
   inputPath: string;
@@ -75,6 +81,8 @@ async function generateCover({
   date: string;
   subtitle: string;
   template: CoverTemplate;
+  shadow: boolean;
+  blur: boolean;
   output?: string;
 }) {
   const absoluteInputPath = path.resolve(process.cwd(), inputPath);
@@ -86,7 +94,9 @@ async function generateCover({
     title,
     date,
     subtitle,
-    template
+    template,
+    shadow,
+    blur
   });
 
   const outputPath = resolveOutputPath({
@@ -105,6 +115,7 @@ async function generateCover({
   const relativePath = path.relative(process.cwd(), outputPath) || path.basename(outputPath);
   console.log(`Success: cover saved to ${relativePath}`);
   console.log(`Template: ${template}`);
+  console.log(`Effects: shadow=${shadow ? "on" : "off"}, blur=${blur ? "on" : "off"}`);
   console.log(`Size: ${renderResult.width}x${renderResult.height}`);
 }
 
