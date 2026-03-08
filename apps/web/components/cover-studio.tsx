@@ -306,6 +306,9 @@ export function CoverStudio() {
   const selectedImages = images.filter((candidate) => candidate.selected);
   const selectedImageCount = selectedImages.length;
   const totalImageCount = images.length;
+  const activeSelectedIndex = activeImage
+    ? selectedImages.findIndex((candidate) => candidate.id === activeImage.id)
+    : -1;
   const form = activeImage
     ? activeImage.selected
       ? sharedForm
@@ -498,6 +501,29 @@ export function CoverStudio() {
         selected
       }))
     );
+  }
+
+  function focusSelectedGroup() {
+    if (selectedImages[0]) {
+      setActiveImageId(selectedImages[0].id);
+    }
+  }
+
+  function moveSelectedPreview(direction: "previous" | "next") {
+    if (selectedImages.length === 0) {
+      return;
+    }
+
+    const currentIndex = selectedImages.findIndex(
+      (imageItem) => imageItem.id === activeImageId
+    );
+    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+    const nextIndex =
+      direction === "next"
+        ? (safeIndex + 1) % selectedImages.length
+        : (safeIndex - 1 + selectedImages.length) % selectedImages.length;
+
+    setActiveImageId(selectedImages[nextIndex]?.id ?? null);
   }
 
   async function handleFiles(files: FileList | File[] | null) {
@@ -702,6 +728,55 @@ export function CoverStudio() {
                   : "Upload one or more photos to unlock preview and export."}
               </p>
             </div>
+
+            {selectedImageCount > 0 ? (
+              <div className="mt-3 rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#111111]">
+                      Selected Group
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-black/55">
+                      {activeSelectedIndex >= 0
+                        ? `Previewing ${activeSelectedIndex + 1} of ${selectedImageCount} selected images.`
+                        : `${selectedImageCount} images are selected. Active preview is currently outside the shared group.`}
+                    </p>
+                  </div>
+                  <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+                    Shared
+                  </span>
+                </div>
+
+                <div className="mt-3 grid gap-2 sm:grid-cols-[auto_auto_minmax(0,1fr)] md:grid-cols-1 xl:grid-cols-[auto_auto_minmax(0,1fr)]">
+                  <button
+                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                    disabled={selectedImageCount < 2}
+                    onClick={() => moveSelectedPreview("previous")}
+                    type="button"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                    disabled={selectedImageCount < 2}
+                    onClick={() => moveSelectedPreview("next")}
+                    type="button"
+                  >
+                    Next
+                  </button>
+                  <button
+                    className="rounded-xl border-[3px] border-[#027fff] bg-[#f7fbff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#027fff] transition hover:border-[#0167d0] hover:text-[#0167d0] disabled:cursor-not-allowed disabled:border-[#d6e9ff] disabled:text-[#8abfff]"
+                    disabled={activeSelectedIndex >= 0}
+                    onClick={focusSelectedGroup}
+                    type="button"
+                  >
+                    {activeSelectedIndex >= 0
+                      ? "Selected Group Focused"
+                      : "Focus Selected Group"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
             {preview.error ? (
               <div className="mt-3 rounded-xl border-[3px] border-[#f1c7bc] bg-[#fff4f1] px-3 py-2.5 text-sm text-[#a24a32]">
@@ -1087,15 +1162,27 @@ export function CoverStudio() {
                       Click for preview. Double-click for selected mode.
                     </p>
                   </div>
-                  <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
-                    {totalImageCount > 0 ? `${totalImageCount} uploaded` : "Empty"}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+                      {totalImageCount > 0 ? `${totalImageCount} uploaded` : "Empty"}
+                    </span>
+                    {selectedImageCount > 0 ? (
+                      <span className="rounded-xl border-[3px] border-[#111111] bg-[#111111] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                        {activeSelectedIndex >= 0
+                          ? `${activeSelectedIndex + 1}/${selectedImageCount} in group`
+                          : `${selectedImageCount} selected`}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:max-h-full xl:grid-cols-3 xl:overflow-y-auto xl:pr-1 2xl:grid-cols-4">
                   {images.length > 0 ? (
                     images.map((imageItem) => {
                       const isActive = imageItem.id === activeImageId;
+                      const selectionIndex = selectedImages.findIndex(
+                        (candidate) => candidate.id === imageItem.id
+                      );
 
                       return (
                         <div
@@ -1140,13 +1227,20 @@ export function CoverStudio() {
                                   Draft
                                 </span>
                               )}
+                              {selectionIndex >= 0 ? (
+                                <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                  #{selectionIndex + 1}
+                                </span>
+                              ) : null}
                             </div>
                             <p className="mt-2 truncate text-sm font-semibold text-[#111111]">
                               {imageItem.fileName}
                             </p>
                             <p className="mt-1 text-xs leading-5 text-black/46">
                               {imageItem.selected
-                                ? "Uses the shared title, template, and effects from the left panel."
+                                ? isActive
+                                  ? "Active preview inside the shared group. Previous and next buttons will move through the group."
+                                  : "Uses the shared title, template, and effects from the left panel."
                                 : "Keeps its own title, template, and effects until you double-click it."}
                             </p>
                           </div>
