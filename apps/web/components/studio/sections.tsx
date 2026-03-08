@@ -343,7 +343,7 @@ export function PreviewSection({
   busyMessage: string | null;
 }) {
   return (
-    <section className={`${panelClass} p-2.5 sm:p-3 xl:sticky xl:top-3`}>
+    <section className={`${panelClass} p-2.5 sm:p-3`}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
