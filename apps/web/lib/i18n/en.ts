@@ -2,9 +2,8 @@ import type { StudioCopy } from "./types";
 
 export const enUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "Apple Music-style cover generator",
-  pageDescription:
-    "Upload or paste images, tune text and crop, then export PNG or ZIP.",
+  pageTitle: "Turn one photo into a cover.",
+  pageDescription: "Edit text, adjust crop, and save PNG or ZIP locally.",
   steps: ["1 Upload", "2 Edit", "3 Batch", "4 Download"],
   language: "Language",
   preview: "Preview",

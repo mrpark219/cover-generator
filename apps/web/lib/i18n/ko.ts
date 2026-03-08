@@ -2,9 +2,8 @@ import type { StudioCopy } from "./types";
 
 export const koUiText: StudioCopy = {
   pageEyebrow: "cover-generator",
-  pageTitle: "애플 뮤직 스타일 커버 생성기",
-  pageDescription:
-    "사진 업로드나 URL 붙여넣기 후 텍스트와 크롭을 조정하고 PNG 또는 ZIP으로 내보내세요.",
+  pageTitle: "사진 한 장으로 커버를 만드세요.",
+  pageDescription: "텍스트와 크롭을 조정하고 PNG 또는 ZIP으로 바로 저장하세요.",
   steps: ["1 업로드", "2 편집", "3 묶기", "4 다운로드"],
   language: "언어",
   preview: "미리보기",

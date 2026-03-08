@@ -155,6 +155,43 @@ const quickSymbols: Array<{
   { label: "✦", value: "✦", title: "Sparkle" }
 ];
 
+function BrandLogo() {
+  return (
+    <div className="flex h-11 w-11 items-center justify-center rounded-[16px] border border-black/8 bg-[linear-gradient(180deg,#ffffff_0%,#f2f4f8_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(15,23,42,0.08)]">
+      <svg
+        aria-hidden="true"
+        className="h-7 w-7"
+        fill="none"
+        viewBox="0 0 28 28"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          fill="url(#logo-gradient)"
+          height="18"
+          rx="6"
+          width="18"
+          x="5"
+          y="5"
+        />
+        <path
+          d="M10.5 10.5H17.5M10.5 14H17.5M10.5 17.5H14.5"
+          stroke="white"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
+        <circle cx="19.5" cy="18.5" fill="#ffffff" r="1.5" />
+        <defs>
+          <linearGradient id="logo-gradient" x1="5" x2="23" y1="5" y2="23">
+            <stop stopColor="#0F172A" />
+            <stop offset="0.55" stopColor="#1D4ED8" />
+            <stop offset="1" stopColor="#60A5FA" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  );
+}
+
 function FieldLabel({
   htmlFor,
   children
@@ -814,16 +851,19 @@ export function CoverStudio() {
     >
       <header className={`${panelClass} mb-3 shrink-0 p-3 sm:p-4`}>
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
-              {copy.pageEyebrow}
-            </p>
-            <h1 className="mt-1 break-keep text-[1.35rem] font-semibold tracking-[-0.05em] text-[#111111] sm:text-[1.75rem]">
-              {copy.pageTitle}
-            </h1>
-            <p className="mt-1 max-w-3xl break-keep text-[13px] leading-5 text-black/62 sm:text-sm sm:leading-6">
-              {copy.pageDescription}
-            </p>
+          <div className="flex items-start gap-3">
+            <BrandLogo />
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
+                {copy.pageEyebrow}
+              </p>
+              <h1 className="mt-1 break-keep text-[1.32rem] font-semibold tracking-[-0.055em] text-[#111111] sm:text-[1.7rem]">
+                {copy.pageTitle}
+              </h1>
+              <p className="mt-1 max-w-2xl break-keep text-[13px] leading-5 text-black/58 sm:text-sm">
+                {copy.pageDescription}
+              </p>
+            </div>
           </div>
 
           <div className="w-full max-w-[10rem]">
