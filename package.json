@@ -3,12 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "npm@11.6.0",
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "files": [
+    "apps/cli/dist",
+    "README.md",
+    "package.json"
+  ],
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "bin": {
     "cover-generator": "./apps/cli/dist/index.js"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "sharp": "^0.34.0"
   },
   "scripts": {
     "dev": "npm run dev -w @cover-generator/web",
@@ -17,4 +29,3 @@
     "lint": "npm run lint -w @cover-generator/shared && npm run lint -w @cover-generator/cover-renderer && npm run lint -w @cover-generator/cli && npm run lint -w @cover-generator/web"
   }
 }
-
