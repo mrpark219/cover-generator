@@ -112,7 +112,7 @@ export const koUiText: StudioCopy = {
   renderingNoteOne:
     "크롭은 공용 렌더러에서 처리돼서 웹과 CLI 결과가 같은 구도로 맞춰집니다.",
   renderingNoteTwo:
-    "글자가 길면 먼저 줄바꿈하고, 그래도 길면 안전 영역 안에서 크기를 줄입니다.",
+      "글자가 길면 먼저 줄바꿈하고, 그래도 길면 레이아웃에 자연스럽게 들어오도록 크기를 줄입니다.",
   renderingNoteThree:
     "블러는 배경을 부드럽게 만들고, 그림자는 밝은 사진에서 글자를 더 또렷하게 만듭니다.",
   cardActiveHint: "묶음 안에서 지금 보고 있는 카드입니다.",

@@ -112,7 +112,7 @@ export const enUiText: StudioCopy = {
   renderingNoteOne:
     "Cropping happens in the shared renderer, so the web app and CLI frame the image the same way.",
   renderingNoteTwo:
-    "Long text wraps first, then scales down before it spills outside the template safe area.",
+      "Long text wraps first, then scales down so it still fits the layout cleanly.",
   renderingNoteThree:
     "Blur softens the photo treatment. Shadow helps text stand out on brighter images.",
   cardActiveHint: "Currently in focus inside the batch.",
