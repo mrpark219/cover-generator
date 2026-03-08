@@ -150,16 +150,23 @@ function TemplateCard({
 }) {
   return (
     <button
+      aria-pressed={active}
       className={[
         "rounded-[18px] border-2 p-1.5 text-left transition",
         active
           ? "border-[#027fff] bg-[#f7fbff]"
           : "border-[#e6e6e6] bg-white hover:border-[#d3d3d7]"
       ].join(" ")}
-      onMouseDown={(event) => {
+      onPointerDown={(event) => {
         event.preventDefault();
+        onSelect(template);
       }}
-      onClick={() => onSelect(template)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(template);
+        }
+      }}
       type="button"
     >
       <div className="overflow-hidden rounded-xl bg-[#eceef2]">
@@ -605,15 +612,18 @@ export function PreviewSection({
 export function SettingsSection({
   copy,
   rawForm,
+  activeField,
   fieldLayout,
   setFieldRef,
   onTextFieldChange,
   onActiveFieldChange,
   onTemplateChange,
-  onSizeChange
+  onSizeChange,
+  onInsertSymbol
 }: {
   copy: StudioCopy;
   rawForm: FormState;
+  activeField: EditableField;
   fieldLayout: TemplateFieldLayoutItem[];
   setFieldRef: (
     field: EditableField
@@ -622,6 +632,7 @@ export function SettingsSection({
   onActiveFieldChange: (field: EditableField) => void;
   onTemplateChange: (template: CoverTemplate) => void;
   onSizeChange: (size: number) => void;
+  onInsertSymbol: (value: string) => void;
 }) {
   return (
     <section className={`${panelClass} p-2.5 sm:p-3`}>
@@ -683,6 +694,33 @@ export function SettingsSection({
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
+          <div>
+            <p className="text-[13px] font-semibold text-[#111111]">
+              {copy.quickSymbols}
+            </p>
+            <p className="mt-0.5 text-[11px] text-black/52">
+              {copy.insertsInto(copy.fields[activeField])}
+            </p>
+          </div>
+          <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-8">
+            {quickSymbols.map((symbol) => (
+              <button
+                className="inline-flex h-8 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+                key={`${symbol.title}-${symbol.value}`}
+                onClick={() => onInsertSymbol(symbol.value)}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                }}
+                title={symbol.title}
+                type="button"
+              >
+                {symbol.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -976,14 +1014,10 @@ export function ImagesSection({
 
 export function DetailsSection({
   copy,
-  cliCommand,
-  activeField,
-  onInsertSymbol
+  cliCommand
 }: {
   copy: StudioCopy;
   cliCommand: string;
-  activeField: EditableField;
-  onInsertSymbol: (value: string) => void;
 }) {
   return (
     <details className={`${panelClass} group shrink-0 overflow-hidden`}>
@@ -1041,30 +1075,6 @@ export function DetailsSection({
           </section>
         </div>
 
-        <section className="mt-3">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
-            {copy.quickSymbols}
-          </p>
-          <p className="mt-1 text-[11px] text-black/52">
-            {copy.insertsInto(copy.fields[activeField])}
-          </p>
-          <div className="mt-2 grid grid-cols-6 gap-1.5 sm:grid-cols-8 xl:grid-cols-10">
-            {quickSymbols.map((symbol) => (
-              <button
-                className="inline-flex h-8 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
-                key={`${symbol.title}-${symbol.value}`}
-                onClick={() => onInsertSymbol(symbol.value)}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-                title={symbol.title}
-                type="button"
-              >
-                {symbol.label}
-              </button>
-            ))}
-          </div>
-        </section>
       </div>
     </details>
   );

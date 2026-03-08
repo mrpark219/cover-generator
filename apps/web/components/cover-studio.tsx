@@ -835,9 +835,11 @@ export function CoverStudio() {
 
         <aside className="space-y-3">
           <SettingsSection
+            activeField={activeField}
             copy={copy}
             fieldLayout={templateFieldLayout}
             onActiveFieldChange={setActiveField}
+            onInsertSymbol={insertSymbol}
             onSizeChange={(size) =>
               updateFormState((current) => ({
                 ...current,
@@ -881,12 +883,7 @@ export function CoverStudio() {
             urlInput={urlInput}
           />
 
-          <DetailsSection
-            activeField={activeField}
-            cliCommand={cliCommand}
-            copy={copy}
-            onInsertSymbol={insertSymbol}
-          />
+          <DetailsSection cliCommand={cliCommand} copy={copy} />
         </section>
       </div>
     </main>
