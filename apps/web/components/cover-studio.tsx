@@ -845,7 +845,7 @@ export function CoverStudio() {
 
   return (
     <main
-      className="mx-auto flex max-w-[1380px] flex-col px-3 py-3 sm:px-4 lg:px-5 xl:h-[100svh] xl:max-h-[100svh] xl:overflow-hidden"
+      className="mx-auto flex max-w-[1380px] flex-col px-3 py-3 sm:px-4 lg:px-5 xl:pb-5"
       data-language={language}
       lang={language}
     >
@@ -891,9 +891,9 @@ export function CoverStudio() {
         </div>
       </header>
 
-      <div className="grid flex-1 min-h-0 gap-3 xl:grid-cols-[minmax(0,21rem)_minmax(0,1fr)]">
-        <aside className="grid gap-3 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] xl:grid-cols-1 xl:grid-rows-[auto_minmax(0,1fr)] xl:self-stretch xl:min-h-0">
-          <section className={`${panelClass} p-2.5 sm:p-3 xl:min-h-0`}>
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:items-start">
+        <aside className="grid gap-3 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] xl:block xl:self-start xl:space-y-3">
+          <section className={`${panelClass} p-2.5 sm:p-3 xl:sticky xl:top-3`}>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
@@ -1085,7 +1085,7 @@ export function CoverStudio() {
             </div>
           </section>
 
-          <section className={`${panelClass} p-2.5 sm:p-3 xl:min-h-0 xl:overflow-y-auto`}>
+          <section className={`${panelClass} p-2.5 sm:p-3`}>
             <div className="space-y-2">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
