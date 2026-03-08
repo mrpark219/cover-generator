@@ -49,6 +49,7 @@ The web app supports:
 - multi-image upload with active preview switching
 - double-click selection for shared batch editing and ZIP download
 - per-image draft text/template settings before selection
+- square resolution selection: `1200`, `1600`, `2048`
 - header, title, freeform date/meta, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`
@@ -79,6 +80,7 @@ cover-generator generate ./input/photo.jpg --title "Han River" --date "2026-03-0
 Useful CLI options:
 
 - `--template <modern|normal|classic>`
+- `--size <1200|1600|2048>`
 - `--header <text>`
 - `--subtitle <text>`
 - `--footer <text>`
@@ -91,7 +93,7 @@ Examples:
 ```bash
 cover-generator generate ./input/photo.jpg --header "APPLE MUSIC" --title "Han River" --date "2026-03-01" --subtitle "Seoul" --footer "SELF UPLOAD"
 cover-generator generate ./input/photo.jpg --header "@slowlydev" --title "Night Walk" --date "2026-03-04" --subtitle "Mapo" --footer "PLAYLIST" --template classic --shadow --blur
-cover-generator generate ./input/photo.jpg --header "MARCH EDIT" --title "Morning Air" --date "2026-03-05" --subtitle "Busan" --footer "VOL. 02" --template normal --output ./exports
+cover-generator generate ./input/photo.jpg --header "MARCH EDIT" --title "Morning Air" --date "VOL. 02" --subtitle "Busan" --footer "SPECIAL EDIT" --template normal --size 2048 --output ./exports
 cover-generator generate ./input/photo.jpg --header "STUDIO LOG" --title "Studio Day" --date "2026-03-06" --subtitle "Seongsu" --footer "SELF UPLOAD" --output ./exports/studio-day.png
 ```
 

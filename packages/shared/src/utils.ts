@@ -2,6 +2,7 @@ import { defaultTemplate, isCoverTemplate } from "./templates";
 import type { CoverTemplate, DateDisplayVariants } from "./types";
 
 export const defaultCoverSize = 1600;
+export const coverSizeOptions = [1200, 1600, 2048] as const;
 export const supportedMimeTypes = new Set([
   "image/jpeg",
   "image/jpg",
@@ -9,6 +10,10 @@ export const supportedMimeTypes = new Set([
   "image/webp",
   "image/avif"
 ]);
+
+export function isSupportedCoverSize(value: number) {
+  return coverSizeOptions.includes(value as (typeof coverSizeOptions)[number]);
+}
 
 export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);

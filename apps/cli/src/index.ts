@@ -4,7 +4,10 @@ import { renderCoverSvg } from "@cover-generator/cover-renderer";
 import {
   buildOutputFileName,
   coverTemplates,
+  coverSizeOptions,
+  defaultCoverSize,
   defaultTemplate,
+  isSupportedCoverSize,
   isCoverTemplate,
   sanitizeText,
   supportedMimeTypes,
@@ -27,7 +30,7 @@ program
   .command("generate")
   .argument("<input>", "Path to the source image")
   .requiredOption("--title <title>", "Cover title")
-  .requiredOption("--date <date>", "Cover date, for example 2026-03-01")
+  .requiredOption("--date <date>", "Cover date or meta text")
   .option("--header <header>", "Small header text", "APPLE MUSIC")
   .option("--subtitle <subtitle>", "Subtitle or location", "Somewhere")
   .option("--footer <footer>", "Small footer text", "SELF UPLOAD")
@@ -36,6 +39,12 @@ program
     `Template: ${templateChoices.join(", ")}`,
     parseTemplate,
     defaultTemplate
+  )
+  .option(
+    "--size <size>",
+    `Square output size: ${coverSizeOptions.join(", ")}`,
+    parseSize,
+    defaultCoverSize
   )
   .option("--shadow", "Add text shadow for stronger contrast")
   .option("--blur", "Blur the cover background for a softer look")
@@ -49,6 +58,7 @@ program
       subtitle: options.subtitle,
       footer: options.footer,
       template: options.template,
+      size: options.size,
       shadow: Boolean(options.shadow),
       blur: Boolean(options.blur),
       output: options.output
@@ -70,6 +80,18 @@ function parseTemplate(value: string) {
   return value;
 }
 
+function parseSize(value: string) {
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed) || !isSupportedCoverSize(parsed)) {
+    throw new InvalidArgumentError(
+      `Unknown size "${value}". Use one of: ${coverSizeOptions.join(", ")}.`
+    );
+  }
+
+  return parsed;
+}
+
 async function generateCover({
   inputPath,
   header,
@@ -78,6 +100,7 @@ async function generateCover({
   subtitle,
   footer,
   template,
+  size,
   shadow,
   blur,
   output
@@ -89,6 +112,7 @@ async function generateCover({
   subtitle: string;
   footer: string;
   template: CoverTemplate;
+  size: number;
   shadow: boolean;
   blur: boolean;
   output?: string;
@@ -105,6 +129,7 @@ async function generateCover({
     subtitle,
     footer,
     template,
+    size,
     shadow,
     blur
   });
