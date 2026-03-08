@@ -902,10 +902,10 @@ export function CoverStudio() {
                       Palette
                     </span>
                   </div>
-                  <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-4">
+                  <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-8">
                     {quickSymbols.map((symbol) => (
                       <button
-                        className="inline-flex h-10 items-center justify-center rounded-xl border-[3px] border-[#e6e6e6] bg-white text-lg font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+                        className="inline-flex h-9 items-center justify-center rounded-xl border-[3px] border-[#e6e6e6] bg-white text-base font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
                         key={`${symbol.title}-${symbol.value}`}
                         onClick={() => insertSymbol(symbol.value)}
                         onMouseDown={(event) => {
@@ -920,7 +920,7 @@ export function CoverStudio() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
                   <OptionToggle
                     checked={form.shadow}
                     description="Adds contrast on brighter photos."
@@ -949,8 +949,8 @@ export function CoverStudio() {
           </section>
         </aside>
 
-        <section className="space-y-4">
-          <section className={`${panelClass} p-4 sm:p-5`}>
+        <section className="space-y-4 xl:flex xl:h-[calc(100svh-2rem)] xl:min-h-0 xl:flex-col">
+          <section className={`${panelClass} shrink-0 p-3 sm:p-4`}>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/45">
                 CoverX-inspired
@@ -969,7 +969,7 @@ export function CoverStudio() {
           </section>
 
           <section
-            className={`${panelClass} p-5`}
+            className={`${panelClass} p-4 sm:p-5 xl:flex-1 xl:min-h-0 xl:overflow-hidden`}
             onDragOver={(event) => {
               event.preventDefault();
             }}
@@ -978,217 +978,227 @@ export function CoverStudio() {
               void handleFiles(event.dataTransfer.files);
             }}
           >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
-                  Self Upload
-                </p>
-                <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#111111] sm:text-2xl">
-                  Drag multiple photos here or choose from disk.
-                </h2>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-black/58">
-                  Single click changes the live preview. Double-click toggles
-                  shared selection mode. Unselected images keep their own text
-                  and template, while selected images share the settings from
-                  the left panel.
-                </p>
-              </div>
-              <label
-                className="inline-flex cursor-pointer items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0]"
-                htmlFor={inputId}
-              >
-                Choose Images
-              </label>
-            </div>
-
-            <input
-              accept="image/jpeg,image/png,image/webp,image/avif"
-              className="sr-only"
-              id={inputId}
-              onChange={(event) => {
-                void handleFiles(event.target.files);
-                event.currentTarget.value = "";
-              }}
-              multiple
-              type="file"
-            />
-
-            <div className="mt-5 rounded-2xl border-[3px] border-dashed border-[#d4d4d8] bg-[#fafafc] p-5">
-              <div className="grid gap-4 sm:grid-cols-[6rem_minmax(0,1fr)]">
-                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-[#eceef2]">
-                  {activeImage ? (
-                    <img
-                      alt="Uploaded source"
-                      className="h-full w-full object-cover"
-                      src={activeImage.dataUrl}
-                    />
-                  ) : (
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/35">
-                      none
-                    </span>
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#111111]">
-                    {activeImage ? activeImage.fileName : "No image selected"}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-black/58">
-                    {activeImage
-                      ? activeImage.selected
-                        ? `This image is in the selected set. ${selectedImageCount} images now share the left-side settings.`
-                        : "This image is using its own settings. Double-click it below to move it into the shared selected set."
-                      : "JPG, PNG, WebP, and AVIF are supported. Images stay local in your browser."}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl border-[3px] border-[#e6e6e6] bg-white p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 xl:h-full xl:min-h-0">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
-                    Image Collection
+                    Self Upload
                   </p>
-                  <p className="mt-1 text-sm leading-6 text-black/58">
+                  <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#111111] sm:text-2xl">
+                    Drag multiple photos here or choose from disk.
+                  </h2>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-black/58">
                     Single click previews. Double-click adds or removes that
                     image from the shared selected group.
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
-                    disabled={images.length === 0}
-                    onClick={() => setAllSelections(true)}
-                    type="button"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
-                    disabled={images.length === 0}
-                    onClick={() => setAllSelections(false)}
-                    type="button"
-                  >
-                    Deselect All
-                  </button>
-                  <button
-                    className="rounded-xl border-[3px] border-[#f0d2ca] bg-[#fff6f4] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a24a32] transition hover:border-[#e6beb2] hover:bg-white disabled:cursor-not-allowed disabled:text-[#d3a69b]"
-                    disabled={images.length === 0}
-                    onClick={clearImages}
-                    type="button"
-                  >
-                    Clear All
-                  </button>
+                <label
+                  className="inline-flex cursor-pointer items-center justify-center rounded-xl border-[3px] border-[#027fff] bg-[#027fff] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0167d0] hover:border-[#0167d0]"
+                  htmlFor={inputId}
+                >
+                  Choose Images
+                </label>
+              </div>
+
+              <input
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                className="sr-only"
+                id={inputId}
+                onChange={(event) => {
+                  void handleFiles(event.target.files);
+                  event.currentTarget.value = "";
+                }}
+                multiple
+                type="file"
+              />
+
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="rounded-2xl border-[3px] border-dashed border-[#d4d4d8] bg-[#fafafc] p-4">
+                  <div className="grid gap-3 sm:grid-cols-[4.5rem_minmax(0,1fr)]">
+                    <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center overflow-hidden rounded-xl bg-[#eceef2]">
+                      {activeImage ? (
+                        <img
+                          alt="Uploaded source"
+                          className="h-full w-full object-cover"
+                          src={activeImage.dataUrl}
+                        />
+                      ) : (
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/35">
+                          none
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#111111]">
+                        {activeImage ? activeImage.fileName : "No image selected"}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-black/58">
+                        {activeImage
+                          ? activeImage.selected
+                            ? `${selectedImageCount} images now share the left-side settings.`
+                            : "This image keeps its own settings until you double-click it."
+                          : "JPG, PNG, WebP, and AVIF stay local in your browser."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border-[3px] border-[#e6e6e6] bg-[#fafafc] p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      disabled={images.length === 0}
+                      onClick={() => setAllSelections(true)}
+                      type="button"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      className="rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/52 transition hover:border-[#cfd6df] hover:bg-white disabled:cursor-not-allowed disabled:text-black/25"
+                      disabled={images.length === 0}
+                      onClick={() => setAllSelections(false)}
+                      type="button"
+                    >
+                      Deselect All
+                    </button>
+                    <button
+                      className="rounded-xl border-[3px] border-[#f0d2ca] bg-[#fff6f4] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a24a32] transition hover:border-[#e6beb2] hover:bg-white disabled:cursor-not-allowed disabled:text-[#d3a69b]"
+                      disabled={images.length === 0}
+                      onClick={clearImages}
+                      type="button"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-black/58">
+                    Draft images keep their own text and template. Selected
+                    images share the left-side settings.
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {images.length > 0 ? (
-                  images.map((imageItem) => {
-                    const isActive = imageItem.id === activeImageId;
-
-                    return (
-                      <div
-                        className={[
-                          "overflow-hidden rounded-2xl border-[3px] bg-[#fafafc] transition",
-                          imageItem.selected
-                            ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
-                            : isActive
-                              ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
-                              : "border-[#e6e6e6]"
-                        ].join(" ")}
-                        key={imageItem.id}
-                      >
-                        <button
-                          className="block w-full"
-                          onClick={() => setActiveImageId(imageItem.id)}
-                          onDoubleClick={() => {
-                            setActiveImageId(imageItem.id);
-                            toggleImageSelection(imageItem.id);
-                          }}
-                          type="button"
-                        >
-                          <img
-                            alt={imageItem.fileName}
-                            className="h-36 w-full object-cover"
-                            src={imageItem.dataUrl}
-                          />
-                        </button>
-                        <div className="p-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            {isActive ? (
-                              <span className="rounded-lg bg-[#ebf5ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#027fff]">
-                                Active
-                              </span>
-                            ) : null}
-                            {imageItem.selected ? (
-                              <span className="rounded-lg bg-[#111111] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
-                                Selected
-                              </span>
-                            ) : (
-                              <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
-                                Draft
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 truncate text-sm font-semibold text-[#111111]">
-                            {imageItem.fileName}
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-black/46">
-                            {imageItem.selected
-                              ? "Uses the shared title, template, and effects from the left panel."
-                              : "Keeps its own title, template, and effects until you double-click it."}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="rounded-2xl border-[3px] border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-6 text-sm leading-6 text-black/52 sm:col-span-2 xl:col-span-3">
-                    Upload multiple images to build a batch. Each card keeps
-                    its own settings until you move it into the shared selected
-                    group with a double-click.
+              <div className="rounded-2xl border-[3px] border-[#e6e6e6] bg-white p-4 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                      Image Collection
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-black/58">
+                      Click for preview. Double-click for selected mode.
+                    </p>
                   </div>
-                )}
+                  <span className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+                    {totalImageCount > 0 ? `${totalImageCount} uploaded` : "Empty"}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:max-h-full xl:grid-cols-3 xl:overflow-y-auto xl:pr-1 2xl:grid-cols-4">
+                  {images.length > 0 ? (
+                    images.map((imageItem) => {
+                      const isActive = imageItem.id === activeImageId;
+
+                      return (
+                        <div
+                          className={[
+                            "overflow-hidden rounded-2xl border-[3px] bg-[#fafafc] transition",
+                            imageItem.selected
+                              ? "border-[#111111] shadow-[0_14px_28px_rgba(17,17,17,0.08)]"
+                              : isActive
+                                ? "border-[#027fff] shadow-[0_12px_28px_rgba(2,127,255,0.12)]"
+                                : "border-[#e6e6e6]"
+                          ].join(" ")}
+                          key={imageItem.id}
+                        >
+                          <button
+                            className="block w-full"
+                            onClick={() => setActiveImageId(imageItem.id)}
+                            onDoubleClick={() => {
+                              setActiveImageId(imageItem.id);
+                              toggleImageSelection(imageItem.id);
+                            }}
+                            type="button"
+                          >
+                            <img
+                              alt={imageItem.fileName}
+                              className="h-28 w-full object-cover"
+                              src={imageItem.dataUrl}
+                            />
+                          </button>
+                          <div className="p-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {isActive ? (
+                                <span className="rounded-lg bg-[#ebf5ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#027fff]">
+                                  Active
+                                </span>
+                              ) : null}
+                              {imageItem.selected ? (
+                                <span className="rounded-lg bg-[#111111] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
+                                  Selected
+                                </span>
+                              ) : (
+                                <span className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/46">
+                                  Draft
+                                </span>
+                              )}
+                            </div>
+                            <p className="mt-2 truncate text-sm font-semibold text-[#111111]">
+                              {imageItem.fileName}
+                            </p>
+                            <p className="mt-1 text-xs leading-5 text-black/46">
+                              {imageItem.selected
+                                ? "Uses the shared title, template, and effects from the left panel."
+                                : "Keeps its own title, template, and effects until you double-click it."}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-2xl border-[3px] border-dashed border-[#d8d8de] bg-[#fafafc] px-4 py-6 text-sm leading-6 text-black/52 sm:col-span-2 xl:col-span-3 2xl:col-span-4">
+                      Upload multiple images to build a batch. Each card keeps
+                      its own settings until you move it into the shared selected
+                      group with a double-click.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </section>
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <section className={`${panelClass} p-5`}>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
-                CLI Parity
-              </p>
-              <code className="mt-3 block break-all whitespace-pre-wrap rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-4 text-sm leading-7 text-black/72">
-                {cliCommand}
-              </code>
-              <p className="mt-3 text-sm leading-6 text-black/58">
-                The CLI uses the same renderer package. If you keep the same
-                image, header, footer, text, template, and effect flags, the
-                output composition matches the browser export.
-              </p>
-            </section>
+          <details className={`${panelClass} shrink-0`}>
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#111111] sm:px-5 sm:py-4">
+              CLI parity and rendering notes
+            </summary>
+            <div className="border-t-[3px] border-[#e6e6e6] p-4 sm:p-5">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <section>
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                    CLI Parity
+                  </p>
+                  <code className="mt-3 block break-all whitespace-pre-wrap rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-4 text-sm leading-7 text-black/72">
+                    {cliCommand}
+                  </code>
+                </section>
 
-            <section className={`${panelClass} p-5`}>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
-                Rendering Notes
-              </p>
-              <div className="mt-3 grid gap-3 text-sm leading-6 text-black/58">
-                <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
-                  Full-bleed image crops are handled inside the shared SVG
-                  renderer, not in the UI components.
-                </div>
-                <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
-                  Text is wrapped and reduced until it fits the safe area for
-                  each template.
-                </div>
-                <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
-                  Blur and shadow are optional, just like the public CoverX
-                  interface.
-                </div>
+                <section>
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                    Rendering Notes
+                  </p>
+                  <div className="mt-3 grid gap-3 text-sm leading-6 text-black/58">
+                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                      Full-bleed image crops stay inside the shared SVG renderer.
+                    </div>
+                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                      Text wraps and shrinks until it fits each template safe area.
+                    </div>
+                    <div className="rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-3">
+                      Blur and shadow remain optional and match the CLI flags.
+                    </div>
+                  </div>
+                </section>
               </div>
-            </section>
-          </div>
+            </div>
+          </details>
         </section>
       </div>
     </main>
