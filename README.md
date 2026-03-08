@@ -47,7 +47,7 @@ Open `http://localhost:3000`.
 The web app supports:
 
 - one image upload
-- header, title, date, subtitle, and footer input
+- header, title, freeform date/meta, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`
 - optional `shadow` and `blur` effects

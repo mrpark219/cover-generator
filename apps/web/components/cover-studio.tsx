@@ -467,40 +467,40 @@ export function CoverStudio() {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <FieldLabel htmlFor="subtitle">Subtitle</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
-                    id="subtitle"
-                    maxLength={80}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        subtitle: event.target.value
-                      }))
-                    }
-                    placeholder="Seoul"
-                    type="text"
-                    value={form.subtitle}
-                  />
-                </div>
+              <div>
+                <FieldLabel htmlFor="subtitle">Subtitle</FieldLabel>
+                <input
+                  className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                  id="subtitle"
+                  maxLength={80}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      subtitle: event.target.value
+                    }))
+                  }
+                  placeholder="Seoul"
+                  type="text"
+                  value={form.subtitle}
+                />
+              </div>
 
-                <div>
-                  <FieldLabel htmlFor="date">Date</FieldLabel>
-                  <input
-                    className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition focus:border-[#027fff]"
-                    id="date"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        date: event.target.value
-                      }))
-                    }
-                    type="date"
-                    value={form.date}
-                  />
-                </div>
+              <div>
+                <FieldLabel htmlFor="date">Date Or Meta</FieldLabel>
+                <input
+                  className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                  id="date"
+                  maxLength={80}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      date: event.target.value
+                    }))
+                  }
+                  placeholder="2026-03-01 or Vol. 01"
+                  type="text"
+                  value={form.date}
+                />
               </div>
 
               <div>

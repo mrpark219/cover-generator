@@ -170,7 +170,7 @@ function renderMetaLine({
   anchor?: "start" | "middle" | "end";
   fill?: string;
 }) {
-  const parts = [context.input.subtitle, context.date?.compact].filter(Boolean);
+  const parts = [context.input.subtitle, context.input.date].filter(Boolean);
 
   if (parts.length === 0) {
     return "";
@@ -240,7 +240,7 @@ function renderModernTemplate(context: TemplateContext) {
   const titleTop = 132;
   const subtitleY = titleTop + titleBlock.height + 56;
   const footerY = size - 66;
-  const dateText = context.date?.compact ?? context.input.date;
+  const dateText = context.input.date;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#0D0D0F" />
@@ -343,9 +343,9 @@ function renderNormalTemplate(context: TemplateContext) {
         : ""
     }
     ${
-      context.date
+      context.input.date
         ? renderLabel({
-            text: context.date.long,
+            text: context.input.date,
             x: size / 2,
             y: context.input.subtitle ? dateY : subtitleY,
             fill: "rgba(255,255,255,0.72)",
@@ -375,7 +375,7 @@ function renderClassicTemplate(context: TemplateContext) {
   });
   const titleTop = size - 368 - titleBlock.height;
   const metaY = titleTop + titleBlock.height + 52;
-  const dateLabel = context.date?.numeric ?? context.input.date;
+  const dateLabel = context.input.date;
 
   return `
     <rect x="0" y="0" width="${size}" height="${size}" fill="#0B0B0D" />
