@@ -49,7 +49,8 @@ The web app supports:
 - one image upload
 - title, date, and subtitle input
 - live square preview
-- three templates: `classic`, `minimal`, `dark`
+- three templates: `modern`, `normal`, `classic`
+- optional `shadow` and `blur` effects
 - local PNG export
 
 ## Run The CLI
@@ -75,16 +76,18 @@ cover-generator generate ./input/photo.jpg --title "Han River" --date "2026-03-0
 
 Useful CLI options:
 
-- `--template <classic|minimal|dark>`
+- `--template <modern|normal|classic>`
 - `--subtitle <text>`
+- `--shadow`
+- `--blur`
 - `-o, --output <path>`
 
 Examples:
 
 ```bash
 cover-generator generate ./input/photo.jpg --title "Han River" --date "2026-03-01" --subtitle "Seoul"
-cover-generator generate ./input/photo.jpg --title "Night Walk" --date "2026-03-04" --subtitle "Mapo" --template dark
-cover-generator generate ./input/photo.jpg --title "Morning Air" --date "2026-03-05" --subtitle "Busan" --template minimal --output ./exports
+cover-generator generate ./input/photo.jpg --title "Night Walk" --date "2026-03-04" --subtitle "Mapo" --template classic --shadow --blur
+cover-generator generate ./input/photo.jpg --title "Morning Air" --date "2026-03-05" --subtitle "Busan" --template normal --output ./exports
 cover-generator generate ./input/photo.jpg --title "Studio Day" --date "2026-03-06" --subtitle "Seongsu" --output ./exports/studio-day.png
 ```
 
@@ -119,9 +122,9 @@ This keeps layout logic in one place:
 
 ## Templates
 
-- `classic`: full-bleed photo, cinematic dark fade, bold bottom typography
-- `minimal`: editorial matte frame, centered title, soft neutral palette
-- `dark`: moody overlay, glass panel, stronger contrast
+- `modern`: large title in the lower third with small Apple Music header text
+- `normal`: centered text stack with softer contrast and calmer hierarchy
+- `classic`: stronger contrast, large date accent, and a heavier bottom panel
 
 ## How Text Handling Works
 

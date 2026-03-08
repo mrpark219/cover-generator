@@ -5,13 +5,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#f2eee6",
+        canvas: "#f5f5f7",
         ink: "#121212",
-        accent: "#d97757",
+        accent: "#027fff",
         slate: "#2f3442"
       },
       boxShadow: {
-        card: "0 30px 80px rgba(16, 24, 40, 0.14)"
+        card: "0 20px 60px rgba(15, 23, 42, 0.08)"
       },
       borderRadius: {
         card: "28px"
@@ -22,4 +22,3 @@ const config: Config = {
 };
 
 export default config;
-
