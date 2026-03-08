@@ -173,6 +173,7 @@ export function CoverStudio() {
   const [hasLoadedLanguage, setHasLoadedLanguage] = useState(false);
   const [sourceMode, setSourceMode] = useState<SourceMode>("upload");
   const [urlInput, setUrlInput] = useState("");
+  const [baseForm, setBaseForm] = useState<FormState>(initialFormState);
   const [activeField, setActiveField] = useState<EditableField>("title");
   const [groups, setGroups] = useState<ImageGroup[]>([]);
   const [images, setImages] = useState<UploadedImageItem[]>([]);
@@ -205,7 +206,7 @@ export function CoverStudio() {
   const checkedImageCount = checkedImages.length;
   const activeGroup = groups.find((candidate) => candidate.id === activeGroupId) ?? null;
   const copy = uiText[language];
-  const rawForm = activeGroup?.form ?? activeImage?.draftForm ?? initialFormState;
+  const rawForm = activeGroup?.form ?? activeImage?.draftForm ?? baseForm;
   const resolvedForm = {
     ...rawForm,
     header: resolveFormTextValue(rawForm.header, copy.placeholders.header),
@@ -361,15 +362,19 @@ export function CoverStudio() {
       nextForm.blur = blur;
     }
 
+    setBaseForm(nextForm);
+
     setImages((current) =>
-      current.map((imageItem, index) =>
-        index === 0
-          ? {
-              ...imageItem,
-              draftForm: cloneFormState(nextForm)
-            }
-          : imageItem
-      )
+      current.length === 0
+        ? current
+        : current.map((imageItem, index) =>
+            index === 0
+              ? {
+                  ...imageItem,
+                  draftForm: cloneFormState(nextForm)
+                }
+              : imageItem
+          )
     );
 
     if (nextSourceMode === "upload" || nextSourceMode === "url") {
@@ -476,6 +481,7 @@ export function CoverStudio() {
     }
 
     if (!activeImage) {
+      setBaseForm(updater);
       return;
     }
 
@@ -641,7 +647,7 @@ export function CoverStudio() {
 
   function createGroup() {
     const groupIndex = groups.length + 1;
-    const seedForm = cloneFormState(activeImage?.draftForm ?? initialFormState);
+    const seedForm = cloneFormState(activeImage?.draftForm ?? baseForm);
     const nextGroup: ImageGroup = {
       id: createGroupId(groupIndex),
       name: `Group ${groupIndex}`,
