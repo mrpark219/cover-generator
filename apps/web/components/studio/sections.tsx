@@ -308,6 +308,7 @@ export function PreviewSection({
   copy,
   activeImage,
   form,
+  activeField,
   preview,
   selectedImageCount,
   totalImageCount,
@@ -317,6 +318,7 @@ export function PreviewSection({
   onFocusYChange,
   onMoveSelectedPreview,
   onFocusSelectedGroup,
+  onInsertSymbol,
   onDownloadCurrent,
   onDownloadSelected,
   busyAction,
@@ -325,6 +327,7 @@ export function PreviewSection({
   copy: StudioCopy;
   activeImage: UploadedImageItem | null;
   form: FormState;
+  activeField: EditableField;
   preview: PreviewState;
   selectedImageCount: number;
   totalImageCount: number;
@@ -334,13 +337,14 @@ export function PreviewSection({
   onFocusYChange: (value: number) => void;
   onMoveSelectedPreview: (direction: "previous" | "next") => void;
   onFocusSelectedGroup: () => void;
+  onInsertSymbol: (value: string) => void;
   onDownloadCurrent: () => void;
   onDownloadSelected: () => void;
   busyAction: "upload" | "url" | "single" | "batch" | null;
   busyMessage: string | null;
 }) {
   return (
-    <section className={`${panelClass} p-2.5 sm:p-3 xl:flex xl:h-full xl:flex-col`}>
+    <section className={`${panelClass} p-2.5 sm:p-3`}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">
@@ -355,7 +359,7 @@ export function PreviewSection({
         </span>
       </div>
 
-      <div className="mt-2 flex min-h-[10rem] items-center justify-center overflow-hidden rounded-[22px] bg-[#eef0f4] p-2 sm:min-h-[11.5rem] md:min-h-[12.5rem] xl:min-h-[15rem] xl:flex-1">
+      <div className="mt-2 flex min-h-[10rem] items-center justify-center overflow-hidden rounded-[22px] bg-[#eef0f4] p-2 sm:min-h-[11.5rem] md:min-h-[12.5rem] xl:min-h-[13.5rem]">
         {preview.url ? (
           <div className="relative flex items-center justify-center">
             <img
@@ -479,6 +483,33 @@ export function PreviewSection({
         </div>
       ) : null}
 
+      <div className="mt-2 rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
+        <div>
+          <p className="text-[13px] font-semibold text-[#111111]">
+            {copy.quickSymbols}
+          </p>
+          <p className="mt-0.5 text-[11px] text-black/52">
+            {copy.insertsInto(copy.fields[activeField])}
+          </p>
+        </div>
+        <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-6 xl:grid-cols-4">
+          {quickSymbols.map((symbol) => (
+            <button
+              className="inline-flex h-7 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
+              key={`${symbol.title}-${symbol.value}`}
+              onClick={() => onInsertSymbol(symbol.value)}
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              title={symbol.title}
+              type="button"
+            >
+              {symbol.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {preview.error ? (
         <div className="mt-2 rounded-xl border-2 border-[#f1c7bc] bg-[#fff4f1] px-3 py-2.5 text-sm text-[#a24a32]">
           {preview.error}
@@ -521,7 +552,6 @@ export function PreviewSection({
 export function SettingsSection({
   copy,
   rawForm,
-  activeField,
   fieldLayout,
   setFieldRef,
   onTextFieldChange,
@@ -529,13 +559,11 @@ export function SettingsSection({
   onTemplateChange,
   onSizeChange,
   onTextColorChange,
-  onInsertSymbol,
   onShadowChange,
   onBlurChange
 }: {
   copy: StudioCopy;
   rawForm: FormState;
-  activeField: EditableField;
   fieldLayout: TemplateFieldLayoutItem[];
   setFieldRef: (
     field: EditableField
@@ -545,15 +573,14 @@ export function SettingsSection({
   onTemplateChange: (template: CoverTemplate) => void;
   onSizeChange: (size: number) => void;
   onTextColorChange: (value: string) => void;
-  onInsertSymbol: (value: string) => void;
   onShadowChange: (value: boolean) => void;
   onBlurChange: (value: boolean) => void;
 }) {
   const normalizedTextColor = normalizeHexColor(rawForm.textColor, defaultTextColor);
 
   return (
-    <section className={`${panelClass} p-2.5 sm:p-3 xl:h-full`}>
-      <div className="space-y-2 xl:flex xl:h-full xl:flex-col">
+    <section className={`${panelClass} p-2.5 sm:p-3`}>
+      <div className="space-y-2">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/42">
             {copy.settings}
@@ -663,33 +690,6 @@ export function SettingsSection({
                 style={{ backgroundColor: color }}
                 type="button"
               />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border-2 border-[#e6e6e6] bg-[#fafafc] p-2.5">
-          <div>
-            <p className="text-[13px] font-semibold text-[#111111]">
-              {copy.quickSymbols}
-            </p>
-            <p className="mt-0.5 text-[11px] text-black/52">
-              {copy.insertsInto(copy.fields[activeField])}
-            </p>
-          </div>
-          <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-8">
-            {quickSymbols.map((symbol) => (
-              <button
-                className="inline-flex h-7 items-center justify-center rounded-xl border-2 border-[#e6e6e6] bg-white text-[14px] font-semibold text-[#111111] transition hover:border-[#cfd6df] hover:bg-[#fefefe]"
-                key={`${symbol.title}-${symbol.value}`}
-                onClick={() => onInsertSymbol(symbol.value)}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-                title={symbol.title}
-                type="button"
-              >
-                {symbol.label}
-              </button>
             ))}
           </div>
         </div>

@@ -762,10 +762,11 @@ export function CoverStudio() {
     >
       <HeaderSection copy={copy} language={language} onLanguageChange={setLanguage} />
 
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,19rem)_minmax(0,24rem)_minmax(0,1fr)] xl:items-stretch">
-        <aside className="space-y-3 xl:flex xl:h-full xl:flex-col">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,19rem)_minmax(0,24rem)_minmax(0,1fr)] xl:items-start">
+        <aside className="space-y-3">
           <PreviewSection
             activeImage={activeImage}
+            activeField={activeField}
             activeSelectedIndex={activeSelectedIndex}
             busyAction={busyAction}
             busyMessage={busyMessage}
@@ -789,6 +790,7 @@ export function CoverStudio() {
               })
             }
             onMoveSelectedPreview={moveSelectedPreview}
+            onInsertSymbol={insertSymbol}
             onResetPosition={() =>
               updateActiveImageFocus({
                 focusX: 0.5,
@@ -801,9 +803,8 @@ export function CoverStudio() {
           />
         </aside>
 
-        <aside className="space-y-3 xl:flex xl:h-full xl:flex-col">
+        <aside className="space-y-3">
           <SettingsSection
-            activeField={activeField}
             copy={copy}
             fieldLayout={fieldLayout}
             onActiveFieldChange={setActiveField}
@@ -813,7 +814,6 @@ export function CoverStudio() {
                 blur
               }))
             }
-            onInsertSymbol={insertSymbol}
             onShadowChange={(shadow) =>
               updateFormState((current) => ({
                 ...current,
