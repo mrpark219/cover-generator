@@ -16,9 +16,11 @@ export interface CoverImageSource {
 
 export interface CoverRenderInput {
   image: CoverImageSource;
+  header?: string;
   title: string;
   date: string;
   subtitle: string;
+  footer?: string;
   template?: CoverTemplate;
   shadow?: boolean;
   blur?: boolean;

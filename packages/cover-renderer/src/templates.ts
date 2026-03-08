@@ -11,7 +11,9 @@ import { fitTextBlock } from "./text-layout";
 import { renderLabel, renderMultilineText } from "./svg";
 
 interface TemplateContext {
-  input: Required<Pick<CoverRenderInput, "title" | "date" | "subtitle">> &
+  input: Required<
+    Pick<CoverRenderInput, "header" | "title" | "date" | "subtitle" | "footer">
+  > &
     Pick<CoverRenderInput, "image"> & {
       size: number;
       template: CoverRenderResult["template"];
@@ -30,19 +32,23 @@ interface TemplateContext {
 function createTemplateContext(rawInput: CoverRenderInput): TemplateContext {
   const template = resolveTemplate(rawInput.template);
   const size = rawInput.size ?? defaultCoverSize;
+  const header = sanitizeText(rawInput.header ?? "APPLE MUSIC");
   const title = sanitizeText(rawInput.title, "Untitled Memory");
   const subtitle = sanitizeText(rawInput.subtitle, "Somewhere");
+  const footer = sanitizeText(rawInput.footer ?? "SELF UPLOAD");
   const date = formatDateVariants(rawInput.date);
   const seed = hashString(
-    `${template}-${title}-${subtitle}-${date.raw}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
+    `${template}-${header}-${title}-${subtitle}-${footer}-${date.raw}-${String(rawInput.blur)}-${String(rawInput.shadow)}`
   );
 
   return {
     input: {
       image: rawInput.image,
+      header,
       title,
       date: date.raw,
       subtitle,
+      footer,
       size,
       template,
       shadow: Boolean(rawInput.shadow),
@@ -162,8 +168,10 @@ function renderMetaLine({
   fill?: string;
   opacity?: number;
 }) {
+  const parts = [context.input.subtitle.toUpperCase(), context.date.long].filter(Boolean);
+
   return renderLabel({
-    text: `${context.input.subtitle.toUpperCase()}  ·  ${context.date.long}`,
+    text: parts.join("  ·  "),
     x,
     y,
     fill,
@@ -177,7 +185,7 @@ function renderMetaLine({
 }
 
 function renderModernTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, header, title, footer } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
     maxWidth: 1160,
@@ -195,7 +203,7 @@ function renderModernTemplate(context: TemplateContext) {
     <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="url(#coverx-vignette-${context.ids.photoClip})" />
     <rect x="52" y="52" width="${size - 104}" height="${size - 104}" rx="68" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" />
     ${renderLabel({
-      text: "APPLE MUSIC",
+      text: header,
       x: 92,
       y: 122,
       fill: "#FFFFFF",
@@ -230,7 +238,7 @@ function renderModernTemplate(context: TemplateContext) {
       y: 1132 + titleBlock.height
     })}
     ${renderLabel({
-      text: context.date.year,
+      text: footer,
       x: size - 92,
       y: size - 92,
       fill: "rgba(255,255,255,0.88)",
@@ -244,7 +252,7 @@ function renderModernTemplate(context: TemplateContext) {
 }
 
 function renderNormalTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, header, title, footer } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
     maxWidth: 1120,
@@ -261,18 +269,24 @@ function renderNormalTemplate(context: TemplateContext) {
     ${renderPhotoLayers(context, 0.94)}
     <rect x="0" y="0" width="${size}" height="${size}" rx="88" fill="url(#coverx-soft-vignette-${context.ids.photoClip})" />
     <rect x="58" y="58" width="${size - 116}" height="${size - 116}" rx="70" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="3" />
-    <rect x="196" y="134" width="${size - 392}" height="60" rx="30" fill="rgba(255,255,255,0.14)" />
-    ${renderLabel({
-      text: `${context.date.monthShort} ${context.date.day}  ·  ${context.date.year}`,
-      x: size / 2,
-      y: 172,
-      fill: "#FFFFFF",
-      anchor: "middle",
-      fontSize: 23,
-      fontWeight: 600,
-      letterSpacing: 4,
-      filter: textFilter(context)
-    })}
+    ${
+      header
+        ? `
+          <rect x="196" y="134" width="${size - 392}" height="60" rx="30" fill="rgba(255,255,255,0.14)" />
+          ${renderLabel({
+            text: header,
+            x: size / 2,
+            y: 172,
+            fill: "#FFFFFF",
+            anchor: "middle",
+            fontSize: 23,
+            fontWeight: 600,
+            letterSpacing: 4,
+            filter: textFilter(context)
+          })}
+        `
+        : ""
+    }
     ${renderMultilineText({
       block: titleBlock,
       x: size / 2,
@@ -306,7 +320,7 @@ function renderNormalTemplate(context: TemplateContext) {
       filter: textFilter(context)
     })}
     ${renderLabel({
-      text: "SELF UPLOAD",
+      text: footer,
       x: size / 2,
       y: size - 92,
       fill: "rgba(255,255,255,0.84)",
@@ -320,7 +334,7 @@ function renderNormalTemplate(context: TemplateContext) {
 }
 
 function renderClassicTemplate(context: TemplateContext) {
-  const { size, title } = context.input;
+  const { size, header, title, footer } = context.input;
   const titleBlock = fitTextBlock({
     text: title,
     maxWidth: 980,
@@ -349,7 +363,7 @@ function renderClassicTemplate(context: TemplateContext) {
     <rect x="72" y="1042" width="${size - 144}" height="360" rx="46" fill="url(#coverx-bottom-panel-${context.ids.photoClip})" filter="url(#${context.ids.softBlurFilter})" />
     <rect x="72" y="1042" width="${size - 144}" height="360" rx="46" fill="rgba(12,12,14,0.18)" stroke="rgba(255,255,255,0.12)" />
     ${renderLabel({
-      text: `${context.date.monthShort} ${context.date.year}`,
+      text: header,
       x: 108,
       y: 1098,
       fill: "rgba(255,255,255,0.88)",
@@ -373,7 +387,7 @@ function renderClassicTemplate(context: TemplateContext) {
       y: 1208 + titleBlock.height
     })}
     ${renderLabel({
-      text: "APPLE MUSIC",
+      text: footer,
       x: size - 108,
       y: 1098,
       fill: "rgba(255,255,255,0.88)",

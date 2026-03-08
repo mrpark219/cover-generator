@@ -28,7 +28,9 @@ program
   .argument("<input>", "Path to the source image")
   .requiredOption("--title <title>", "Cover title")
   .requiredOption("--date <date>", "Cover date, for example 2026-03-01")
+  .option("--header <header>", "Small header text", "APPLE MUSIC")
   .option("--subtitle <subtitle>", "Subtitle or location", "Somewhere")
+  .option("--footer <footer>", "Small footer text", "SELF UPLOAD")
   .option(
     "--template <template>",
     `Template: ${templateChoices.join(", ")}`,
@@ -41,9 +43,11 @@ program
   .action(async (input, options) => {
     await generateCover({
       inputPath: input,
+      header: options.header,
       title: options.title,
       date: options.date,
       subtitle: options.subtitle,
+      footer: options.footer,
       template: options.template,
       shadow: Boolean(options.shadow),
       blur: Boolean(options.blur),
@@ -68,18 +72,22 @@ function parseTemplate(value: string) {
 
 async function generateCover({
   inputPath,
+  header,
   title,
   date,
   subtitle,
+  footer,
   template,
   shadow,
   blur,
   output
 }: {
   inputPath: string;
+  header: string;
   title: string;
   date: string;
   subtitle: string;
+  footer: string;
   template: CoverTemplate;
   shadow: boolean;
   blur: boolean;
@@ -91,9 +99,11 @@ async function generateCover({
   const image = await loadInputImage(absoluteInputPath);
   const renderResult = renderCoverSvg({
     image,
+    header,
     title,
     date,
     subtitle,
+    footer,
     template,
     shadow,
     blur
@@ -115,6 +125,7 @@ async function generateCover({
   const relativePath = path.relative(process.cwd(), outputPath) || path.basename(outputPath);
   console.log(`Success: cover saved to ${relativePath}`);
   console.log(`Template: ${template}`);
+  console.log(`Header/Footer: ${header || "-"} / ${footer || "-"}`);
   console.log(`Effects: shadow=${shadow ? "on" : "off"}, blur=${blur ? "on" : "off"}`);
   console.log(`Size: ${renderResult.width}x${renderResult.height}`);
 }

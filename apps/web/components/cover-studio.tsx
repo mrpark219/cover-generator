@@ -24,9 +24,11 @@ import {
 } from "../lib/browser-image";
 
 interface FormState {
+  header: string;
   title: string;
   date: string;
   subtitle: string;
+  footer: string;
   template: CoverTemplate;
   shadow: boolean;
   blur: boolean;
@@ -41,9 +43,11 @@ interface PreviewState {
 }
 
 const initialFormState: FormState = {
+  header: "APPLE MUSIC",
   title: "Han River",
   date: "2026-03-01",
   subtitle: "Seoul",
+  footer: "SELF UPLOAD",
   template: defaultTemplate,
   shadow: true,
   blur: false
@@ -179,6 +183,10 @@ function EmptyPreview() {
   );
 }
 
+function quoteCliValue(value: string) {
+  return JSON.stringify(value);
+}
+
 export function CoverStudio() {
   const inputId = useId();
   const [form, setForm] = useState<FormState>(initialFormState);
@@ -214,9 +222,11 @@ export function CoverStudio() {
     try {
       const result = renderCoverSvg({
         image: { src: image.dataUrl, mimeType: image.mimeType },
+        header: deferredForm.header,
         title: deferredForm.title,
         date: deferredForm.date,
         subtitle: deferredForm.subtitle,
+        footer: deferredForm.footer,
         template: deferredForm.template,
         shadow: deferredForm.shadow,
         blur: deferredForm.blur
@@ -313,6 +323,20 @@ export function CoverStudio() {
     }
   }
 
+  const cliCommand = [
+    "cover-generator generate ./input/photo.jpg",
+    `--header ${quoteCliValue(form.header)}`,
+    `--title ${quoteCliValue(form.title)}`,
+    `--date ${quoteCliValue(form.date)}`,
+    `--subtitle ${quoteCliValue(form.subtitle)}`,
+    `--footer ${quoteCliValue(form.footer)}`,
+    `--template ${form.template}`,
+    form.shadow ? "--shadow" : "",
+    form.blur ? "--blur" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <main className="mx-auto max-w-[1280px] px-4 py-6 sm:px-5 lg:px-6">
       <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
@@ -407,6 +431,24 @@ export function CoverStudio() {
               </div>
 
               <div>
+                <FieldLabel htmlFor="header">Header</FieldLabel>
+                <input
+                  className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                  id="header"
+                  maxLength={48}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      header: event.target.value
+                    }))
+                  }
+                  placeholder="APPLE MUSIC"
+                  type="text"
+                  value={form.header}
+                />
+              </div>
+
+              <div>
                 <FieldLabel htmlFor="title">Main Title</FieldLabel>
                 <textarea
                   className="min-h-[92px] w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-lg font-semibold text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
@@ -423,7 +465,7 @@ export function CoverStudio() {
                 />
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="subtitle">Subtitle</FieldLabel>
                   <input
@@ -457,6 +499,24 @@ export function CoverStudio() {
                     value={form.date}
                   />
                 </div>
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="footer">Footer</FieldLabel>
+                <input
+                  className="w-full rounded-xl border-[3px] border-[#e6e6e6] bg-white px-3 py-3 text-sm font-medium uppercase tracking-[0.16em] text-[#111111] outline-none transition placeholder:text-black/25 focus:border-[#027fff]"
+                  id="footer"
+                  maxLength={48}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      footer: event.target.value
+                    }))
+                  }
+                  placeholder="SELF UPLOAD"
+                  type="text"
+                  value={form.footer}
+                />
               </div>
 
               <div className="space-y-3">
@@ -615,17 +675,13 @@ export function CoverStudio() {
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/45">
                 CLI Parity
               </p>
-              <code className="mt-3 block rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-4 text-sm leading-7 text-black/72">
-                cover-generator generate ./input/photo.jpg --title{" "}
-                &quot;Han River&quot; --date &quot;2026-03-01&quot; --subtitle{" "}
-                &quot;Seoul&quot; --template {form.template}
-                {form.shadow ? " --shadow" : ""}
-                {form.blur ? " --blur" : ""}
+              <code className="mt-3 block break-all whitespace-pre-wrap rounded-xl border-[3px] border-[#e6e6e6] bg-[#fafafc] px-4 py-4 text-sm leading-7 text-black/72">
+                {cliCommand}
               </code>
               <p className="mt-3 text-sm leading-6 text-black/58">
                 The CLI uses the same renderer package. If you keep the same
-                image, text, template, and effect flags, the output composition
-                matches the browser export.
+                image, header, footer, text, template, and effect flags, the
+                output composition matches the browser export.
               </p>
             </section>
 

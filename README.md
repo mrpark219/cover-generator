@@ -47,7 +47,7 @@ Open `http://localhost:3000`.
 The web app supports:
 
 - one image upload
-- title, date, and subtitle input
+- header, title, date, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`
 - optional `shadow` and `blur` effects
@@ -64,7 +64,7 @@ npm run build
 Run it directly from the repo:
 
 ```bash
-./apps/cli/dist/index.js generate ./input/photo.jpg --title "Han River" --date "2026-03-01" --subtitle "Seoul"
+./apps/cli/dist/index.js generate ./input/photo.jpg --header "APPLE MUSIC" --title "Han River" --date "2026-03-01" --subtitle "Seoul" --footer "SELF UPLOAD"
 ```
 
 Or install the root package locally so the `cover-generator` command is exposed through the root `bin` field:
@@ -77,7 +77,9 @@ cover-generator generate ./input/photo.jpg --title "Han River" --date "2026-03-0
 Useful CLI options:
 
 - `--template <modern|normal|classic>`
+- `--header <text>`
 - `--subtitle <text>`
+- `--footer <text>`
 - `--shadow`
 - `--blur`
 - `-o, --output <path>`
@@ -85,10 +87,10 @@ Useful CLI options:
 Examples:
 
 ```bash
-cover-generator generate ./input/photo.jpg --title "Han River" --date "2026-03-01" --subtitle "Seoul"
-cover-generator generate ./input/photo.jpg --title "Night Walk" --date "2026-03-04" --subtitle "Mapo" --template classic --shadow --blur
-cover-generator generate ./input/photo.jpg --title "Morning Air" --date "2026-03-05" --subtitle "Busan" --template normal --output ./exports
-cover-generator generate ./input/photo.jpg --title "Studio Day" --date "2026-03-06" --subtitle "Seongsu" --output ./exports/studio-day.png
+cover-generator generate ./input/photo.jpg --header "APPLE MUSIC" --title "Han River" --date "2026-03-01" --subtitle "Seoul" --footer "SELF UPLOAD"
+cover-generator generate ./input/photo.jpg --header "@slowlydev" --title "Night Walk" --date "2026-03-04" --subtitle "Mapo" --footer "PLAYLIST" --template classic --shadow --blur
+cover-generator generate ./input/photo.jpg --header "MARCH EDIT" --title "Morning Air" --date "2026-03-05" --subtitle "Busan" --footer "VOL. 02" --template normal --output ./exports
+cover-generator generate ./input/photo.jpg --header "STUDIO LOG" --title "Studio Day" --date "2026-03-06" --subtitle "Seongsu" --footer "SELF UPLOAD" --output ./exports/studio-day.png
 ```
 
 Default CLI output goes to `./output/<generated-file-name>.png`.
@@ -125,6 +127,14 @@ This keeps layout logic in one place:
 - `modern`: large title in the lower third with small Apple Music header text
 - `normal`: centered text stack with softer contrast and calmer hierarchy
 - `classic`: stronger contrast, large date accent, and a heavier bottom panel
+
+All templates now share the same editable text model:
+
+- `header`
+- `title`
+- `date`
+- `subtitle`
+- `footer`
 
 ## How Text Handling Works
 
