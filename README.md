@@ -47,7 +47,8 @@ Open `http://localhost:3000`.
 The web app supports:
 
 - multi-image upload with active preview switching
-- select/include per image and batch ZIP download
+- double-click selection for shared batch editing and ZIP download
+- per-image draft text/template settings before selection
 - header, title, freeform date/meta, subtitle, and footer input
 - live square preview
 - three templates: `modern`, `normal`, `classic`
